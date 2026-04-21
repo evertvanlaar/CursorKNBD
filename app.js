@@ -47,6 +47,7 @@ let allBusinesses = [];
 let activeCategory = 'all';
 let activeLocation = 'all';
 let deferredPrompt; // Global variabele voor PWA
+let listMode = (localStorage.getItem('kalanera_list_mode') || 'categories'); // 'categories' | 'az'
 
 // Icon Map voor categorieën
 const iconMap = {
@@ -297,24 +298,7 @@ function renderBusinesses(data) {
         }
     } catch (e) { wishlist = []; }
 
-    const grouped = data.reduce((acc, biz) => {
-        const cat = biz.Category || 'Other';
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(biz);
-        return acc;
-    }, {});
-
-    Object.keys(grouped).sort().forEach(category => {
-        const header = document.createElement('div');
-        header.className = 'category-section-header';
-        // NIEUW: Gebruik t(category) voor de header-tekst
-        header.innerHTML = `<span>${getIcon(category)} ${t(category)} <small>(${grouped[category].length})</small></span>`;
-        container.appendChild(header);
-
-        const grid = document.createElement('div');
-        grid.className = 'business-grid';
-        
-        grouped[category].sort((a, b) => (a.Name || "").localeCompare(b.Name || "")).forEach(biz => {
+    const renderCardInto = (grid, biz, categoryForColor) => {
 
 // --- NIEUW: DE NAAM LOGICA ---
             const displayName = (currentLang === 'el' && biz.Name_EL) ? biz.Name_EL : biz.Name;
@@ -322,7 +306,7 @@ function renderBusinesses(data) {
 
             const rawUrl = biz.Website || '';
             const cleanUrl = rawUrl.startsWith('http') ? rawUrl : 'https://' + rawUrl;
-            const catColor = getColor(category);
+            const catColor = getColor(categoryForColor || biz.Category || 'Other');
             const safeBizName = biz.Name.replace(/'/g, "\\'"); // Veilig voor JS strings
             
             const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' Kala Nera reviews')}`;
@@ -398,9 +382,44 @@ grid.innerHTML += `
             </div>
         </div>
     </div>`;
+    };
+
+    // Mode A: grouped by category (default)
+    if (listMode !== 'az') {
+        const grouped = data.reduce((acc, biz) => {
+            const cat = biz.Category || 'Other';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(biz);
+            return acc;
+        }, {});
+
+        Object.keys(grouped).sort().forEach(category => {
+            const header = document.createElement('div');
+            header.className = 'category-section-header';
+            header.innerHTML = `<span>${getIcon(category)} ${t(category)} <small>(${grouped[category].length})</small></span>`;
+            container.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'business-grid';
+            grouped[category]
+                .sort((a, b) => (a.Name || "").localeCompare(b.Name || ""))
+                .forEach(biz => renderCardInto(grid, biz, category));
+            container.appendChild(grid);
         });
+    } else {
+        // Mode B: global A–Z list (best for alpha index)
+        const grid = document.createElement('div');
+        grid.className = 'business-grid';
+
+        const sorted = [...data].sort((a, b) => {
+            const nameA = (currentLang === 'el' && a.Name_EL) ? a.Name_EL : (a.Name || '');
+            const nameB = (currentLang === 'el' && b.Name_EL) ? b.Name_EL : (b.Name || '');
+            return (nameA || '').localeCompare(nameB || '');
+        });
+
+        sorted.forEach(biz => renderCardInto(grid, biz, biz.Category || 'Other'));
         container.appendChild(grid);
-    });
+    }
 
     // Fast-scroll A–Z index (mobile): build after list is in DOM
     buildAlphaIndex();
@@ -431,6 +450,10 @@ function buildAlphaIndex() {
     if (existing) existing.remove();
     const existingToast = document.querySelector('.alpha-toast');
     if (existingToast) existingToast.remove();
+
+    // Only on the directory page (not wishlist/forms) and only in A–Z mode
+    if (listMode !== 'az') return;
+    if (!document.getElementById('filter-buttons')) return;
 
     const cards = Array.from(document.querySelectorAll('#business-list .biz-card-mini'));
     if (cards.length < 15) return; // avoid clutter on short lists
@@ -502,6 +525,20 @@ function buildAlphaIndex() {
     index.addEventListener('pointercancel', () => { tracking = false; });
 }
 
+function setListMode(mode) {
+    listMode = mode === 'az' ? 'az' : 'categories';
+    localStorage.setItem('kalanera_list_mode', listMode);
+
+    const btnCat = document.getElementById('view-mode-categories');
+    const btnAz = document.getElementById('view-mode-az');
+    if (btnCat && btnAz) {
+        btnCat.setAttribute('aria-selected', listMode === 'categories' ? 'true' : 'false');
+        btnAz.setAttribute('aria-selected', listMode === 'az' ? 'true' : 'false');
+    }
+
+    applyFilters();
+}
+
 
 // --- HULPFUNCTIES (Zorg dat deze eronder staan!) ---
 
@@ -559,6 +596,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Zoekbalk listener
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+    // 2b. View mode toggle (Categories / A-Z)
+    const btnCat = document.getElementById('view-mode-categories');
+    const btnAz = document.getElementById('view-mode-az');
+    if (btnCat && btnAz) {
+        // Initialize UI from stored mode
+        btnCat.setAttribute('aria-selected', listMode === 'categories' ? 'true' : 'false');
+        btnAz.setAttribute('aria-selected', listMode === 'az' ? 'true' : 'false');
+
+        btnCat.addEventListener('click', () => setListMode('categories'));
+        btnAz.addEventListener('click', () => setListMode('az'));
+    }
 
     // 3. Mobiel menu
     const menu = document.querySelector('#mobile-menu');
