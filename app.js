@@ -171,6 +171,7 @@ function renderEverything() {
     generateCategoryButtons(allBusinesses);
     generateLocationButtons(allBusinesses);
     renderBusinesses(allBusinesses);
+    updateFilterBadge();
 }
 
 function updateOnlineStatus() {
@@ -271,6 +272,44 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesLocation;
     });
     renderBusinesses(filtered);
+    updateFilterBadge();
+}
+
+function updateFilterBadge() {
+    const badge = document.getElementById('filter-badge');
+    if (!badge) return;
+    const count = (activeCategory !== 'all' ? 1 : 0) + (activeLocation !== 'all' ? 1 : 0);
+    badge.textContent = String(count);
+    badge.style.display = count > 0 ? 'grid' : 'none';
+}
+
+function openFilterSheet() {
+    const sheet = document.getElementById('filter-sheet');
+    const backdrop = document.getElementById('filter-sheet-backdrop');
+    if (!sheet || !backdrop) return;
+    sheet.hidden = false;
+    backdrop.hidden = false;
+    document.body.classList.add('sheet-open');
+}
+
+function closeFilterSheet() {
+    const sheet = document.getElementById('filter-sheet');
+    const backdrop = document.getElementById('filter-sheet-backdrop');
+    if (!sheet || !backdrop) return;
+    sheet.hidden = true;
+    backdrop.hidden = true;
+    document.body.classList.remove('sheet-open');
+}
+
+function resetFilters() {
+    activeCategory = 'all';
+    activeLocation = 'all';
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) searchInput.value = '';
+    // Re-render filter buttons to mark "All" active
+    generateCategoryButtons(allBusinesses);
+    generateLocationButtons(allBusinesses);
+    applyFilters();
 }
 
 // --- DE HOOFDLIJST RENDEREN ---
@@ -622,6 +661,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Zoekbalk listener
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+    // 2a. Filter sheet open/close
+    const openBtn = document.getElementById('open-filters');
+    const closeBtn = document.getElementById('close-filters');
+    const resetBtn = document.getElementById('reset-filters');
+    const backdrop = document.getElementById('filter-sheet-backdrop');
+    if (openBtn) openBtn.addEventListener('click', openFilterSheet);
+    if (closeBtn) closeBtn.addEventListener('click', closeFilterSheet);
+    if (resetBtn) resetBtn.addEventListener('click', () => { resetFilters(); });
+    if (backdrop) backdrop.addEventListener('click', closeFilterSheet);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeFilterSheet();
+    });
 
     // 2b. View mode toggle (Categories / A-Z)
     const btnCat = document.getElementById('view-mode-categories');
