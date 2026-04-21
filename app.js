@@ -339,9 +339,6 @@ grid.innerHTML += `
             </a>
             <div class="media-overlay" aria-hidden="true">
                 <div class="media-title">${displayName}</div>
-                <div class="media-meta">
-                    <span class="media-chip"><i class="fa fa-map-marker-alt"></i> ${t(biz.Location) || t('Kala Nera')}</span>
-                </div>
             </div>
             <button class="wishlist-btn ${isFavorite ? 'active' : ''}" onclick="toggleWishlist('${safeBizName}', this)" aria-label="Toggle favorite">
                 <i class="${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
@@ -359,7 +356,7 @@ grid.innerHTML += `
                 </span>
             </div>
             
-            <div class="mini-actions" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; margin-top: 10px;">
+            <div class="mini-actions mini-actions-media" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; margin-top: 10px;">
                 ${(biz.Phone && biz.Phone.trim() !== "" && biz.Phone !== "-") 
                     ? `<div class="phone-group" style="display: flex; align-items: center; width: 155px; min-width: 155px; background: rgba(0,0,0,0.05); border-radius: 20px; padding: 2px 4px 2px 6px; gap: 6px;">
                             <a href="tel:${biz.Phone}" class="btn-icon phone-btn" style="background:none; box-shadow:none; width:auto; height:auto; padding:0; margin:0;" onclick="gtag('event', 'click_phone', {'biz_name': '${safeBizName}'})">
@@ -369,6 +366,7 @@ grid.innerHTML += `
                     </div>` 
                     : `<div class="phone-group" style="width: 155px; min-width: 155px; visibility: hidden;"></div>`
                 }
+                <span class="below-location-chip"><i class="fa fa-map-marker-alt"></i> ${t(biz.Location) || t('Kala Nera')}</span>
                 <div class="action-right" style="display: flex; gap: 6px; flex-shrink: 0; justify-content: flex-end;">
                     ${webHtml}
                     ${emailHtml}
