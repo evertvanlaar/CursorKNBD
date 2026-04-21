@@ -194,6 +194,9 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   padding-bottom:env(safe-area-inset-bottom);
 }
 
+.sheet[hidden]{display:none !important}
+.sheet-backdrop[hidden]{display:none !important}
+
 .sheet-handle{width:44px;height:5px;border-radius:99px;background:rgba(15,23,42,0.12);margin:10px auto 6px auto}
 .sheet-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px 10px 14px}
 .sheet-title{font-size:16px;font-weight:1000;color:#0f172a}
