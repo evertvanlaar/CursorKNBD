@@ -75,6 +75,37 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
 
 .filter-container{display:flex;gap:10px;padding:5px 2px 15px 2px !important;overflow-x:auto;scrollbar-width:none}
 
+/* Sticky search + filters (mobile, app-like) */
+.directory-toolbar{position:relative}
+
+@media screen and (max-width: 991px){
+  .directory-toolbar{
+    position:sticky;
+    top:74px;
+    z-index:9998;
+    padding:12px 0 6px 0;
+    margin:0 -6px 6px -6px;
+    background:rgba(248, 250, 244, 0.92);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(0,0,0,0.06);
+    box-shadow:0 6px 14px rgba(0,0,0,0.04);
+  }
+
+  .directory-toolbar .search-container{
+    margin-bottom:12px !important;
+    padding:0 12px;
+    max-width:680px;
+  }
+
+  .directory-toolbar .filter-container{
+    padding:6px 12px 10px 12px !important;
+  }
+
+  /* Ensure deep-links don't hide under sticky toolbar */
+  .biz-card-mini{scroll-margin-top:160px}
+}
+
 .filter-btn, .add-biz-btn{white-space:nowrap;padding:8px 16px !important;border-radius:12px !important;font-size:13px !important;font-weight:700 !important;cursor:pointer;transition:all 0.25s ease;border:1px solid rgba(226, 232, 240, 0.8) !important;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
 
 .filter-btn{background:rgba(241, 245, 249, 0.7) !important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#64748b !important;box-shadow:0 2px 4px rgba(0,0,0,0.02) !important}
