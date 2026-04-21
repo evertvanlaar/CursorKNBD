@@ -205,6 +205,10 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
 .sheet-close{appearance:none;-webkit-appearance:none;border:none;background:transparent;font-size:20px;line-height:1;padding:8px;cursor:pointer;color:rgba(15,23,42,0.65)}
 .sheet-content{overflow:auto;padding:0 0 12px 0}
 .sheet .filter-group{margin-top:10px}
+.sheet .filter-label{padding:0 14px;margin:6px 0 8px 0}
+.sheet .view-toggle{margin:4px auto 10px auto}
+.sheet .filter-container{padding:0 14px 6px 14px !important}
+.sheet .filter-btn{margin:0 6px 8px 0}
 .sheet .filter-container{
   padding-bottom:6px !important;
   flex-wrap:wrap;
@@ -212,17 +216,17 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   mask-image:none;
   -webkit-mask-image:none;
 }
-.sheet .filter-btn{margin-bottom:6px}
-.sheet .view-toggle{margin-bottom:4px}
 
 @media screen and (min-width: 992px){
   .sheet{
-    left:50%;
+    left:var(--sheet-left, 50%);
+    top:var(--sheet-top, 120px);
     right:auto;
-    transform:translateX(-50%);
+    bottom:auto;
+    transform:translateX(-0%);
     width:min(520px, 92vw);
-    border-radius:22px;
-    bottom:18px;
+    border-radius:18px;
+    box-shadow:0 18px 60px rgba(0,0,0,0.28);
   }
   .sheet-handle{display:none}
 }

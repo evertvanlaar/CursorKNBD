@@ -290,6 +290,19 @@ function openFilterSheet() {
     sheet.hidden = false;
     backdrop.hidden = false;
     document.body.classList.add('sheet-open');
+
+    // Desktop: position sheet near the filter button
+    const openBtn = document.getElementById('open-filters');
+    if (openBtn && window.innerWidth >= 992) {
+        const rect = openBtn.getBoundingClientRect();
+        const margin = 10;
+        const sheetWidth = Math.min(520, Math.floor(window.innerWidth * 0.92));
+        let left = Math.round(rect.right - sheetWidth);
+        left = Math.max(margin, Math.min(left, window.innerWidth - sheetWidth - margin));
+        const top = Math.round(rect.bottom + 10);
+        sheet.style.setProperty('--sheet-left', `${left}px`);
+        sheet.style.setProperty('--sheet-top', `${top}px`);
+    }
 }
 
 function closeFilterSheet() {
