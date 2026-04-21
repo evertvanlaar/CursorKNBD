@@ -483,14 +483,29 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 /* Mobile: bottom-nav is primary; hamburger keeps only utilities */
 @media screen and (max-width: 991px){
   /* Hide duplicate primary routes in hamburger menu */
-  ul#nav-list li a[href="index.html"],
-  ul#nav-list li a[href="index-el.html"],
-  ul#nav-list li a[href="wishlist.html"],
-  ul#nav-list li a[href="wishlist-el.html"],
-  ul#nav-list li a[href="t-form.html"],
-  ul#nav-list li a[href="t-form-el.html"],
-  ul#nav-list li a[href="c-form.html"],
-  ul#nav-list li a[href="c-form-el.html"]{display:none !important}
+  /* Preferred: remove the whole <li> so no empty gaps remain */
+  @supports selector(li:has(> a)){
+    ul#nav-list li:has(> a[href="index.html"]),
+    ul#nav-list li:has(> a[href="index-el.html"]),
+    ul#nav-list li:has(> a[href="wishlist.html"]),
+    ul#nav-list li:has(> a[href="wishlist-el.html"]),
+    ul#nav-list li:has(> a[href="t-form.html"]),
+    ul#nav-list li:has(> a[href="t-form-el.html"]),
+    ul#nav-list li:has(> a[href="c-form.html"]),
+    ul#nav-list li:has(> a[href="c-form-el.html"]){display:none !important}
+  }
+
+  /* Fallback: if :has isn't supported, hide only the links */
+  @supports not selector(li:has(> a)){
+    ul#nav-list li a[href="index.html"],
+    ul#nav-list li a[href="index-el.html"],
+    ul#nav-list li a[href="wishlist.html"],
+    ul#nav-list li a[href="wishlist-el.html"],
+    ul#nav-list li a[href="t-form.html"],
+    ul#nav-list li a[href="t-form-el.html"],
+    ul#nav-list li a[href="c-form.html"],
+    ul#nav-list li a[href="c-form-el.html"]{display:none !important}
+  }
 
   /* Keep emergency + install as "More" utilities */
   ul#nav-list li.nav-emergency-item,
