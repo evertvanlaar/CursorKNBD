@@ -210,6 +210,49 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   pointer-events:none;
 }
 
+.biz-card-mini.is-media .media-link{display:block;position:relative}
+
+.biz-card-mini.is-media .media-overlay{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:14px 14px 12px 14px;
+  z-index:2;
+  color:#fff;
+}
+
+.biz-card-mini.is-media .media-title{
+  font-weight:900;
+  font-size:18px;
+  line-height:1.15;
+  text-shadow:0 8px 18px rgba(0,0,0,0.35);
+  margin-bottom:8px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.biz-card-mini.is-media .media-meta{display:flex;gap:8px;flex-wrap:wrap}
+
+.biz-card-mini.is-media .media-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-weight:900;
+  font-size:10px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.16);
+  border:1px solid rgba(255,255,255,0.20);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+
+.biz-card-mini.is-media .media-chip i{font-size:12px}
+
 .biz-card-mini.is-media .wishlist-btn{
   top:10px;
   right:10px;
@@ -224,13 +267,8 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   padding:12px 14px 14px 14px !important;
 }
 
-.biz-card-mini.is-media .biz-name{
-  font-size:16px !important;
-}
-
-.biz-card-mini.is-media .mini-row-top{
-  align-items:flex-start;
-}
+/* Hide duplicated title/location below image for media cards */
+.biz-card-mini.is-media .mini-row-top{display:none !important}
 
 @media screen and (min-width: 992px){
   .biz-card-mini.is-media{height:auto !important}

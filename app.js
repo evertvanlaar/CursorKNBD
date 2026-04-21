@@ -350,8 +350,14 @@ function renderBusinesses(data) {
 grid.innerHTML += `
     <div class="biz-card-mini is-media" id="${bizId}" style="border-left: 4px solid ${catColor}">
         <div class="mini-preview">
-            <a href="business/${bizId}${currentLang === 'el' ? '-el' : ''}.html" onclick="gtag('event', 'click_image', {'biz_name': '${safeBizName}'})">
+            <a class="media-link" href="business/${bizId}${currentLang === 'el' ? '-el' : ''}.html" onclick="gtag('event', 'click_image', {'biz_name': '${safeBizName}'})">
                 <img src="${finalImageUrl}" onerror="this.src='pix/nophoto.jpg'" alt="${displayName}">
+                <div class="media-overlay">
+                    <div class="media-title">${displayName}</div>
+                    <div class="media-meta">
+                        <span class="media-chip"><i class="fa fa-map-marker-alt"></i> ${t(biz.Location) || t('Kala Nera')}</span>
+                    </div>
+                </div>
             </a>
             <button class="wishlist-btn ${isFavorite ? 'active' : ''}" onclick="toggleWishlist('${safeBizName}', this)" aria-label="Toggle favorite">
                 <i class="${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
