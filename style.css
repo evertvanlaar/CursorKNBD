@@ -207,10 +207,13 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   position:absolute;
   inset:0;
   background:linear-gradient(180deg, rgba(2,6,23,0.05) 0%, rgba(2,6,23,0.22) 70%, rgba(2,6,23,0.35) 100%);
+  z-index:1;
   pointer-events:none;
 }
 
 .biz-card-mini.is-media .media-link{display:block;position:relative}
+
+.biz-card-mini.is-media .mini-preview img{position:relative;z-index:0;display:block}
 
 .biz-card-mini.is-media .media-overlay{
   position:absolute;
@@ -263,12 +266,12 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   background:rgba(255,255,255,0.92);
 }
 
-.biz-card-mini.is-media .mini-content{
-  padding:12px 14px 14px 14px !important;
-}
+.biz-card-mini.is-media .mini-content{padding:12px 14px 14px 14px !important}
 
-/* Hide duplicated title/location below image for media cards */
-.biz-card-mini.is-media .mini-row-top{display:none !important}
+/* Only hide duplicated title/location when overlay exists (prevents mismatched looks) */
+@supports selector(.x:has(.y)){
+  .biz-card-mini.is-media:has(.media-overlay) .mini-row-top{display:none !important}
+}
 
 @media screen and (min-width: 992px){
   .biz-card-mini.is-media{height:auto !important}
