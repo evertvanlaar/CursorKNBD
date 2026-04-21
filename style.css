@@ -211,9 +211,9 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   pointer-events:none;
 }
 
-.biz-card-mini.is-media .media-link{display:block;position:relative}
+.biz-card-mini.is-media .media-link{display:block;position:relative;height:100%}
 
-.biz-card-mini.is-media .mini-preview img{position:relative;z-index:0;display:block}
+.biz-card-mini.is-media .media-link img{position:relative;z-index:0;display:block;width:100%;height:100%;object-fit:cover}
 
 .biz-card-mini.is-media .media-overlay{
   position:absolute;
@@ -268,10 +268,8 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
 
 .biz-card-mini.is-media .mini-content{padding:12px 14px 14px 14px !important}
 
-/* Only hide duplicated title/location when overlay exists (prevents mismatched looks) */
-@supports selector(.x:has(.y)){
-  .biz-card-mini.is-media:has(.media-overlay) .mini-row-top{display:none !important}
-}
+/* Hide duplicated title/location below image for media cards */
+.biz-card-mini.is-media .mini-row-top{display:none !important}
 
 @media screen and (min-width: 992px){
   .biz-card-mini.is-media{height:auto !important}
