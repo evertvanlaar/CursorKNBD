@@ -447,7 +447,10 @@ grid.innerHTML += `
 function buildAlphaIndex() {
     // Remove existing
     const existing = document.querySelector('.alpha-index');
-    if (existing) existing.remove();
+    if (existing) {
+        try { existing._observer && existing._observer.disconnect(); } catch (e) {}
+        existing.remove();
+    }
     const existingToast = document.querySelector('.alpha-toast');
     if (existingToast) existingToast.remove();
 
@@ -485,6 +488,31 @@ function buildAlphaIndex() {
     toast.style.display = 'none';
     document.body.appendChild(toast);
     document.body.appendChild(index);
+
+    // Only show index once the directory list is in view (below hero)
+    const anchor = document.getElementById('business-list');
+    if (anchor && 'IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+            const entry = entries[0];
+            // show when list is entering viewport; hide when above it (hero region)
+            if (entry && entry.isIntersecting) {
+                index.classList.add('is-visible');
+            } else {
+                index.classList.remove('is-visible');
+            }
+        }, {
+            root: null,
+            threshold: 0.01,
+            // account for sticky header + toolbar height so it doesn't appear too early
+            rootMargin: '-140px 0px -40% 0px'
+        });
+        obs.observe(anchor);
+        // store on element for cleanup on rerender
+        index._observer = obs;
+    } else {
+        // fallback: always visible
+        index.classList.add('is-visible');
+    }
 
     let toastTimer = null;
     const showToast = (letter) => {

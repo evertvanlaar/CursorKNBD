@@ -629,7 +629,8 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 }
 
 /* Alphabet fast scroll (mobile) */
-.alpha-index{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:10003;display:none;flex-direction:column;gap:2px;padding:6px 4px;border-radius:999px;background:rgba(255,255,255,0.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(15,23,42,0.08);user-select:none;-webkit-user-select:none;touch-action:none}
+.alpha-index{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:10003;display:none;flex-direction:column;gap:2px;padding:6px 4px;border-radius:999px;background:rgba(255,255,255,0.65);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(15,23,42,0.08);user-select:none;-webkit-user-select:none;touch-action:none;opacity:0;pointer-events:none;transition:opacity 180ms ease}
+.alpha-index.is-visible{opacity:1;pointer-events:auto}
 .alpha-letter{all:unset;cursor:pointer;display:grid;place-items:center;width:18px;height:14px;font-size:10px;font-weight:900;color:rgba(51,65,85,0.85);line-height:1}
 .alpha-letter.is-disabled{opacity:0.28}
 .alpha-letter:active{transform:scale(0.92)}
