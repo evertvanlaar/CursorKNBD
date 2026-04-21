@@ -613,6 +613,10 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
   .biz-card-mini.is-media{flex-direction:column !important;height:auto !important;padding:0 !important;gap:0 !important;overflow:hidden !important}
   .biz-card-mini.is-media .mini-preview{width:100% !important;height:240px !important;border-radius:0 !important}
   .biz-card-mini.is-media .mini-content{padding:12px 14px 14px 14px !important}
+  /* Keep: phone -> location -> actions (override older desktop rules) */
+  .biz-card-mini.is-media .mini-actions-media{justify-content:flex-start !important}
+  .biz-card-mini.is-media .phone-group{margin-right:0 !important}
+  .biz-card-mini.is-media .action-right{margin-left:auto !important}
 }
 
 @media screen and (max-width: 400px){.action-right{gap:4px}.btn-icon{width:30px;height:30px;font-size:12px}}
