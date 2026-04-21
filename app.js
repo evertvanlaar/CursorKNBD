@@ -402,6 +402,9 @@ grid.innerHTML += `
         container.appendChild(grid);
     });
 
+    // Fast-scroll A–Z index (mobile): build after list is in DOM
+    buildAlphaIndex();
+
     // NIEUW: Vertaal "Last sync"
     const syncLabel = (currentLang === 'el') ? 'Τελευταίος συγχρονισμός' : 'Last sync';
     const lastSync = localStorage.getItem('kalanera_last_sync') || (currentLang === 'el' ? 'Άγνωστο' : 'Unknown');
@@ -420,6 +423,83 @@ grid.innerHTML += `
 
     // Schema.org update voor SEO
      // updateSchemaOrg(data); // sitemap.xml wordt nu via n8n ingevuld
+}
+
+function buildAlphaIndex() {
+    // Remove existing
+    const existing = document.querySelector('.alpha-index');
+    if (existing) existing.remove();
+    const existingToast = document.querySelector('.alpha-toast');
+    if (existingToast) existingToast.remove();
+
+    const cards = Array.from(document.querySelectorAll('#business-list .biz-card-mini'));
+    if (cards.length < 15) return; // avoid clutter on short lists
+
+    // Map first letter -> first card element
+    const letterToEl = new Map();
+    for (const el of cards) {
+        const titleEl = el.querySelector('.media-title') || el.querySelector('.biz-name');
+        const name = (titleEl && titleEl.textContent ? titleEl.textContent : '').trim();
+        if (!name) continue;
+        const ch = name[0].toUpperCase();
+        const letter = ch.match(/[A-Z]/) ? ch : '#';
+        if (!letterToEl.has(letter)) letterToEl.set(letter, el);
+    }
+
+    const letters = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+
+    const index = document.createElement('div');
+    index.className = 'alpha-index';
+    index.setAttribute('aria-label', 'Alphabetical quick scroll');
+    index.innerHTML = letters.map(l => {
+        const enabled = letterToEl.has(l);
+        return `<button type="button" class="alpha-letter ${enabled ? '' : 'is-disabled'}" data-letter="${l}" ${enabled ? '' : 'disabled'}>${l}</button>`;
+    }).join('');
+
+    const toast = document.createElement('div');
+    toast.className = 'alpha-toast';
+    toast.setAttribute('aria-hidden', 'true');
+    toast.style.display = 'none';
+    document.body.appendChild(toast);
+    document.body.appendChild(index);
+
+    let toastTimer = null;
+    const showToast = (letter) => {
+        toast.textContent = letter;
+        toast.style.display = 'grid';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 500);
+    };
+
+    const scrollToLetter = (letter) => {
+        const target = letterToEl.get(letter);
+        if (!target) return;
+        showToast(letter);
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    index.addEventListener('click', (e) => {
+        const btn = e.target.closest('.alpha-letter');
+        if (!btn || btn.disabled) return;
+        scrollToLetter(btn.getAttribute('data-letter'));
+    });
+
+    // Swipe support (touch / pointer)
+    const handlePoint = (clientY) => {
+        const rect = index.getBoundingClientRect();
+        const y = Math.min(Math.max(clientY - rect.top, 0), rect.height - 1);
+        const itemH = rect.height / letters.length;
+        const idx = Math.floor(y / itemH);
+        const letter = letters[Math.min(Math.max(idx, 0), letters.length - 1)];
+        if (letterToEl.has(letter)) scrollToLetter(letter);
+        else showToast(letter);
+    };
+
+    let tracking = false;
+    index.addEventListener('pointerdown', (e) => { tracking = true; index.setPointerCapture(e.pointerId); handlePoint(e.clientY); });
+    index.addEventListener('pointermove', (e) => { if (tracking) handlePoint(e.clientY); });
+    index.addEventListener('pointerup', () => { tracking = false; });
+    index.addEventListener('pointercancel', () => { tracking = false; });
 }
 
 
