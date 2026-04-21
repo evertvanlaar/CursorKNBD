@@ -348,12 +348,12 @@ function renderBusinesses(data) {
 
   // 3. De Grid HTML
 grid.innerHTML += `
-    <div class="biz-card-mini" id="${bizId}" style="border-left: 4px solid ${catColor}">
+    <div class="biz-card-mini is-media" id="${bizId}" style="border-left: 4px solid ${catColor}">
         <div class="mini-preview">
             <a href="business/${bizId}${currentLang === 'el' ? '-el' : ''}.html" onclick="gtag('event', 'click_image', {'biz_name': '${safeBizName}'})">
-                <img src="${finalImageUrl}" onerror="this.src='pix/nophoto.jpg'">
+                <img src="${finalImageUrl}" onerror="this.src='pix/nophoto.jpg'" alt="${displayName}">
             </a>
-            <button class="wishlist-btn ${isFavorite ? 'active' : ''}" onclick="toggleWishlist('${safeBizName}', this)">
+            <button class="wishlist-btn ${isFavorite ? 'active' : ''}" onclick="toggleWishlist('${safeBizName}', this)" aria-label="Toggle favorite">
                 <i class="${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
             </button>
         </div>
@@ -369,9 +369,9 @@ grid.innerHTML += `
                 </span>
             </div>
             
-            <div class="mini-actions" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 2px; margin-top: 8px;">
+            <div class="mini-actions" style="display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 8px; margin-top: 10px;">
                 ${(biz.Phone && biz.Phone.trim() !== "" && biz.Phone !== "-") 
-                    ? `<div class="phone-group" style="display: flex; align-items: center; width: 155px; min-width: 155px; background: rgba(0,0,0,0.05); border-radius: 20px; padding: 2px 4px 2px 6px; gap: 4px;">
+                    ? `<div class="phone-group" style="display: flex; align-items: center; width: 155px; min-width: 155px; background: rgba(0,0,0,0.05); border-radius: 20px; padding: 2px 4px 2px 6px; gap: 6px;">
                             <a href="tel:${biz.Phone}" class="btn-icon phone-btn" style="background:none; box-shadow:none; width:auto; height:auto; padding:0; margin:0;" onclick="gtag('event', 'click_phone', {'biz_name': '${safeBizName}'})">
                                 <i class="fa fa-phone" style="color: #4A6C4A; font-size: 0.8rem;"></i>
                             </a>
@@ -379,13 +379,13 @@ grid.innerHTML += `
                     </div>` 
                     : `<div class="phone-group" style="width: 155px; min-width: 155px; visibility: hidden;"></div>`
                 }
-                <div class="action-right" style="display: flex; gap: 3px; flex-shrink: 0; justify-content: flex-end;">
+                <div class="action-right" style="display: flex; gap: 6px; flex-shrink: 0; justify-content: flex-end;">
                     ${webHtml}
                     ${emailHtml}
-                    <a href="${reviewUrl}" target="_blank" class="btn-icon review-btn" style="width: 28px;" onclick="gtag('event', 'click_reviews', {'biz_name': '${safeBizName}'})">
+                    <a href="${reviewUrl}" target="_blank" rel="noopener" class="btn-icon review-btn" style="width: 28px;" onclick="gtag('event', 'click_reviews', {'biz_name': '${safeBizName}'})">
                         <i class="fa fa-star"></i>
                     </a>
-                    <a href="${mapsUrl}" target="_blank" class="btn-icon nav-btn-action" style="width: 28px;" onclick="gtag('event', 'open_maps', {'biz_name': '${safeBizName}'})">
+                    <a href="${mapsUrl}" target="_blank" rel="noopener" class="btn-icon nav-btn-action" style="width: 28px;" onclick="gtag('event', 'open_maps', {'biz_name': '${safeBizName}'})">
                         <i class="fa fa-location-dot"></i>
                     </a>
                 </div>
