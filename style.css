@@ -232,11 +232,20 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
 }
 
 .biz-card-mini.is-media .media-title{
+  display:inline-flex;
+  align-items:center;
+  max-width:100%;
   font-weight:900;
   font-size:18px;
   line-height:1.15;
+  margin-bottom:10px;
+  padding:8px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.16);
+  border:1px solid rgba(255,255,255,0.20);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
   text-shadow:0 8px 18px rgba(0,0,0,0.35);
-  margin-bottom:8px;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
