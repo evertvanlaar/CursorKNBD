@@ -1,4 +1,4 @@
-/* version v65*/
+/* version v75*/
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -331,6 +331,7 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:25px}
   padding:14px 14px 12px 14px;
   z-index:2;
   color:#fff;
+  pointer-events:none;
 }
 
 .biz-card-mini.is-media .media-title{
