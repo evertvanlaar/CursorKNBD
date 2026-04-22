@@ -131,10 +131,37 @@ body{font-family:'Inter', sans-serif;background:var(--bg);margin:0;padding:0;col
 }
 .more-card.is-meta .meta-row > small{flex:0 0 auto;margin-left:10px;white-space:nowrap}
 .more-card.is-meta .copyright-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
   font-size:12px;
   font-weight:800;
   color:rgba(71,85,105,0.9);
   line-height:1.3;
+}
+
+/* Right bottom: version + logo */
+.more-card.is-meta .meta-right{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:flex-end;
+  gap:6px;
+  flex:0 0 auto;
+  margin-left:10px;
+}
+.more-card.is-meta .meta-version{line-height:1}
+.more-card.is-meta .meta-logo{
+  display:block;
+  width:28px;
+  height:28px;
+  object-fit:contain;
+}
+
+.more-card.is-meta .copyright-text{
+  flex:1;
+  min-width:0;
   white-space:normal;
   overflow:visible;
   text-overflow:unset;

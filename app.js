@@ -881,9 +881,11 @@ function renderMoreSheetContent() {
                 <div class="more-card is-meta">
                     <div class="meta-row">
                         <span>${labels.developer}: Kanteklik</span>
-                        <small><code>v${version}</code></small>
+                        <div class="meta-right" aria-label="Version and developer logo">
+                            <div class="meta-version"><code>v${version}</code></div>
+                        </div>
                     </div>
-                    ${formattedCopyright ? `<div class="copyright-row">© ${formattedCopyright}</div>` : ``}
+                    ${formattedCopyright ? `<div class="copyright-row"><span class="copyright-text">© ${formattedCopyright}</span><img class="meta-logo" src="logo-72x72.png" alt="Kanteklik" width="28" height="28" loading="lazy"></div>` : ``}
                 </div>
             </div>
         </section>
