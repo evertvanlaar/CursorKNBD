@@ -811,7 +811,7 @@ function renderMoreSheetContent() {
         follow: isEl ? 'Ακολουθήστε μας' : 'Follow us',
         contact: isEl ? 'Επικοινωνία' : 'Contact',
         stats: isEl ? 'Στατιστικά' : 'Statistics',
-        developer: isEl ? 'Developer' : 'Developer'
+        developer: isEl ? 'Με την υποστήριξη' : 'Powered by'
     };
 
     const aboutText = getFooterAboutText() || (isEl
@@ -827,7 +827,17 @@ function renderMoreSheetContent() {
     const statsHref = (gc && gc.href) ? gc.href : 'http://www.goatcounter.com';
     const statsLabel = (gc && gc.label) ? gc.label : labels.stats;
 
+    const copyright = getFooterCopyrightText();
     const version = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '';
+
+    const formattedCopyright = (() => {
+        if (!copyright) return '';
+        // Avoid double copyright symbol (some pages already include "©")
+        const withoutLeading = copyright.replace(/^\s*©+\s*/g, '').trim();
+        // Render "E-Project..." on the next line for readability
+        const escaped = escapeHtml(withoutLeading);
+        return escaped.replace(/\sE-Project\b/g, '<br>E-Project');
+    })();
 
     container.innerHTML = `
         <section class="more-section">
@@ -867,11 +877,14 @@ function renderMoreSheetContent() {
                     <small>GoatCounter</small>
                 </a>
             </div>
-            <div class="more-meta">
-                <div class="meta-left">
-                    <span>${labels.developer}: <strong>Kanteklik</strong></span>
+            <div class="more-links" style="margin-top:10px;">
+                <div class="more-card is-meta">
+                    <div class="meta-row">
+                        <span>${labels.developer}: Kanteklik</span>
+                        <small><code>v${version}</code></small>
+                    </div>
+                    ${formattedCopyright ? `<div class="copyright-row">© ${formattedCopyright}</div>` : ``}
                 </div>
-                <div><code>v${version}</code></div>
             </div>
         </section>
     `;
@@ -882,6 +895,13 @@ function getFooterAboutText() {
     if (!footer) return '';
     const col = footer.querySelector('.footer-container .footer-column p');
     return col && col.textContent ? col.textContent.trim() : '';
+}
+
+function getFooterCopyrightText() {
+    const footer = document.querySelector('footer.site-footer');
+    if (!footer) return '';
+    const p = footer.querySelector('.footer-bottom p');
+    return p && p.textContent ? p.textContent.trim() : '';
 }
 
 function getFooterFacebookLink() {
@@ -1230,6 +1250,9 @@ window.addEventListener('appinstalled', () => {
  */
 // --- ÉÉN SCHONE EN WERKENDE TOAST FUNCTIE ---
 function showInstallToast() {
+    // Install is now integrated in the More menu
+    return;
+
     // 1. Alleen tonen als we NIET in de app zelf zitten
     const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     if (isPWA) return;
