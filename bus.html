@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kala Nera | Bus Timetable</title>
+    <link rel="canonical" href="https://www.kalanera.gr/bus.html">
+    <meta name="description" content="Bus timetable from Kala Nera to Volos, Milies, Argalasti and Afissos.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#4a6c4a">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=1.0.78">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body data-bus-view="full">
+<header class="site-header">
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Kala <span>Nera</span></a>
+            <a href="index-el.html" class="lang-link-mobile">
+                <img src="https://flagcdn.com/w20/gr.png" alt="Ελληνικά">
+            </a>
+            <ul class="nav-links" id="nav-list">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="wishlist.html"><i class="fa-solid fa-heart menu-heart"></i> Favorites</a></li>
+                <li><a href="t-form.html">Add your Business</a></li>
+                <li>
+                    <a href="index-el.html" class="lang-link">
+                        <img src="https://flagcdn.com/w20/gr.png" alt="Ελληνικά" style="width: 20px; vertical-align: middle; margin-right: 5px;">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<div class="main-container">
+    <h1>Bus timetable</h1>
+
+    <section class="bus-section" aria-label="Bus timetable">
+        <div class="bus-header">
+            <div class="bus-title">
+                <h2>Today</h2>
+                <div class="bus-subtitle">
+                    <span>From Kala Nera</span>
+                    <span id="bus-route" class="bus-subtitle-route"></span>
+                </div>
+            </div>
+            <div class="bus-controls" role="tablist" aria-label="Bus directions">
+                <button type="button" class="bus-dir-btn is-active" data-bus-dir="volos" role="tab" aria-selected="true">Volos</button>
+                <button type="button" class="bus-dir-btn" data-bus-dir="milies" role="tab" aria-selected="false">Milies</button>
+                <button type="button" class="bus-dir-btn" data-bus-dir="argalasti" role="tab" aria-selected="false">Argalasti</button>
+                <button type="button" class="bus-dir-btn" data-bus-dir="afissos" role="tab" aria-selected="false">Afissos</button>
+            </div>
+        </div>
+
+        <div class="bus-meta">
+            <div id="bus-last-updated" class="bus-last-updated" aria-live="polite"></div>
+            <button type="button" id="bus-retry" class="bus-retry" hidden>Retry</button>
+        </div>
+
+        <div class="bus-subsection-title">Next bus</div>
+        <div id="bus-next-container" class="bus-container" aria-live="polite">
+            <div class="bus-skeleton" aria-hidden="true"></div>
+        </div>
+
+        <div class="bus-subsection-title">Full timetable today</div>
+        <div id="bus-full-container" class="bus-container" aria-live="polite">
+            <div class="bus-skeleton" aria-hidden="true"></div>
+            <div class="bus-skeleton" aria-hidden="true"></div>
+            <div class="bus-skeleton" aria-hidden="true"></div>
+        </div>
+
+        <div class="bus-footnote">
+            Tip: be at the stop 10 minutes early. If you are offline, this page shows the last cached timetable.
+            <span class="bus-footnote-sep">•</span>
+            <a class="bus-ktel-link" href="https://ktelvolou.gr/en/routes/" target="_blank" rel="noopener">Official KTEL timetables</a>
+        </div>
+    </section>
+</div>
+
+<script src="app.js"></script>
+
+<nav class="bottom-nav" aria-label="Primary">
+    <div class="bottom-nav-inner">
+        <a href="index.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
+        <a href="wishlist.html"><i class="fa-solid fa-heart"></i><span>Favorites</span></a>
+        <a href="t-form.html"><i class="fa-solid fa-circle-plus"></i><span>Add</span></a>
+        <a href="#" data-more><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
+    </div>
+</nav>
+</body>
+</html>
+
