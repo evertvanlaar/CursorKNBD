@@ -10,7 +10,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=1.0.78">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=1.0.80">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -20,7 +20,7 @@
     <nav class="main-nav">
         <div class="nav-container">
             <a href="index-el.html" class="logo">Καλά <span>Νερά</span></a>
-            <a href="index.html" class="lang-link-mobile">
+            <a href="bus.html" class="lang-link-mobile">
                 <img src="https://flagcdn.com/w20/gb.png" alt="English">
             </a>
             <ul class="nav-links" id="nav-list">
@@ -28,7 +28,7 @@
                 <li><a href="wishlist-el.html"><i class="fa-solid fa-heart menu-heart"></i> Αγαπημένα</a></li>
                 <li><a href="t-form-el.html">Προσθήκη επιχείρησης</a></li>
                 <li>
-                    <a href="index.html" class="lang-link">
+                    <a href="bus.html" class="lang-link">
                         <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 20px; vertical-align: middle; margin-right: 5px;">
                     </a>
                 </li>
@@ -38,7 +38,20 @@
 </header>
 
 <div class="main-container">
-    <h1>Πρόγραμμα λεωφορείων</h1>
+    <header class="bus-page-heading">
+        <h1 class="bus-page-title">
+            <span class="bus-page-title-row">
+                <i class="fa-solid fa-bus bus-page-title-icon" aria-hidden="true"></i>
+                <span>Πρόγραμμα λεωφορείων</span>
+            </span>
+        </h1>
+        <div class="bus-page-deck">
+            <a class="bus-ktel-glossy" href="https://ktelvolou.gr/el/routes/list/" target="_blank" rel="noopener noreferrer" title="ΚΤΕΛ Ν. Μαγνησίας — επίσημη λίστα δρομολογίων" aria-label="ΚΤΕΛ Νομού Μαγνησίας — επίσημη λίστα δρομολογίων (ανοίγει σε νέα καρτέλα)">
+                <img class="bus-ktel-logo" src="pix/ktel-logo.jpg" alt="ΚΤΕΛ Ν. Μαγνησίας" width="120" height="36" loading="lazy" decoding="async">
+            </a>
+            <span class="bus-page-deck-hint">Επίσημος περιφερειακός μεταφορέας (Μαγνησία)</span>
+        </div>
+    </header>
 
     <section class="bus-section" aria-label="Δρομολόγια λεωφορείου">
         <div class="bus-header">
@@ -62,27 +75,31 @@
             <button type="button" id="bus-retry" class="bus-retry" hidden>Επανάληψη</button>
         </div>
 
-        <div class="bus-subsection-title">Επόμενο λεωφορείο</div>
-        <div id="bus-next-container" class="bus-container" aria-live="polite">
-            <div class="bus-skeleton" aria-hidden="true"></div>
+        <div class="bus-next-highlight">
+            <div class="bus-subsection-title bus-subsection-title--next"><i class="fa-solid fa-bus bus-subsection-icon" aria-hidden="true"></i> Επόμενο λεωφορείο</div>
+            <div id="bus-next-container" class="bus-container bus-container--next" aria-live="polite">
+                <div class="bus-skeleton" aria-hidden="true"></div>
+            </div>
         </div>
 
-        <div class="bus-subsection-title">Πλήρες πρόγραμμα σήμερα</div>
-        <div id="bus-full-container" class="bus-container" aria-live="polite">
-            <div class="bus-skeleton" aria-hidden="true"></div>
-            <div class="bus-skeleton" aria-hidden="true"></div>
-            <div class="bus-skeleton" aria-hidden="true"></div>
+        <div class="bus-full-section">
+            <div class="bus-subsection-title bus-subsection-title--full">Πλήρες πρόγραμμα σήμερα</div>
+            <div id="bus-full-container" class="bus-container bus-container--full" aria-live="polite">
+                <div class="bus-skeleton" aria-hidden="true"></div>
+                <div class="bus-skeleton" aria-hidden="true"></div>
+                <div class="bus-skeleton" aria-hidden="true"></div>
+            </div>
         </div>
 
         <div class="bus-footnote">
             Συμβουλή: να είστε στη στάση 10 λεπτά νωρίτερα. Αν είστε offline, η σελίδα δείχνει το τελευταίο αποθηκευμένο πρόγραμμα.
             <span class="bus-footnote-sep">•</span>
-            <a class="bus-ktel-link" href="https://ktelvolou.gr/el/routes/" target="_blank" rel="noopener">Επίσημα δρομολόγια KTEL</a>
+            <a class="bus-ktel-link" href="https://ktelvolou.gr/el/routes/list/" target="_blank" rel="noopener">Επίσημα δρομολόγια KTEL</a>
         </div>
     </section>
 </div>
 
-<script src="app.js?v=1.0.78"></script>
+<script src="app.js?v=1.0.80"></script>
 
 <nav class="bottom-nav" aria-label="Κύρια πλοήγηση">
     <div class="bottom-nav-inner">

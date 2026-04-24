@@ -8,6 +8,9 @@
  *   1. Edit asset-version.txt (single line, e.g. 1.0.79)
  *   2. Run this script
  *   3. git diff → commit & push
+ *
+ * Also updates the first-line banner in style.css to match the same semver (for your own reference;
+ * real cache-bust for CSS remains the ?v= query on link hrefs in HTML).
  */
 import fs from 'fs';
 import path from 'path';
@@ -70,6 +73,18 @@ sw = sw.replace(/const VERSION = '[^']*';/, `const VERSION = '${v}';`);
 sw = sw.replace(/const CACHE_NAME = '[^']*';/, `const CACHE_NAME = 'kalanera-cache-v${v}';`);
 sw = sw.replace(/const IMAGE_CACHE = '[^']*';/, `const IMAGE_CACHE = 'kalanera-images-v${v}';`);
 writeIfChanged(swPath, sw);
+
+const cssPath = path.join(root, 'style.css');
+let css = fs.readFileSync(cssPath, 'utf8');
+const cssBanner = `/* version ${v} */\n`;
+if (/^\s*\/\* version[^*]*\*\/\s*\r?\n/.test(css)) {
+  css = css.replace(/^\s*\/\* version[^*]*\*\/\s*\r?\n/, cssBanner);
+} else if (/^\s*\/\* version[^*]*\*\/\s*$/.test(css.split(/\r?\n/, 1)[0] || '')) {
+  css = css.replace(/^\s*\/\* version[^*]*\*\/\s*\r?\n?/, cssBanner);
+} else {
+  css = cssBanner + css;
+}
+writeIfChanged(cssPath, css);
 
 for (const name of ROOT_HTML_FILES) {
   const fp = path.join(root, name);

@@ -44,11 +44,13 @@ const translations = {
         'bus_arrival_prefix': 'Άφιξη',
         'bus_from': 'Από',
         'bus_stop_label': 'Στάση',
-        'bus_stop_highway_bakery': 'Κεντρικός δρόμος (φούρνος)',
-        'bus_stop_village_butcher': 'Κέντρο/παραλία (χασάπης)',
+        'bus_stop_highway_bakery': 'Κεντρικός δρόμος',
+        'bus_stop_village_butcher': 'Κέντρο/παραλία',
         'bus_showing': 'Εμφάνιση',
         'bus_runs': 'Δρομολόγια',
-        'bus_frequency': 'Συχνότητα'
+        'bus_frequency': 'Συχνότητα',
+        'bus_departure_el_l1': 'Αναχώρηση',
+        'bus_departure_el_l2': 'Καλά Νερά'
     }
 };
 
@@ -76,7 +78,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '1.0.78'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '1.0.80'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -775,14 +777,14 @@ function busStopLabel(stopKey) {
         return busText('stop_highway_bakery', {
             en: 'Highway stop (bakery)',
             nl: 'Hoofdweg (bij de bakker)',
-            el: busT('bus_stop_highway_bakery', 'Κεντρικός δρόμος (φούρνος)'),
+            el: busT('bus_stop_highway_bakery', 'Κεντρικός δρόμος'),
         });
     }
     if (key === 'village_butcher') {
         return busText('stop_village_butcher', {
             en: 'Village stop (butcher)',
             nl: 'Dorp/kustweg (bij de slager)',
-            el: busT('bus_stop_village_butcher', 'Κέντρο/παραλία (χασάπης)'),
+            el: busT('bus_stop_village_butcher', 'Κέντρο/παραλία'),
         });
     }
     // Unknown: show raw key
@@ -966,11 +968,30 @@ function busSortByDeparture(buses) {
     });
 }
 
+/** Label above departure time: Greek uses two lines so «Καλά Νερά» is not broken mid-word. */
+function busDepartureCaptionParts() {
+    if (busLang() === 'el') {
+        const l1 = busT('bus_departure_el_l1', 'Αναχώρηση');
+        const l2 = busT('bus_departure_el_l2', 'Καλά Νερά');
+        const aria = busEscapeHtml(`${l1} ${l2}`);
+        const html = `<div class="bus-time-label bus-time-label--stack"><span class="bus-time-label-line">${busEscapeHtml(l1)}</span><span class="bus-time-label-line">${busEscapeHtml(l2)}</span></div>`;
+        return { aria, html };
+    }
+    const text = busText('bus_departure_caption', {
+        en: 'Departs Kala Nera',
+        nl: 'Vertrek Kala Nera',
+        el: '',
+    });
+    const esc = busEscapeHtml(text);
+    return { aria: esc, html: `<div class="bus-time-label">${esc}</div>` };
+}
+
 function busRenderList(container, buses, { limit } = {}) {
     if (!container) return;
     if (!buses || buses.length === 0) return busRenderEmpty(container);
 
     const arrivalPrefix = busT('bus_arrival_prefix', 'Est. arrival');
+    const depCap = busDepartureCaptionParts();
     const max = (typeof limit === 'number') ? limit : 8;
     container.innerHTML = buses.slice(0, Math.max(0, max)).map(bus => {
         const dep = busEscapeHtml(bus.departure);
@@ -987,7 +1008,10 @@ function busRenderList(container, buses, { limit } = {}) {
             : '';
         return `
             <div class="bus-card">
-                <div class="bus-time">${dep}</div>
+                <div class="bus-time-wrap" role="group" aria-label="${depCap.aria}">
+                    ${depCap.html}
+                    <div class="bus-time">${dep}</div>
+                </div>
                 <div class="bus-info">
                     <div class="bus-dest">${dest}</div>
                     ${note ? `<div class="bus-note">${note}</div>` : ``}
