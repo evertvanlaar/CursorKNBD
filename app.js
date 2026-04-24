@@ -7,7 +7,14 @@ const N8N_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/local-businesses';
 const N8N_BUS_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/bus-schedule';
 const BUS_STORAGE_KEY = 'kalanera_bus_schedule_cache_v1';
 const BUS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
-const BUS_DEFAULT_DIR = 'volos'; // 'volos' | 'milies' | 'argalasti' | 'afissos'
+const BUS_DEFAULT_DIR = 'volos';
+/** All `dir` slugs accepted from UI + n8n (must match Google Sheet Direction values). */
+const BUS_VALID_DIRS = [
+    'volos', 'milies', 'argalasti', 'afissos',
+    'vyzitsa', 'pinakates', 'siki', 'promiri', 'katigiorgis', 'milina', 'platanias', 'trikeri',
+];
+/** Toon chauffeur-waarschuwing (lage frequentie) voor deze bestemmingen — uitbreidbaar. */
+const BUS_LOW_FREQ_DIRS = new Set(['trikeri', 'katigiorgis', 'platanias']);
 const STORAGE_KEY = 'kalanera_offline_data';
 
 // Check de taal van de huidige pagina
@@ -50,7 +57,13 @@ const translations = {
         'bus_runs': 'Δρομολόγια',
         'bus_frequency': 'Συχνότητα',
         'bus_departure_el_l1': 'Αναχώρηση',
-        'bus_departure_el_l2': 'Καλά Νερά'
+        'bus_departure_el_l2': 'Καλά Νερά',
+        'bus_low_freq': 'Ρωτήστε τον οδηγό για επιστροφή',
+        'bus_also_prefix': 'Επίσης:',
+        'bus_line_berg': 'Ορεινή γραμμή — καθημερινά, στάση στο κέντρο του χωριού.',
+        'bus_line_coast': 'Παράκτια γραμμή — καθημερινά, ιδανική για παραλίες.',
+        'bus_line_south': 'Νότια γραμμή — καθημερινά, μόνο κεντρικός δρόμος.',
+        'bus_line_south_east': 'Νότια γραμμή (ανατολικά) — Δευ–Παρ, μόνο κεντρικός δρόμος.'
     }
 };
 
@@ -78,7 +91,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '1.0.80'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '1.0.94'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -836,11 +849,59 @@ function busShowingPrefix() {
     });
 }
 
+/** Welke lijnbeschrijving hoort bij gekozen bestemming (Volos = geen extra hint). */
+function busLineHintKey(dir) {
+    const d = String(dir || '').toLowerCase();
+    if (['milies', 'vyzitsa', 'pinakates'].includes(d)) return 'berg';
+    if (d === 'afissos') return 'coast';
+    if (['siki', 'promiri', 'katigiorgis'].includes(d)) return 'south_east';
+    if (['argalasti', 'milina', 'platanias', 'trikeri'].includes(d)) return 'south';
+    return '';
+}
+
+function busLineHintText(dir) {
+    const key = busLineHintKey(dir);
+    if (!key) return '';
+    const lines = {
+        berg: {
+            en: 'Mountain line — daily, village centre stops.',
+            nl: 'Berglijn — dagelijks, halte in het dorpscentrum.',
+            el: '',
+        },
+        coast: {
+            en: 'Coast line — daily, ideal for beaches.',
+            nl: 'Kustlijn — dagelijks, geschikt voor stranden.',
+            el: '',
+        },
+        south: {
+            en: 'South line — daily, main road only.',
+            nl: 'Zuidlijn — dagelijks, alleen hoofdweg.',
+            el: '',
+        },
+        south_east: {
+            en: 'South line (east) — Mon–Fri, main road only.',
+            nl: 'Zuidlijn (oost) — ma–vr, alleen hoofdweg.',
+            el: '',
+        },
+    };
+    const m = lines[key];
+    if (!m) return '';
+    const k = `bus_line_${key}`;
+    return busText(k, { en: m.en, nl: m.nl, el: busT(k, m.el) });
+}
+
 function busUpdateRouteSubtitle(dir) {
     const el = document.getElementById('bus-route');
-    if (!el) return;
-    const label = busDirLabel(dir);
-    el.textContent = `${busShowingPrefix()}: ${label}`;
+    if (el) {
+        const label = busDirLabel(dir);
+        el.textContent = `${busShowingPrefix()}: ${label}`;
+    }
+    const hintEl = document.getElementById('bus-line-hint');
+    if (hintEl) {
+        const hint = busLineHintText(dir);
+        hintEl.textContent = hint;
+        hintEl.hidden = !hint;
+    }
 }
 
 function busNowAthensParts(date = new Date()) {
@@ -872,20 +933,131 @@ function busParseHHMMToMinutes(hhmm) {
     return h * 60 + min;
 }
 
+const BUS_DIR_LABELS = {
+    volos: { en: 'Volos', el: 'Βόλος' },
+    milies: { en: 'Milies', el: 'Μηλιές' },
+    argalasti: { en: 'Argalasti', el: 'Αργαλαστή' },
+    afissos: { en: 'Afissos', el: 'Αφήσσος' },
+    vyzitsa: { en: 'Vyzitsa', el: 'Βυζίτσα' },
+    pinakates: { en: 'Pinakates', el: 'Πινακάτες' },
+    siki: { en: 'Siki', el: 'Σήκι' },
+    promiri: { en: 'Promiri', el: 'Προμήρι' },
+    katigiorgis: { en: 'Katigiorgis', el: 'Κατηγιώργης' },
+    milina: { en: 'Milina', el: 'Μηλίνα' },
+    platanias: { en: 'Platanias', el: 'Πλατανιάς' },
+    trikeri: { en: 'Trikeri', el: 'Τρίκερι' },
+};
+
 function busDirLabel(dir) {
-    const isEl = (currentLang === 'el');
-    if (!isEl) {
-        if (dir === 'volos') return 'Volos';
-        if (dir === 'milies') return 'Milies';
-        if (dir === 'argalasti') return 'Argalasti';
-        if (dir === 'afissos') return 'Afissos';
-        return dir;
+    const key = String(dir || '').toLowerCase();
+    const row = BUS_DIR_LABELS[key];
+    if (!row) return dir;
+    return busLang() === 'el' ? row.el : row.en;
+}
+
+/** Normaliseer voor vergelijk EN/EL namen met sheet (zonder accenten). */
+function busFold(s) {
+    return String(s || '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+function busNormSheetKey(k) {
+    return String(k || '')
+        .replace(/^\ufeff/, '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, '_');
+}
+
+/** Sheet-kolom vinden ongeacht header-casing/spaties/BOM (zelfde logica als n8n). */
+function busSheetField(row, aliases) {
+    if (!row || typeof row !== 'object') return undefined;
+    const wanted = new Set(aliases.map((a) => busNormSheetKey(a)));
+    for (const key of Object.keys(row)) {
+        if (wanted.has(busNormSheetKey(key))) return row[key];
     }
-    if (dir === 'volos') return 'Βόλος';
-    if (dir === 'milies') return 'Μηλιές';
-    if (dir === 'argalasti') return 'Αργαλαστή';
-    if (dir === 'afissos') return 'Αφήσσος';
-    return dir;
+    return undefined;
+}
+
+/** Map één token uit Destinations_Served naar een `dir`-slug. */
+function busSlugFromDestinationToken(token) {
+    const raw = String(token || '').trim();
+    if (!raw) return '';
+    const lower = raw.toLowerCase();
+    if (BUS_VALID_DIRS.includes(lower)) return lower;
+    const f = busFold(raw);
+    const typos = { vizitsa: 'vyzitsa', pinakes: 'pinakates' };
+    if (typos[f] && BUS_VALID_DIRS.includes(typos[f])) return typos[f];
+    for (const slug of BUS_VALID_DIRS) {
+        if (busFold(slug) === f) return slug;
+        const row = BUS_DIR_LABELS[slug];
+        if (row && (busFold(row.en) === f || busFold(row.el) === f)) return slug;
+    }
+    return '';
+}
+
+function busNormalizeJsonQuotes(s) {
+    return String(s || '')
+        .replace(/\u201c|\u201d/g, '"')
+        .replace(/\u2018|\u2019/g, "'");
+}
+
+function busParseDirsServedField(raw) {
+    if (raw == null) return [];
+    if (Array.isArray(raw)) {
+        return [...new Set(raw.map(t => busSlugFromDestinationToken(String(t))).filter(Boolean))];
+    }
+    const s = String(raw).trim();
+    if (!s) return [];
+    if (s.startsWith('[')) {
+        try {
+            const arr = JSON.parse(busNormalizeJsonQuotes(s));
+            if (Array.isArray(arr)) {
+                return [...new Set(arr.map(t => busSlugFromDestinationToken(String(t))).filter(Boolean))];
+            }
+        } catch (e) { /* CSV-fallback */ }
+    }
+    return [...new Set(s.split(/[,;|]/).map(part => busSlugFromDestinationToken(part.trim())).filter(Boolean))];
+}
+
+/**
+ * Geconsolideerde sheet-rij: zet primary destination + Also:-lijst op basis van gekozen `routeDir`.
+ * Rijen zonder dirs_served blijven ongewijzigd (legacy / n8n-expand).
+ * Rijen waar routeDir niet in dirs_served zit worden weggefilterd (n8n zou ze al moeten weglaten).
+ */
+function busApplyConsolidatedList(buses, routeDir) {
+    const key = String(routeDir || '').toLowerCase();
+    if (!buses || !buses.length) return [];
+    const out = [];
+    for (const b of buses) {
+        const slugs = b.dirs_served && b.dirs_served.length ? b.dirs_served : null;
+        if (!slugs) {
+            out.push(b);
+            continue;
+        }
+        if (!slugs.includes(key)) continue;
+        const primaryDest = busDirLabel(key);
+        const alsoLabels = slugs.filter(d => d !== key).map(d => busDirLabel(d)).filter(Boolean);
+        const alsoUnique = [...new Set(alsoLabels)].filter(l => l !== primaryDest);
+        out.push({
+            ...b,
+            dir: key,
+            destination: primaryDest,
+            destination_also: alsoUnique.join(', '),
+        });
+    }
+    return out;
+}
+
+function busLowFreqNoticeText() {
+    return busText('bus_low_freq', {
+        en: 'Check return times with the driver',
+        nl: 'Controleer terugreis bij de chauffeur',
+        el: busT('bus_low_freq', 'Ρωτήστε τον οδηγό για επιστροφή'),
+    });
 }
 
 function busRenderSkeleton(container) {
@@ -931,18 +1103,153 @@ function busFormatLastUpdated(isoString) {
 function busNormalizeItem(item) {
     // Accept either "stable API contract" OR raw sheet columns.
     const j = item && item.json ? item.json : item;
-    const departure = j.departure || j.Departure || j.Time || j.Time_KalaNera || j.Time_KalaNera_Departure || '';
+    const departure = busSheetField(j, ['time_kalanera', 'Time_KalaNera', 'departure', 'Departure', 'Time', 'Time_KalaNera_Departure'])
+        || j.Time_KalaNera || j.departure || j.Departure || j.Time || j.Time_KalaNera_Departure || '';
     const origin = j.origin || j.Origin || 'Kala Nera';
     const destination = j.destination || j.Destination || j.Final || j.Arrival_Final || '';
     const arrival = j.arrival || j.Arrival || j.Arrival_Final || '';
     const note = (currentLang === 'el')
-        ? (j.note_el || j.Note_EL || j.Note_GR || j.Note || '')
-        : (j.note_en || j.Note_EN || j.Note || '');
+        ? (busSheetField(j, ['note_gr', 'Note_GR', 'note_el', 'Note_EL', 'Note']) ?? j.Note_GR ?? j.note_el ?? j.Note_EL ?? j.Note ?? '')
+        : (busSheetField(j, ['note_en', 'Note_EN', 'note', 'Note']) ?? j.Note_EN ?? j.note_en ?? j.Note ?? '');
     const dir = j.dir || j.Direction || j.Route || '';
     const stop_kalanera = j.stop_kalanera || j.Stop_KalaNera || '';
-    const days = j.days || j.Days || '';
-    const frequency = j.frequency || j.Frequency || '';
-    return { departure, origin, destination, arrival, note, dir, stop_kalanera, days, frequency };
+    let days = busSheetField(j, ['days', 'Days']) ?? j.days ?? j.Days ?? '';
+    let category = busSheetField(j, ['category', 'Category']) ?? j.category ?? j.Category ?? '';
+    const categoryDaysJoined = j.CategoryDays || j.category_days;
+    if ((!category || !days) && categoryDaysJoined != null && String(categoryDaysJoined).trim()) {
+        const parts = String(categoryDaysJoined).split(/\s*[|/]\s*|\t+/);
+        if (!category && parts[0]) category = parts[0].trim();
+        if (!days && parts[1]) days = parts[1].trim();
+    }
+    const frequency = busSheetField(j, ['frequency', 'Frequency']) ?? j.frequency ?? j.Frequency ?? '';
+    const trip_id = j.trip_id || j.Trip_ID || j.tripId || '';
+    const slugCol = busSheetField(j, ['dirs_served', 'Dirs_Served']) ?? j.dirs_served ?? j.Dirs_Served;
+    const nameCol = busSheetField(j, ['destinations_served', 'Destinations_Served']) ?? j.destinations_served ?? j.Destinations_Served;
+    const slugStr = slugCol != null ? String(slugCol).trim() : '';
+    const nameStr = nameCol != null ? String(nameCol).trim() : '';
+    let dirs_served = slugStr ? busParseDirsServedField(slugCol) : [];
+    if (!dirs_served.length && nameStr) dirs_served = busParseDirsServedField(nameCol);
+    const route_name = busSheetField(j, ['route_name', 'Route_Name']) ?? j.route_name ?? j.Route_Name ?? '';
+    const idRaw = busSheetField(j, ['id', 'ID']) ?? j.ID ?? j.id;
+    const sheet_id = idRaw != null && idRaw !== '' ? String(idRaw) : '';
+    return {
+        departure,
+        origin,
+        destination,
+        arrival,
+        note,
+        dir,
+        stop_kalanera,
+        days,
+        frequency,
+        trip_id,
+        dirs_served,
+        category,
+        route_name,
+        sheet_id,
+    };
+}
+
+function busTripIdKey(raw) {
+    const s = String(raw || '').trim();
+    return s;
+}
+
+/**
+ * Vouwt sheet-rijen met dezelfde Trip_ID samen tot één kaart (Kala Nera-perspectief).
+ * Lege trip_id: rij blijft los staan (geen merge).
+ */
+function busMergeTripsByTripId(buses, routeDir) {
+    if (!buses || buses.length === 0) return [];
+    const dirKey = String(routeDir || '').toLowerCase();
+    const withId = [];
+    const withoutId = [];
+    for (const b of buses) {
+        if (busTripIdKey(b.trip_id)) withId.push(b);
+        else withoutId.push(b);
+    }
+    const groups = new Map();
+    for (const b of withId) {
+        const k = busTripIdKey(b.trip_id);
+        if (!groups.has(k)) groups.set(k, []);
+        groups.get(k).push(b);
+    }
+    const merged = [];
+    for (const rows of groups.values()) {
+        merged.push(busMergeTripGroup(rows, dirKey));
+    }
+    return busSortByDeparture([...merged, ...withoutId]);
+}
+
+function busMergeTripGroup(rows, dirKey) {
+    if (!rows || rows.length === 0) return {};
+    if (rows.length === 1) {
+        const one = rows[0];
+        return { ...one, destination_also: one.destination_also || '' };
+    }
+
+    const sortedForPrimary = [...rows].sort((a, b) => {
+        const am = String(a.dir || '').toLowerCase() === dirKey ? 0 : 1;
+        const bm = String(b.dir || '').toLowerCase() === dirKey ? 0 : 1;
+        return am - bm;
+    });
+    const primary = sortedForPrimary[0];
+
+    const depVals = [...new Set(rows.map(r => String(r.departure || '').trim()).filter(Boolean))];
+    const departure = depVals.length === 1 ? depVals[0] : String(primary.departure || '').trim();
+
+    const seenDirs = [];
+    const seenSet = new Set();
+    for (const d of BUS_VALID_DIRS) {
+        if (rows.some(r => String(r.dir || '').toLowerCase() === d) && !seenSet.has(d)) {
+            seenSet.add(d);
+            seenDirs.push(d);
+        }
+    }
+    for (const r of rows) {
+        const d = String(r.dir || '').toLowerCase();
+        if (d && !seenSet.has(d)) {
+            seenSet.add(d);
+            seenDirs.push(d);
+        }
+    }
+
+    const primaryDest = (String(primary.destination || '').trim())
+        || busDirLabel(dirKey)
+        || (seenDirs[0] ? busDirLabel(seenDirs[0]) : '');
+
+    const alsoLabels = seenDirs
+        .filter(d => d !== dirKey)
+        .map(d => busDirLabel(d))
+        .filter(Boolean);
+    const alsoUnique = [...new Set(alsoLabels)].filter(l => l !== primaryDest);
+    const destination_also = alsoUnique.join(', ');
+
+    const daysVals = [...new Set(rows.map(r => String(r.days || '').trim()).filter(Boolean))];
+    const days = daysVals.length === 1 ? daysVals[0] : primary.days;
+
+    const stopVals = [...new Set(rows.map(r => String(r.stop_kalanera || '').trim()).filter(Boolean))];
+    const stop_kalanera = stopVals.length === 1 ? stopVals[0] : primary.stop_kalanera;
+
+    const arrVals = [...new Set(rows.map(r => String(r.arrival || '').trim()).filter(Boolean))];
+    const arrival = arrVals.length === 1 ? arrVals[0] : String(primary.arrival || '').trim();
+
+    const noteParts = [...new Set(rows.map(r => String(r.note || '').trim()).filter(Boolean))];
+    const note = noteParts.join(' · ');
+
+    return {
+        departure,
+        origin: primary.origin,
+        destination: primaryDest,
+        destination_also,
+        arrival,
+        note,
+        dir: dirKey,
+        stop_kalanera,
+        days,
+        frequency: primary.frequency,
+        trip_id: primary.trip_id,
+    };
 }
 
 function busFilterRemainingToday(buses, minMinutesNow) {
@@ -986,13 +1293,18 @@ function busDepartureCaptionParts() {
     return { aria: esc, html: `<div class="bus-time-label">${esc}</div>` };
 }
 
-function busRenderList(container, buses, { limit } = {}) {
+function busRenderList(container, buses, { limit, routeDir } = {}) {
     if (!container) return;
     if (!buses || buses.length === 0) return busRenderEmpty(container);
 
     const arrivalPrefix = busT('bus_arrival_prefix', 'Est. arrival');
     const depCap = busDepartureCaptionParts();
     const max = (typeof limit === 'number') ? limit : 8;
+    const dirKey = String(routeDir || '').toLowerCase();
+    const showLowFreq = BUS_LOW_FREQ_DIRS.has(dirKey);
+    const lowFreqHtml = showLowFreq
+        ? `<div class="bus-note bus-note--lowfreq" role="note"><i class="fa-solid fa-circle-info bus-note--lowfreq-icon" aria-hidden="true"></i><span class="bus-note--lowfreq-text">${busEscapeHtml(busLowFreqNoticeText())}</span></div>`
+        : '';
     container.innerHTML = buses.slice(0, Math.max(0, max)).map(bus => {
         const dep = busEscapeHtml(bus.departure);
         const dest = busEscapeHtml(`${bus.origin} ➔ ${bus.destination}`.trim());
@@ -1006,6 +1318,9 @@ function busRenderList(container, buses, { limit } = {}) {
         const daysLabel = daysText
             ? busEscapeHtml(`${busText('runs_label', { en: 'Runs', nl: 'Rijdt', el: busT('bus_runs', 'Δρομολόγια') })}: ${daysText}`)
             : '';
+        const alsoPrefix = busText('bus_also_prefix', { en: 'Also:', nl: 'Ook:', el: busT('bus_also_prefix', 'Επίσης:') });
+        const destAlsoRaw = bus.destination_also ? `${alsoPrefix} ${bus.destination_also}` : '';
+        const destAlso = destAlsoRaw ? busEscapeHtml(destAlsoRaw) : '';
         return `
             <div class="bus-card">
                 <div class="bus-time-wrap" role="group" aria-label="${depCap.aria}">
@@ -1014,11 +1329,13 @@ function busRenderList(container, buses, { limit } = {}) {
                 </div>
                 <div class="bus-info">
                     <div class="bus-dest">${dest}</div>
+                    ${destAlso ? `<div class="bus-dest-also">${destAlso}</div>` : ``}
                     ${note ? `<div class="bus-note">${note}</div>` : ``}
                     ${stopLabel ? `<div class="bus-stop">${stopLabel}</div>` : ``}
                     ${daysLabel ? `<div class="bus-days">${daysLabel}</div>` : ``}
                     ${arr ? `<div class="bus-arrival">${arr}</div>` : ``}
                 </div>
+                ${lowFreqHtml}
             </div>
         `;
     }).join('');
@@ -1083,6 +1400,7 @@ function initBusSchedule() {
     const fullContainer = document.getElementById('bus-full-container');
     const lastUpdatedEl = document.getElementById('bus-last-updated');
     const retryBtn = document.getElementById('bus-retry');
+    const dirSelect = document.getElementById('bus-dir-select');
     const dirBtns = Array.from(document.querySelectorAll('[data-bus-dir]'));
     const viewMode = document.body && document.body.getAttribute('data-bus-view') ? document.body.getAttribute('data-bus-view') : 'compact'; // 'compact' | 'full'
 
@@ -1091,15 +1409,31 @@ function initBusSchedule() {
     if (!container && !isCombinedBusPage) return;
 
     let activeDir = (localStorage.getItem('kalanera_bus_dir') || BUS_DEFAULT_DIR);
-    if (!['volos', 'milies', 'argalasti', 'afissos'].includes(activeDir)) activeDir = BUS_DEFAULT_DIR;
+    if (!BUS_VALID_DIRS.includes(activeDir)) activeDir = BUS_DEFAULT_DIR;
 
     const setActiveDirUi = (dir) => {
         busUpdateRouteSubtitle(dir);
+        if (dirSelect && dirSelect.value !== dir) dirSelect.value = dir;
         dirBtns.forEach(btn => {
             const isActive = btn.getAttribute('data-bus-dir') === dir;
             btn.classList.toggle('is-active', isActive);
             btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
+    };
+
+    const renderFromNormalized = (normalized, savedAtIso) => {
+        const forDir = busApplyConsolidatedList(normalized, activeDir);
+        const merged = busMergeTripsByTripId(forDir, activeDir);
+        if (isCombinedBusPage) {
+            const sortedAll = busSortByDeparture([...merged]);
+            const upcoming = busSortByDeparture(busFilterRemainingToday([...merged], 10));
+            if (nextContainer) busRenderList(nextContainer, upcoming, { limit: 1, routeDir: activeDir });
+            if (fullContainer) busRenderList(fullContainer, sortedAll, { limit: 500, routeDir: activeDir });
+        } else {
+            const filtered = (viewMode === 'full') ? merged : busFilterRemainingToday(merged, 10);
+            busRenderList(container, busSortByDeparture(filtered), { limit: viewMode === 'full' ? 500 : 8, routeDir: activeDir });
+        }
+        if (lastUpdatedEl && savedAtIso) lastUpdatedEl.textContent = busFormatLastUpdated(savedAtIso);
     };
 
     const renderFromCacheIfAny = () => {
@@ -1109,16 +1443,7 @@ function initBusSchedule() {
         if (!Array.isArray(list)) return false;
 
         const normalized = list.map(busNormalizeItem);
-        if (isCombinedBusPage) {
-            const sortedAll = busSortByDeparture([...normalized]);
-            const upcoming = busSortByDeparture(busFilterRemainingToday([...normalized], 10));
-            if (nextContainer) busRenderList(nextContainer, upcoming, { limit: 1 });
-            if (fullContainer) busRenderList(fullContainer, sortedAll, { limit: 500 });
-        } else {
-            const filtered = (viewMode === 'full') ? normalized : busFilterRemainingToday(normalized, 10);
-            busRenderList(container, busSortByDeparture(filtered), { limit: viewMode === 'full' ? 500 : 8 });
-        }
-        if (lastUpdatedEl) lastUpdatedEl.textContent = busFormatLastUpdated(cache.savedAt);
+        renderFromNormalized(normalized, cache.savedAt);
         return true;
     };
 
@@ -1159,16 +1484,7 @@ function initBusSchedule() {
             busWriteCache(activeDir, list);
 
             const normalized = list.map(busNormalizeItem);
-            if (isCombinedBusPage) {
-                const sortedAll = busSortByDeparture([...normalized]);
-                const upcoming = busSortByDeparture(busFilterRemainingToday([...normalized], 10));
-                if (nextContainer) busRenderList(nextContainer, upcoming, { limit: 1 });
-                if (fullContainer) busRenderList(fullContainer, sortedAll, { limit: 500 });
-            } else {
-                const filtered = (viewMode === 'full') ? normalized : busFilterRemainingToday(normalized, 10);
-                busRenderList(container, busSortByDeparture(filtered), { limit: viewMode === 'full' ? 500 : 8 });
-            }
-            if (lastUpdatedEl) lastUpdatedEl.textContent = busFormatLastUpdated(new Date().toISOString());
+            renderFromNormalized(normalized, new Date().toISOString());
         } catch (e) {
             // Fall back to cache if present
             if (!renderFromCacheIfAny()) {
@@ -1182,10 +1498,19 @@ function initBusSchedule() {
         }
     };
 
+    if (dirSelect) {
+        dirSelect.addEventListener('change', () => {
+            const dir = dirSelect.value;
+            if (!dir || !BUS_VALID_DIRS.includes(dir) || dir === activeDir) return;
+            activeDir = dir;
+            localStorage.setItem('kalanera_bus_dir', activeDir);
+            load({ force: false });
+        });
+    }
     dirBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const dir = btn.getAttribute('data-bus-dir');
-            if (!dir || dir === activeDir) return;
+            if (!dir || !BUS_VALID_DIRS.includes(dir) || dir === activeDir) return;
             activeDir = dir;
             localStorage.setItem('kalanera_bus_dir', activeDir);
             load({ force: false });

@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>Kala Nera | Bus Timetable</title>
     <link rel="canonical" href="https://www.kalanera.gr/bus.html">
-    <meta name="description" content="Bus timetable from Kala Nera to Volos, Milies, Argalasti and Afissos.">
+    <meta name="description" content="Bus timetable from Kala Nera to Volos, Afissos, Milies, Vyzitsa, Pinakates, Argalasti, Siki, Promiri, Katigiorgis, Milina, Platanias and Trikeri (Pelion, Greece).">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#4a6c4a">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=1.0.80">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=1.0.94">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -60,13 +60,33 @@
                 <div class="bus-subtitle">
                     <span>From Kala Nera</span>
                     <span id="bus-route" class="bus-subtitle-route"></span>
+                    <span id="bus-line-hint" class="bus-line-hint" hidden></span>
                 </div>
             </div>
-            <div class="bus-controls" role="tablist" aria-label="Bus directions">
-                <button type="button" class="bus-dir-btn is-active" data-bus-dir="volos" role="tab" aria-selected="true">Volos</button>
-                <button type="button" class="bus-dir-btn" data-bus-dir="milies" role="tab" aria-selected="false">Milies</button>
-                <button type="button" class="bus-dir-btn" data-bus-dir="argalasti" role="tab" aria-selected="false">Argalasti</button>
-                <button type="button" class="bus-dir-btn" data-bus-dir="afissos" role="tab" aria-selected="false">Afissos</button>
+            <div class="bus-controls bus-controls--select">
+                <label for="bus-dir-select" class="bus-dest-label">Where to?</label>
+                <select id="bus-dir-select" class="bus-dir-select" aria-label="Choose destination from Kala Nera">
+                    <optgroup label="Main">
+                        <option value="volos" selected>Volos</option>
+                        <option value="afissos">Afissos</option>
+                    </optgroup>
+                    <optgroup label="Mountain line">
+                        <option value="milies">Milies</option>
+                        <option value="vyzitsa">Vyzitsa</option>
+                        <option value="pinakates">Pinakates</option>
+                    </optgroup>
+                    <optgroup label="South (A)">
+                        <option value="argalasti">Argalasti</option>
+                        <option value="siki">Siki</option>
+                        <option value="promiri">Promiri</option>
+                        <option value="katigiorgis">Katigiorgis</option>
+                    </optgroup>
+                    <optgroup label="South (B)">
+                        <option value="milina">Milina</option>
+                        <option value="platanias">Platanias</option>
+                        <option value="trikeri">Trikeri</option>
+                    </optgroup>
+                </select>
             </div>
         </div>
 
@@ -99,7 +119,7 @@
     </section>
 </div>
 
-<script src="app.js?v=1.0.80"></script>
+<script src="app.js?v=1.0.94"></script>
 
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">

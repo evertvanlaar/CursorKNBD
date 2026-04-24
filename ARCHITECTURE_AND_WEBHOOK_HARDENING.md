@@ -171,6 +171,10 @@ The frontend works best when n8n returns:
       "note_en": "Early ferry connection",
       "note_el": "…",
       "dir": "volos",
+      "destinations_served": "Volos",
+      "category": "To Volos",
+      "route_name": "Pendel Volos",
+      "trip_id": "VOL-0745-A",
       "stop_kalanera": "highway_bakery",
       "days": "1-6",
       "frequency": "Ma-Za"
@@ -181,9 +185,34 @@ The frontend works best when n8n returns:
 
 Notes:
 
-- **`dir`** is a machine-friendly key (`volos|milies|argalasti|afissos`).
+- **`dir`** is a machine-friendly key (see `BUS_VALID_DIRS` in `app.js`).
+- **`trip_id`** (sheet column `Trip_ID`): optional. Rows that share the same **physical departure from Kala Nera** should use the **same** `Trip_ID` so the UI can show **one card** and list other stops under **Also:**. If `Trip_ID` is empty, the row is **not** merged (legacy behaviour).
+
+### Consolidated sheet (one row per trip)
+
+**Google Sheet columns (exact names):**
+
+| Column | Maps to JSON (typical) | Purpose |
+|--------|------------------------|--------|
+| `ID` | `ID` | Row id (optional; exposed as `sheet_id` in normalised items). |
+| `Time_KalaNera` | `Time_KalaNera` | Departure from Kala Nera (preferred source for `departure`). |
+| `Route_Name` | `Route_Name` | Line label (e.g. Zuid-Lijn, Berg-Lijn). |
+| `Destinations_Served` | `Destinations_Served` | Comma-separated village **names**; mapped to slugs via `BUS_DIR_LABELS`. |
+| `dirs_served` | `dirs_served` | Slugs as **JSON array string** in the cell (e.g. `["milies","vyzitsa"]`) or real array; if non-empty, used **before** `Destinations_Served`. |
+| `Category` | `Category` | e.g. `From Kala Nera` / `To Volos`. |
+| `Days` | `Days` | e.g. `1-7`, `1-6`, `1-5`. |
+| `CategoryDays` | `CategoryDays` | Optional **single** cell: split on `\|` or `/` or tab into `Category` + `Days` if those columns are empty. |
+| `Note_EN` / `Note_GR` | `Note_EN`, `Note_GR` | EN page uses `Note_EN`; EL page uses `Note_GR`. |
+| `Trip_ID` (optional) | `Trip_ID` | Merge key for duplicate API rows (see above). |
+
+If `dirs_served` is **empty** but `Destinations_Served` is filled, the UI parses the name list only (empty string does not block the fallback).
+
+**n8n:** For `?dir=trikeri`, return only rows whose served list **includes** `trikeri` (after normalisation). The site also drops rows client-side if the chosen `dir` is not in the parsed list, as a safety net.
+
+**Legacy:** Rows with **no** `Destinations_Served` / `dirs_served` behave as before (`dir` + single `destination` on the row).
+
 - **`stop_kalanera`** is a machine-friendly key (`highway_bakery|village_butcher`).
-- Frontend currently displays **Stop** + **Runs (Days)**. Frequency can remain in the API, but should not be duplicated in the UI.
+- Frontend displays **Stop** + **Runs (Days)**. Frequency can remain in the API, but should not be duplicated in the UI.
 
 ---
 
