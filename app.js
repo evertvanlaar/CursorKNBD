@@ -56,7 +56,7 @@ const translations = {
         'bus_showing': 'Εμφάνιση',
         'bus_runs': 'Δρομολόγια',
         'bus_frequency': 'Συχνότητα',
-        'bus_departure_el_l1': 'Αναχώρηση',
+        'bus_departure_el_l1': 'Ώρα στη στάση',
         'bus_departure_el_l2': 'Καλά Νερά',
         'bus_low_freq': 'Ρωτήστε τον οδηγό για επιστροφή',
         'bus_also_prefix': 'Επίσης:',
@@ -91,7 +91,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '1.0.94'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '1.0.96'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -808,7 +808,18 @@ function busDaysLabel(daysValue) {
     const raw = String(daysValue || '').trim();
     if (!raw) return '';
 
-    // Common patterns used in the sheet
+    const key = raw.toLowerCase();
+    // Huidige sheet: weekdays | daily | weekend
+    if (key === 'daily') {
+        return busText('runs_daily', { en: 'Daily', nl: 'Dagelijks', el: 'Καθημερινά' });
+    }
+    if (key === 'weekdays') {
+        return busText('runs_weekdays', { en: 'Weekdays', nl: 'Doordeweeks', el: 'Δευ–Παρ' });
+    }
+    if (key === 'weekend') {
+        return busText('runs_weekend', { en: 'Weekend', nl: 'Weekend', el: 'Σαβ–Κυρ' });
+    }
+    // Legacy patronen
     if (raw === '1-7') {
         return busText('runs_daily', { en: 'Daily', nl: 'Dagelijks', el: 'Καθημερινά' });
     }
@@ -822,7 +833,6 @@ function busDaysLabel(daysValue) {
         return busText('runs_sun', { en: 'Sun', nl: 'Zo', el: 'Κυρ' });
     }
 
-    // Fallback: show as-is (useful if you add custom patterns later)
     return raw;
 }
 
@@ -1285,8 +1295,8 @@ function busDepartureCaptionParts() {
         return { aria, html };
     }
     const text = busText('bus_departure_caption', {
-        en: 'Departs Kala Nera',
-        nl: 'Vertrek Kala Nera',
+        en: 'Expected at main-road stop',
+        nl: 'Verwacht op halte hoofdweg',
         el: '',
     });
     const esc = busEscapeHtml(text);

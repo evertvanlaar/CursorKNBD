@@ -183,9 +183,15 @@ function parseHHMMToMinutes(hhmm) {
 }
 
 function matchesDays(daysValue, todayNum) {
-  const days = String(daysValue || '').trim();
-  if (!days) return true;
+  const raw = String(daysValue || '').trim();
+  if (!raw) return true;
   if (!todayNum) return true;
+  const days = raw.toLowerCase();
+  // Sheet model (Engels): weekdays | daily | weekend
+  if (days === 'daily') return true;
+  if (days === 'weekdays') return todayNum >= 1 && todayNum <= 5;
+  if (days === 'weekend') return todayNum === 6 || todayNum === 7;
+  // Legacy numeriek
   if (days === '1-7') return true;
   if (days === '1-5') return todayNum <= 5;
   if (days === '1-6') return todayNum <= 6;

@@ -12,7 +12,10 @@
  * Webhook query params (zoals frontend):
  *   - dir     — verplicht door browser; slug: volos|milies|argalasti|afissos|vyzitsa|pinakates|siki|promiri|katigiorgis|milina|platanias|trikeri
  *   - from    — optioneel (browser stuurt "Kala Nera")
- *   - remaining — "1" = alleen ritten met vertrek >= nu vandaag (Europe/Athens); "0" of leeg = volledige lijst voor die dir
+ *   - remaining — "1" = alleen rijen met tijd >= nu vandaag (Europe/Athens); "0" of leeg = volledige lijst voor die dir
+ *
+ * Days-kolom (sheet): weekdays | daily | weekend (ook legacy 1-5, 1-6, 1-7, 7).
+ * Time_KalaNera = verwachte tijd op de halte hoofdweg Kala Nera.
  *
  * Response: array items { json: row } — zelfde velden als sheet + doorrekenen voor debug optioneel.
  */
@@ -101,6 +104,32 @@ function parseTimeToMinutes(hhmm) {
   return h * 60 + min;
 }
 
+function athensTodayNum() {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Athens',
+    weekday: 'short',
+  }).formatToParts(new Date());
+  const wd = (parts.find((p) => p.type === 'weekday')?.value || '').toLowerCase();
+  const wdMap = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6, sun: 7 };
+  return wdMap[wd.slice(0, 3)] || null;
+}
+
+function matchesDays(daysValue, todayNum) {
+  const raw = String(daysValue || '').trim();
+  if (!raw) return true;
+  if (!todayNum) return true;
+  const days = raw.toLowerCase();
+  if (days === 'daily') return true;
+  if (days === 'weekdays') return todayNum >= 1 && todayNum <= 5;
+  if (days === 'weekend') return todayNum === 6 || todayNum === 7;
+  if (days === '1-7') return true;
+  if (days === '1-5') return todayNum <= 5;
+  if (days === '1-6') return todayNum <= 6;
+  if (days === '7') return todayNum === 7;
+  if (/^[1-7]$/.test(days)) return Number(days) === todayNum;
+  return true;
+}
+
 function nowAthensMinutes() {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Europe/Athens',
@@ -130,12 +159,14 @@ if (!VALID_DIRS.includes(requestedDir)) {
 
 const remaining = String(query.remaining || '0') === '1';
 const nowMin = nowAthensMinutes();
+const todayNum = athensTodayNum();
 
 const items = $input.all();
 const out = [];
 
 for (const item of items) {
   const row = item.json || {};
+  if (!matchesDays(row.Days ?? row.days, todayNum)) continue;
   const slugs = parseDirsServed(row);
 
   // Geconsolideerde rij: dir moet in lijst zitten
