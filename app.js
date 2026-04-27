@@ -91,7 +91,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '1.0.120'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '1.0.124'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -236,6 +236,14 @@ function getColor(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
     return `hsl(${Math.abs(hash) % 360}, 60%, 45%)`;
+}
+
+/** Stabiele id voor ankers / #fragment (alleen a-z, 0-9, hyphen). */
+function categorySectionSlug(cat) {
+    return String(cat || 'other')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'other';
 }
 
 function generateCategoryButtons(data) {
@@ -473,18 +481,41 @@ grid.innerHTML += `
             return acc;
         }, {});
 
-        Object.keys(grouped).sort().forEach(category => {
-            const header = document.createElement('div');
-            header.className = 'category-section-header';
-            header.innerHTML = `<span>${getIcon(category)} ${t(category)} <small>(${grouped[category].length})</small></span>`;
-            container.appendChild(header);
+        Object.keys(grouped).sort().forEach((category, catIndex) => {
+            const details = document.createElement('details');
+            details.className = 'category-disclosure';
+            details.id = `section-${categorySectionSlug(category)}`;
+            if (catIndex === 0) {
+                details.setAttribute('open', '');
+            }
+
+            const summary = document.createElement('summary');
+            summary.className = 'category-section-summary';
+            const accent = getColor(category);
+            summary.style.setProperty('--cat-accent', accent);
+            const iconWrap = document.createElement('span');
+            iconWrap.className = 'category-summary-icon';
+            iconWrap.innerHTML = getIcon(category);
+            const labelEl = document.createElement('span');
+            labelEl.className = 'category-summary-label';
+            labelEl.textContent = t(category);
+            const countEl = document.createElement('span');
+            countEl.className = 'category-summary-count';
+            countEl.textContent = String(grouped[category].length);
+            const chev = document.createElement('i');
+            chev.className = 'fa-solid fa-chevron-down category-summary-chevron';
+            chev.setAttribute('aria-hidden', 'true');
+            summary.append(iconWrap, labelEl, countEl, chev);
 
             const grid = document.createElement('div');
-            grid.className = 'business-grid';
+            grid.className = 'business-grid category-section-grid';
             grouped[category]
                 .sort((a, b) => (a.Name || "").localeCompare(b.Name || ""))
                 .forEach(biz => renderCardInto(grid, biz, category));
-            container.appendChild(grid);
+
+            details.appendChild(summary);
+            details.appendChild(grid);
+            container.appendChild(details);
         });
     } else {
         // Mode B: global A–Z list (best for alpha index)
