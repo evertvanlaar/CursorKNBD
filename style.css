@@ -1,4 +1,4 @@
-/* version 1.0.126 */
+/* version 1.0.127 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -580,6 +580,10 @@ h1{font-size:1.35rem;margin-bottom:10px;line-height:1.15}
 .biz-card-mini.is-media .wishlist-btn{top:8px;right:8px;width:32px;height:32px;z-index:5;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:rgba(255,255,255,0.18) !important;border:1px solid rgba(255,255,255,0.22);box-shadow:0 2px 12px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.35)}
 
 .biz-card-mini.is-media .wishlist-btn i{filter:drop-shadow(0 1px 2px rgba(0,0,0,0.45))}
+
+.biz-card-mini.is-media .wishlist-btn:not(.active) i{color:#fff !important;opacity:0.95}
+
+.biz-card-mini.is-media .wishlist-btn.active i{color:#e74c3c !important;opacity:1}
 
 .biz-card-mini.is-media .mini-row-top{display:none !important}
 
