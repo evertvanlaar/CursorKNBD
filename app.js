@@ -1713,7 +1713,7 @@ function renderMoreSheetContent() {
     const isEl = (document.documentElement.lang || 'en') === 'el';
     const brandName = isEl ? 'ΚάντεΚλικ' : 'KanteKlik';
     const labels = {
-        bus: isEl ? 'Λεωφορεία / KTEL' : 'Bus / KTEL',
+        bus: isEl ? 'Λεωφορείο (Καλά Νερά) / KTEL' : 'Bus (Kala Nera) / KTEL',
         useful: isEl ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers',
         install: isEl ? 'Εγκατάσταση εφαρμογής' : 'Install App',
         about: isEl ? 'Σχετικά με εμάς' : 'About us',
