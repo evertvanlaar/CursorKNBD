@@ -40,7 +40,7 @@ const translations = {
         'Koropi': 'Κορώπη',
         'Milies': 'Μηλιές',
         'Vizitsa': 'Βυζίτσα',
-        'Afissos': 'Αφήσσος',
+        'Afissos': 'Άφησσος',
         // Voeg hier de rest van je categorieën en locaties toe
         'pwa_msg': 'Εγκαταστήστε την εφαρμογή για καλύτερη εμπειρία.',
         'pwa_btn': 'Εγκατάσταση',
@@ -91,7 +91,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '1.0.112'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '1.0.118'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -446,7 +446,7 @@ grid.innerHTML += `
                             <a href="tel:${biz.Phone}" class="btn-icon phone-btn" style="background:none; box-shadow:none; width:auto; height:auto; padding:0; margin:0;" onclick="gtag('event', 'click_phone', {'biz_name': '${safeBizName}'})">
                                 <i class="fa fa-phone" style="color: #4A6C4A; font-size: 0.8rem;"></i>
                             </a>
-                            <span class="phone-txt" style="font-size: 0.85rem; color: #3c4043; font-weight: 600; white-space: nowrap; overflow: visible;">${biz.Phone}</span>
+                            <span class="phone-txt" style="font-size: 0.85rem; color: #3c4043; font-weight: 600; white-space: nowrap;">${biz.Phone}</span>
                     </div>` 
                     : `<div class="phone-group" style="width: 155px; min-width: 155px; visibility: hidden;"></div>`
                 }
@@ -947,7 +947,7 @@ const BUS_DIR_LABELS = {
     volos: { en: 'Volos', el: 'Βόλος' },
     milies: { en: 'Milies', el: 'Μηλιές' },
     argalasti: { en: 'Argalasti', el: 'Αργαλαστή' },
-    afissos: { en: 'Afissos', el: 'Αφήσσος' },
+    afissos: { en: 'Afissos', el: 'Άφησσος' },
     vyzitsa: { en: 'Vyzitsa', el: 'Βυζίτσα' },
     pinakates: { en: 'Pinakates', el: 'Πινακάτες' },
     siki: { en: 'Siki', el: 'Σήκι' },
@@ -1733,7 +1733,7 @@ function renderMoreSheetContent() {
             <div class="more-links">
                 <a href="${busHref}">
                     <span><i class="fa-solid fa-bus"></i> ${labels.bus}</span>
-                    <small>Today</small>
+                    <small>${isEl ? 'ΣΗΜΕΡΑ' : 'TODAY'}</small>
                 </a>
             </div>
         </section>
