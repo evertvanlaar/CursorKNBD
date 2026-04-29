@@ -152,19 +152,14 @@ for (const biz of rows) {
   const phraseEN = `${escapeHtml(nameEN)} — ${fullCatEN} in ${escapeHtml(locationEN)}, Pelion.`;
   const phraseEL = `«${escapeHtml(nameELDisplay)}» · ${escapeHtml(fullCatEL)} · ${escapeHtml(locationEL)}, Πήλιο.`;
 
-  liFragmentsEN.push(`<li>
-    <h3 style="display:inline; font-size:inherit; margin:0;">
-      <a href="${escapeHtml(pageEN)}">${escapeHtml(nameEN)}</a>
-    </h3>
-    <span> - ${phraseEN}</span>
-  </li>`);
+  /* Eén regel per <li>: geen echte newlines in de string — voorkomt verwarring met JSON-weergave \\n in n8n. */
+  liFragmentsEN.push(
+    `<li><h3 style="display:inline; font-size:inherit; margin:0;"><a href="${escapeHtml(pageEN)}">${escapeHtml(nameEN)}</a></h3><span> - ${phraseEN}</span></li>`,
+  );
 
-  liFragmentsEL.push(`<li>
-    <h3 style="display:inline; font-size:inherit; margin:0;">
-      <a href="${escapeHtml(pageEL)}">${escapeHtml(nameELDisplay)}</a>
-    </h3>
-    <span> — ${phraseEL}</span>
-  </li>`);
+  liFragmentsEL.push(
+    `<li><h3 style="display:inline; font-size:inherit; margin:0;"><a href="${escapeHtml(pageEL)}">${escapeHtml(nameELDisplay)}</a></h3><span> — ${phraseEL}</span></li>`,
+  );
 }
 
 const itemListLd = {
@@ -173,9 +168,8 @@ const itemListLd = {
   itemListElement,
 };
 
-const schemaScript =
-  '\n     \n' +
-  `<script type="application/ld+json">${jsonLdEmbed(itemListLd)}</script>\n`;
+/** Zonder voorloop-newlines — plak tussen N8N_SCHEMA markers; inhoud is geldige HTML/JSON. */
+const schemaScript = `<script type="application/ld+json">${jsonLdEmbed(itemListLd)}</script>`;
 
 const htmlSectionEN = `<section id="seo-directory" style="display:none;" aria-hidden="true"><h2>Local Businesses in Kala Nera</h2><ul>${liFragmentsEN.join('')}</ul></section>`;
 
