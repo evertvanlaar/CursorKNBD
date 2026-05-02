@@ -14,7 +14,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.94">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.95">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -86,9 +86,10 @@
     <p>Automation on the server may combine the request IP (as seen by the webhook) with third-party geo-lookup tools (for example IP-API style services) for aggregated, non-precise location context. Purpose: operations, adoption, and debugging — not profiling for advertising on our side.</p>
     <p>The published frontend skips sending this telemetry POST while you stay on <code>privacy.html</code> or <code>privacy-el.html</code>.</p>
 
-    <h2>5. Directory &amp; timetable data (GET webhooks)</h2>
-    <p>Published business listings and bus timetable data are loaded with ordinary <strong>HTTPS GET</strong> requests to separate <strong>webhook endpoints</strong> on the <strong>same automation backend</strong> (paths include <code>/webhook/local-businesses</code> and <code>/webhook/bus-schedule-next</code>; the bus endpoint uses query parameters for direction/day). As with any website, infrastructure may log technical data (IP address, TLS information, timestamps). The public site does not require a user login for viewing this information.</p>
-    <p>Server-side workflows may cache sheet snapshots briefly (configured TTL) to reduce Google&nbsp;Sheets/API load — that processing happens on automation infrastructure you operate, not in the visitor’s browser.</p>
+    <h2>5. Directory &amp; timetable data</h2>
+    <p>The business directory and bus timetable views load content over <strong>HTTPS</strong> from backend endpoints operated for this site. Like any web request, infrastructure may log technical metadata (for example IP address and timestamps). No login is required to view this information.</p>
+    <p><strong>Bus timetables:</strong> schedules shown in the app are provided for convenience and are based on <strong>official KTEL</strong> (regional intercity bus operator) information. For authoritative times, cancellations, and service changes, check the relevant KTEL operators’ websites.</p>
+    <p>Responses may be cached briefly on the server (including material maintained via spreadsheets or APIs behind those endpoints) to reduce upstream load; that processing happens server-side, not in your browser.</p>
 
     <h2>6. Weather widget</h2>
     <p>Where the weather chip is shown, the app calls <strong>Open‑Meteo</strong> (<code>api.open-meteo.com</code>) using fixed coordinates for Kala&nbsp;Nera. No precise device GPS is sent for that lookup. Review Open‑Meteo’s privacy statement for details.</p>
@@ -141,7 +142,7 @@
     </div>
 </footer>
 
-<script src="app.js?v=2.0.94"></script>
+<script src="app.js?v=2.0.95"></script>
 
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">

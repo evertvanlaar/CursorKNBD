@@ -14,7 +14,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.94">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.95">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -86,9 +86,10 @@
     <p>Στη διακομιστική πλευρά η IP της αίτησης ενδέχεται να συνδυάζεται με υπηρεσίες γεωεντοπισμού (π.χ. στιλ IP‑API) για συγκεντρωτικά/μη ακριβή στατιστικά — όχι διαφημιστικό προφίλ από εμάς.</p>
     <p>Το δημοσιευμένο frontend δεν στέλνει αυτό το POST τηλεμετρίας όσο παραμένετε σε <code>privacy.html</code> ή <code>privacy-el.html</code>.</p>
 
-    <h2>5. Κατάλογος &amp; δρομολόγια (GET webhooks)</h2>
-    <p>Ο κατάλογος και τα δρομολόγια λεωφορείων φορτώνονται με συνήθεις <strong>HTTPS GET</strong> αιτήσεις σε ξεχωριστά <strong>webhooks</strong> στο <strong>ίδιο automation backend</strong> (διαδρομές περιλαμβάνουν <code>/webhook/local-businesses</code> και <code>/webhook/bus-schedule-next</code>· το τελευταίο με παραμέτρους για κατεύθυνση/ημέρα). Υποδομές ενδέχεται να καταγράφουν τεχνικά μεταδεδομένα (IP, χρόνους). Δεν απαιτείται σύνδεση χρήστη για προβολή.</p>
-    <p>Οι ροές στον διακομιστή ενδέχεται να κρατούν προσωρινά snapshot υπολογιστικού φύλλου (TTL) για λιγότερα hits σε Sheets — η επεξεργασία γίνεται στην υποδομή automation, όχι στο πρόγραμμα περιήγησης.</p>
+    <h2>5. Κατάλογος &amp; δρομολόγια</h2>
+    <p>Ο κατάλογος και τα δρομολόγια λεωφορείων φορτώνονται μέσω <strong>HTTPS</strong> από backend endpoints που λειτουργούν για τον ιστότοπο. Όπως σε κάθε αίτηση ιστού, η υποδομή ενδέχεται να καταγράφει τεχνικά μεταδεδομένα (π.χ. IP, χρονοσήμανση). Δεν απαιτείται σύνδεση λογαριασμού για προβολή.</p>
+    <p><strong>Δρομολόγια:</strong> για διευκόλυνση βασίζονται σε πληροφορίες από τις επίσημες πηγές των <strong>KTEL</strong> (περιφερειακοί φορείς υπεραστικών λεωφορείων). Για δεσμευτικούς χρόνους, ακυρώσεις και αλλαγές υπηρεσίας ισχύουν οι επίσημοι ιστότοποι των αντίστοιχων KTEL.</p>
+    <p>Οι απαντήσεις ενδέχεται να κρατούνται προσωρινά στον διακομιστή (συμπεριλαμβανομένου υλικού που διατηρείται μέσω υπολογιστικών φύλλων ή API πίσω από αυτά τα endpoints) για μείωση φορτίου — η επεξεργασία γίνεται στην πλευρά του διακομιστή, όχι στο πρόγραμμα περιήγησής σας.</p>
 
     <h2>6. Καιρός</h2>
     <p>Όπου εμφανίζεται ο καιρός, γίνεται κλήση σε <strong>Open‑Meteo</strong> με σταθερές συντεταγμένες Καλά&nbsp;Νερά — όχι GPS συσκευής για αυτή την κλήση.</p>
@@ -141,7 +142,7 @@
     </div>
 </footer>
 
-<script src="app.js?v=2.0.94"></script>
+<script src="app.js?v=2.0.95"></script>
 
 <nav class="bottom-nav" aria-label="Κύρια πλοήγηση">
     <div class="bottom-nav-inner">
