@@ -68,10 +68,10 @@ const unpackJs = [
 ].join('\n');
 
 const writeCacheJs = [
-  '// TTL alleen hier (ms). Nu 5 min — gelijk aan local-businesses-voorbeeld (meer Sheet-reads, sneller verse snapshot).',
+  '// TTL alleen hier (ms). Bus-voorbeeld: 6 min (local-businesses-voorbeeld: 5 min — licht verschoven).',
   '// Filtering (tijd/dir/remaining) gebeurt per request op de cached snapshot.',
   '// Spoed naast TTL: reset-webhook of X-LB-Cache-Bypass op bus-schedule-next.',
-  'const TTL_MS = 5 * 60 * 1000;',
+  'const TTL_MS = 6 * 60 * 1000;',
   '',
   'const rows = $input.all().map((i) => i.json);',
   "const sd = $getWorkflowStaticData('global');",
