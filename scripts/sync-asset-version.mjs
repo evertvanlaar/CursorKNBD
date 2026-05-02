@@ -9,6 +9,8 @@
  *   2. Run this script
  *   3. git diff → commit & push
  *
+ * Also keeps n8n/n8n-business-page-template.js `appVersion` in sync (More-sheet badge + ../style.css?v=)
+ *
  * Also updates the first-line banner in style.css to match the same semver (for your own reference;
  * real cache-bust for CSS remains the ?v= query on link hrefs in HTML).
  */
@@ -87,6 +89,16 @@ if (/^\s*\/\* version[^*]*\*\/\s*\r?\n/.test(css)) {
   css = cssBanner + css;
 }
 writeIfChanged(cssPath, css);
+
+const bizTplPath = path.join(root, 'n8n', 'n8n-business-page-template.js');
+if (fs.existsSync(bizTplPath)) {
+  let tpl = fs.readFileSync(bizTplPath, 'utf8');
+  if (!/const appVersion = '[^']*';/.test(tpl)) {
+    throw new Error('n8n-business-page-template.js: expected line const appVersion = \'...\';');
+  }
+  tpl = tpl.replace(/const appVersion = '[^']*';/, `const appVersion = '${v}';`);
+  writeIfChanged(bizTplPath, tpl);
+}
 
 for (const name of ROOT_HTML_FILES) {
   const fp = path.join(root, name);
