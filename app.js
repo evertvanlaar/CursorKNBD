@@ -136,7 +136,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.0.91'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.0.92'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2365,7 +2365,6 @@ function renderMoreSheetContent() {
         follow: isEl ? 'Ακολουθήστε μας' : 'Follow us',
         contact: isEl ? 'Επικοινωνία' : 'Contact',
         privacy: isEl ? 'Πολιτική απορρήτου' : 'Privacy policy',
-        stats: isEl ? 'Στατιστικά' : 'Statistics',
         developer: isEl ? 'Με την υποστήριξη' : 'Powered by'
     };
 
@@ -2377,10 +2376,6 @@ function renderMoreSheetContent() {
     const fb = getFooterFacebookLink();
     const fbHref = (fb && fb.href) ? fb.href : 'https://www.facebook.com/kalanera.info';
     const fbLabel = (fb && fb.label) ? fb.label : labels.follow;
-
-    const gc = getFooterGoatcounterLink();
-    const statsHref = (gc && gc.href) ? gc.href : 'http://www.goatcounter.com';
-    const statsLabel = (gc && gc.label) ? gc.label : labels.stats;
 
     const year = new Date().getFullYear();
     const footerCopyright = getFooterCopyrightText();
@@ -2447,10 +2442,6 @@ function renderMoreSheetContent() {
                     <span class="more-link-leading"><i class="fa-solid fa-shield-halved"></i><span class="more-link-label">${labels.privacy}</span></span>
                     <small>kalanera.gr</small>
                 </a>
-                <a href="${statsHref}" target="_blank" rel="noopener">
-                    <span class="more-link-leading"><i class="fa-solid fa-chart-line"></i><span class="more-link-label">${statsLabel}</span></span>
-                    <small>GoatCounter</small>
-                </a>
             </div>
             <div class="more-links" style="margin-top:10px;">
                 <div class="more-card is-meta">
@@ -2491,17 +2482,6 @@ function getFooterFacebookLink() {
         label: (footer.querySelector('.footer-column h3') && footer.querySelectorAll('.footer-column h3')[2])
             ? footer.querySelectorAll('.footer-column h3')[2].textContent.trim()
             : ''
-    };
-}
-
-function getFooterGoatcounterLink() {
-    const footer = document.querySelector('footer.site-footer');
-    if (!footer) return null;
-    const link = footer.querySelector('a[href*="goatcounter"]');
-    if (!link) return null;
-    return {
-        href: link.getAttribute('href'),
-        label: link.textContent ? link.textContent.trim() : ''
     };
 }
 

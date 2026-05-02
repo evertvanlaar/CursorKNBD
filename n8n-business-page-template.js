@@ -129,7 +129,6 @@ for (const item of $input.all()) {
     const moreAbout = isGreek ? 'Σχετικά με εμάς' : 'About us';
     const moreFollow = isGreek ? 'Ακολουθήστε μας' : 'Follow us';
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
-    const moreStats = isGreek ? 'Στατιστικά' : 'Statistics';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
     const appVersion = '1.0.75';
@@ -338,20 +337,10 @@ for (const item of $input.all()) {
       </div>
     </div>
 
-    <div style="margin-top: 15px; opacity: 0.6;">
-      <a href="http://www.goatcounter.com" target="_blank" rel="noopener"
-         style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <img src="https://static.zgo.at/favicon/favicon-32x32.png" alt="GoatCounter" style="width: 16px; height: 16px;">
-        <span style="font-size: 12px; font-family: sans-serif;">${escapeHtml(moreStats)}</span>
-      </a>
-    </div>
-
     <div class="footer-bottom">
       <p>${escapeHtml(footerCopyright)}</p>
     </div>
   </footer>
-
-  <script data-goatcounter="https://evertvanlaar.cloud/count" async src="//gc.zgo.at/count.js"></script>
 
   <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">
@@ -399,10 +388,6 @@ for (const item of $input.all()) {
             <a href="mailto:info@spiti.tech?">
               <span><i class="fa-solid fa-envelope"></i> ${escapeHtml(moreContact)}</span>
               <small>info@spiti.tech</small>
-            </a>
-            <a href="http://www.goatcounter.com" target="_blank" rel="noopener">
-              <span><i class="fa-solid fa-chart-line"></i> ${escapeHtml(moreStats)}</span>
-              <small>GoatCounter</small>
             </a>
           </div>
 
