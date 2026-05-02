@@ -68,10 +68,10 @@ const unpackJs = [
 ].join('\n');
 
 const writeCacheJs = [
-  '// TTL alleen hier (ms). Bus_Schedule wijzigt zelden (anders dan local-businesses); zet gerust 30 dagen of langer.',
-  '// Filtering (tijd/dir/remaining) gebeurt per request — lange TTL is veilig voor de Sheet-snapshot.',
-  '// Bij spoed-wijziging: reset-webhook (GET + token), of X-LB-Cache-Bypass op bus-schedule-next — géén Manual Execute voor persisted cache.',
-  'const TTL_MS = 30 * 24 * 60 * 60 * 1000;',
+  '// TTL alleen hier (ms). Nu 5 min — gelijk aan local-businesses-voorbeeld (meer Sheet-reads, sneller verse snapshot).',
+  '// Filtering (tijd/dir/remaining) gebeurt per request op de cached snapshot.',
+  '// Spoed naast TTL: reset-webhook of X-LB-Cache-Bypass op bus-schedule-next.',
+  'const TTL_MS = 5 * 60 * 1000;',
   '',
   'const rows = $input.all().map((i) => i.json);',
   "const sd = $getWorkflowStaticData('global');",

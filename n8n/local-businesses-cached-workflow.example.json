@@ -286,7 +286,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// TTL alleen hier aanpassen (ms). Voorbeelden: 10 min = 10 * 60 * 1000 ; 30 min = 30 * 60 * 1000\nconst TTL_MS = 5 * 60 * 1000;\n\nconst rows = $input.all().map((i) => i.json);\nconst sd = $getWorkflowStaticData('global');\n\nsd.lbCacheRows = rows;\nsd.lbCacheExpires = Date.now() + TTL_MS;\n\nreturn [{ json: { rows } }];"
+        "jsCode": "// TTL alleen hier (ms). Nu 5 min — gelijk aan bus-schedule-next cached voorbeeld.\nconst TTL_MS = 5 * 60 * 1000;\n\nconst rows = $input.all().map((i) => i.json);\nconst sd = $getWorkflowStaticData('global');\n\nsd.lbCacheRows = rows;\nsd.lbCacheExpires = Date.now() + TTL_MS;\n\nreturn [{ json: { rows } }];"
       },
       "id": "code-cache-write-006",
       "name": "Write cache + pack rows",

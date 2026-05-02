@@ -285,7 +285,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// TTL alleen hier (ms). Bus_Schedule wijzigt zelden (anders dan local-businesses); zet gerust 30 dagen of langer.\n// Filtering (tijd/dir/remaining) gebeurt per request — lange TTL is veilig voor de Sheet-snapshot.\n// Bij spoed-wijziging: reset-webhook (GET + token), of X-LB-Cache-Bypass op bus-schedule-next — géén Manual Execute voor persisted cache.\nconst TTL_MS = 30 * 24 * 60 * 60 * 1000;\n\nconst rows = $input.all().map((i) => i.json);\nconst sd = $getWorkflowStaticData('global');\n\nsd.busScheduleRawRows = rows;\nsd.busScheduleExpires = Date.now() + TTL_MS;\n\nreturn [{ json: { rows } }];"
+        "jsCode": "// TTL alleen hier (ms). Nu 5 min — gelijk aan local-businesses-voorbeeld (meer Sheet-reads, sneller verse snapshot).\n// Filtering (tijd/dir/remaining) gebeurt per request op de cached snapshot.\n// Spoed naast TTL: reset-webhook of X-LB-Cache-Bypass op bus-schedule-next.\nconst TTL_MS = 5 * 60 * 1000;\n\nconst rows = $input.all().map((i) => i.json);\nconst sd = $getWorkflowStaticData('global');\n\nsd.busScheduleRawRows = rows;\nsd.busScheduleExpires = Date.now() + TTL_MS;\n\nreturn [{ json: { rows } }];"
       },
       "id": "20f2371f-d5dc-455c-8136-5771a84e706a",
       "name": "Write cache + pack rows",
