@@ -348,7 +348,7 @@ for (const item of $input.all()) {
           <h3>${escapeHtml(footerInfoTitle)}</h3>
           <ul>
             <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
-            <li><a href="../privacy${isGreek ? '-el' : ''}.html">${escapeHtml(footerPrivacyLabel)}</a></li>
+            <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
           </ul>
         </div>
       </div>
@@ -393,12 +393,22 @@ for (const item of $input.all()) {
 
       const html = \`
         <section class="more-section">
+          <h3>${escapeHtml(footerBusLabel)}</h3>
+          <div class="more-links">
+            <a href="../bus${isGreek ? '-el' : ''}.html">
+              <span class="more-link-leading"><i class="fa-solid fa-bus"></i><span class="more-link-label">${escapeHtml(footerBusLabel)}</span></span>
+              <small>${isGreek ? 'ΣΗΜΕΡΑ' : 'TODAY'}</small>
+            </a>
+          </div>
+        </section>
+
+        <section class="more-section">
           <h3>${escapeHtml(moreUseful)}</h3>
           <div class="more-links">
-            <a href="tel:+302423086222"><span><i class="fa-solid fa-shield"></i> ${escapeHtml(isGreek ? 'Αστυνομία Μηλιές' : 'Police Office Milies')}</span><small>+30 24230 86222</small></a>
-            <a href="tel:+302423022385"><span><i class="fa-solid fa-pills"></i> ${escapeHtml(isGreek ? 'Φαρμακείο Καλά Νερά' : 'Pharmacy Kala Nera')}</span><small>+30 24230 22385</small></a>
-            <a href="tel:+302423022160"><span><i class="fa-solid fa-pills"></i> ${escapeHtml(isGreek ? 'Φαρμακείο Κάτω Γατζέα' : 'Pharmacy Kato Gatzea')}</span><small>+30 24230 22160</small></a>
-            <a href="tel:+302423086666"><span><i class="fa-solid fa-user-doctor"></i> ${escapeHtml(isGreek ? 'Ιατρός Καλά Νερά' : 'Doctor Kala Nera')}</span><small>+30 24230 86666</small></a>
+            <a href="tel:+302423086222"><span class="more-link-leading"><i class="fa-solid fa-shield"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Αστυνομία Μηλιές' : 'Police Office Milies')}</span></span><small>+30 24230 86222</small></a>
+            <a href="tel:+302423022385"><span class="more-link-leading"><i class="fa-solid fa-pills"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Φαρμακείο Καλά Νερά' : 'Pharmacy Kala Nera')}</span></span><small>+30 24230 22385</small></a>
+            <a href="tel:+302423022160"><span class="more-link-leading"><i class="fa-solid fa-pills"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Φαρμακείο Κάτω Γατζέα' : 'Pharmacy Kato Gatzea')}</span></span><small>+30 24230 22160</small></a>
+            <a href="tel:+302423086666"><span class="more-link-leading"><i class="fa-solid fa-user-doctor"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Ιατρός Καλά Νερά' : 'Doctor Kala Nera')}</span></span><small>+30 24230 86666</small></a>
           </div>
         </section>
 
@@ -406,7 +416,7 @@ for (const item of $input.all()) {
           <h3>${escapeHtml(moreInstallTitle)}</h3>
           <div class="more-links">
             <a href="../${escapeHtml(ix)}">
-              <span><i class="fa fa-download"></i> ${escapeHtml(moreInstallBtn)}</span>
+              <span class="more-link-leading"><i class="fa fa-download"></i><span class="more-link-label">${escapeHtml(moreInstallBtn)}</span></span>
               <small>PWA</small>
             </a>
           </div>
@@ -417,26 +427,30 @@ for (const item of $input.all()) {
           <p>${escapeHtml(footerAboutText)}</p>
           <div class="more-links" style="margin-top:10px;">
             <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener">
-              <span><i class="fab fa-facebook-f"></i> ${escapeHtml(moreFollow)}</span>
+              <span class="more-link-leading"><i class="fab fa-facebook-f"></i><span class="more-link-label">${escapeHtml(moreFollow)}</span></span>
               <small>Facebook</small>
             </a>
             <a href="mailto:info@spiti.tech?">
-              <span><i class="fa-solid fa-envelope"></i> ${escapeHtml(moreContact)}</span>
+              <span class="more-link-leading"><i class="fa-solid fa-envelope"></i><span class="more-link-label">${escapeHtml(moreContact)}</span></span>
               <small>info@spiti.tech</small>
+            </a>
+            <a href="../privacy${isGreek ? '-el' : ''}.html">
+              <span class="more-link-leading"><i class="fa-solid fa-user-shield"></i><span class="more-link-label">${escapeHtml(footerPrivacyLabel)}</span></span>
+              <small>kalanera.gr</small>
             </a>
           </div>
 
           <div class="more-links" style="margin-top:10px;">
             <div class="more-card is-meta">
               <div class="meta-row">
-                <span>${escapeHtml(poweredBy)}: KanteKlik</span>
+                <span class="more-link-label">${escapeHtml(poweredBy)}: KanteKlik</span>
                 <div class="meta-right">
                   <div class="meta-version"><code>v${escapeHtml(appVersion)}</code></div>
                 </div>
               </div>
               <div class="copyright-row">
                 <span class="copyright-text">© ${formattedCopyright}</span>
-                <img class="meta-logo" src="../logo-72x72.png" alt="KanteKlik" width="28" height="28" loading="lazy">
+                <img class="meta-logo" src="../logo-72x72.png" alt="Kalanera InPhoto" width="28" height="28" loading="lazy">
               </div>
             </div>
           </div>
