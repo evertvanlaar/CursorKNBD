@@ -74,7 +74,7 @@
     <p>Pages that include the GoatCounter snippet send privacy‑oriented page-view statistics to <strong>stats.kalanera.gr</strong> (script hosted by GoatCounter). Connection metadata is handled under GoatCounter’s terms.</p>
 
     <h2>4. Application telemetry (POST to automation backend)</h2>
-    <p>After load, the client sends a small JSON payload (typically ~1.5&nbsp;s delay) to <strong><code>https://n8n.vanlaar.cloud/webhook/app-stats</code></strong> via HTTPS POST. Fields match the live frontend implementation:</p>
+    <p>After load, the client sends a small JSON payload (typically ~1.5&nbsp;s delay) via <strong>HTTPS POST</strong> to a <strong>webhook endpoint</strong> on <strong>self-hosted workflow automation</strong> (n8n) operated for this site (path ends with <code>/webhook/app-stats</code>). We intentionally <strong>do not print the full hostname</strong> in this public notice to avoid unnecessary disclosure; it is visible in the published JavaScript bundle and in browser developer tools (Network tab). For regulatory or data-protection enquiries about processors, contact <a href="mailto:info@spiti.tech">info@spiti.tech</a>. Fields match the live frontend implementation:</p>
     <ul>
         <li><strong>event</strong>: one of <code>app_open</code>, <code>installatie</code> (first recorded version), <code>update</code> (bundle version changed)</li>
         <li><strong>source</strong>: <code>App (PWA)</code> vs <code>Website (Browser)</code> (standalone display-mode detection)</li>
@@ -89,7 +89,7 @@
     <p>The published frontend skips sending this telemetry POST while you stay on <code>privacy.html</code> or <code>privacy-el.html</code>.</p>
 
     <h2>5. Directory &amp; timetable data (GET webhooks)</h2>
-    <p>Published business listings are retrieved from <strong><code>https://n8n.vanlaar.cloud/webhook/local-businesses</code></strong>. Bus timetable data is retrieved from <strong><code>https://n8n.vanlaar.cloud/webhook/bus-schedule-next</code></strong> (query parameters select direction/day). These calls are ordinary HTTPS GET requests. As with any website, infrastructure and hosting components may log technical data (IP address, TLS information, timestamps) under the processor’s retention settings. The public site does not require a user login for viewing this information.</p>
+    <p>Published business listings and bus timetable data are loaded with ordinary <strong>HTTPS GET</strong> requests to separate <strong>webhook endpoints</strong> on the <strong>same automation backend</strong> (paths include <code>/webhook/local-businesses</code> and <code>/webhook/bus-schedule-next</code>; the bus endpoint uses query parameters for direction/day). As with any website, infrastructure may log technical data (IP address, TLS information, timestamps). The public site does not require a user login for viewing this information.</p>
     <p>Server-side workflows may cache sheet snapshots briefly (configured TTL) to reduce Google&nbsp;Sheets/API load — that processing happens on automation infrastructure you operate, not in the visitor’s browser.</p>
 
     <h2>6. Weather widget</h2>

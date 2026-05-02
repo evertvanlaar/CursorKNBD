@@ -74,7 +74,7 @@
     <p>Σελίδες με το snippet GoatCounter στέλνουν στατιστικά προβολών σελίδας στο <strong>stats.kalanera.gr</strong> (script φιλοξενίας GoatCounter).</p>
 
     <h2>4. Τηλεμετρία εφαρμογής (POST σε automation backend)</h2>
-    <p>Μετά τη φόρτωση, ο πελάτης στέλνει μικρό JSON (~1,5&nbsp;s καθυστέρηση) στο <strong><code>https://n8n.vanlaar.cloud/webhook/app-stats</code></strong> με HTTPS POST. Τα πεδία αντιστοιχούν στο frontend:</p>
+    <p>Μετά τη φόρτωση, ο πελάτης στέλνει μικρό JSON (~1,5&nbsp;s καθυστέρηση) με <strong>HTTPS POST</strong> σε <strong>webhook</strong> σε <strong>αυτοφιλοξενούμενο workflow automation</strong> (n8n) για τον ιστότοπο (διαδρομή που καταλήγει σε <code>/webhook/app-stats</code>). Σκόπιμα <strong>δεν δημοσιεύουμε το πλήρες hostname</strong> σε αυτό το δημόσιο κείμενο· είναι ορατό στο δημοσιευμένο JavaScript και στα εργαλεία προγράμματος περιήγησης (Network). Για ερωτήματα επεξεργαστών/GDPR: <a href="mailto:info@spiti.tech">info@spiti.tech</a>. Τα πεδία αντιστοιχούν στο frontend:</p>
     <ul>
         <li><strong>event</strong>: <code>app_open</code>, <code>installatie</code> (πρώτη καταγραφή έκδοσης), <code>update</code> (άλλαξε η έκδοση bundle)</li>
         <li><strong>source</strong>: <code>App (PWA)</code> ή <code>Website (Browser)</code></li>
@@ -89,7 +89,7 @@
     <p>Το δημοσιευμένο frontend δεν στέλνει αυτό το POST τηλεμετρίας όσο παραμένετε σε <code>privacy.html</code> ή <code>privacy-el.html</code>.</p>
 
     <h2>5. Κατάλογος &amp; δρομολόγια (GET webhooks)</h2>
-    <p>Ο κατάλογος φορτώνεται από <strong><code>https://n8n.vanlaar.cloud/webhook/local-businesses</code></strong>. Τα δρομολόγια από <strong><code>https://n8n.vanlaar.cloud/webhook/bus-schedule-next</code></strong>. Οι κλήσεις είναι συνήθεις HTTPS GET· υποδομές φιλοξενίας ενδέχεται να καταγράφουν τεχνικά μεταδεδομένα (IP, χρόνους). Δεν απαιτείται σύνδεσης χρήστη για προβολή.</p>
+    <p>Ο κατάλογος και τα δρομολόγια λεωφορείων φορτώνονται με συνήθεις <strong>HTTPS GET</strong> αιτήσεις σε ξεχωριστά <strong>webhooks</strong> στο <strong>ίδιο automation backend</strong> (διαδρομές περιλαμβάνουν <code>/webhook/local-businesses</code> και <code>/webhook/bus-schedule-next</code>· το τελευταίο με παραμέτρους για κατεύθυνση/ημέρα). Υποδομές ενδέχεται να καταγράφουν τεχνικά μεταδεδομένα (IP, χρόνους). Δεν απαιτείται σύνδεση χρήστη για προβολή.</p>
     <p>Οι ροές στον διακομιστή ενδέχεται να κρατούν προσωρινά snapshot υπολογιστικού φύλλου (TTL) για λιγότερα hits σε Sheets — η επεξεργασία γίνεται στην υποδομή automation, όχι στο πρόγραμμα περιήγησης.</p>
 
     <h2>6. Καιρός</h2>
