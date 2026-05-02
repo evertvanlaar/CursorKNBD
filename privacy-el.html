@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <title>Πολιτική απορρήτου | Οδηγός Καλά Νερά</title>
+    <meta name="description" content="Πολιτική απορρήτου για το kalanera.gr (ιστότοπος και PWA): αναλυτικά, τηλεμετρία, cookies, τοπική αποθήκευση και υπηρεσίες τρίτων.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#4a6c4a">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://www.kalanera.gr/privacy-el.html">
+    <link rel="alternate" hreflang="en" href="https://www.kalanera.gr/privacy.html">
+    <link rel="alternate" hreflang="el" href="https://www.kalanera.gr/privacy-el.html">
+    <link rel="alternate" hreflang="x-default" href="https://www.kalanera.gr/privacy.html">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.91">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+
+<header class="site-header">
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index-el.html" class="logo">Kala <span>Nera</span></a>
+
+            <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556"
+                target="_blank"
+                rel="noopener"
+                style="text-decoration: none; color: inherit;">
+                <div class="weather-icon-container">
+                    <span id="weather-icon"></span>
+                    <span id="weather-temp">--°C</span>
+                </div>
+            </a>
+
+            <button class="menu-toggle" id="mobile-menu" type="button" aria-label="Μενού">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+
+            <ul class="nav-links" id="nav-list">
+                <li><a href="index-el.html">Αρχική</a></li>
+                <li><a href="bus-el.html"><i class="fa-solid fa-bus"></i> Λεωφορείο (Καλά Νερά)</a></li>
+                <li><a href="wishlist-el.html"><i class="fa-solid fa-heart menu-heart"></i> Αγαπημένα</a></li>
+                <li><a href="t-form-el.html">Προσθήκη επιχείρησης</a></li>
+                <li><a href="privacy.html" class="lang-link">
+                    <span style="font-size:12px;font-weight:600;">EN</span>
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<main class="legal-page" id="top">
+    <h1>Πολιτική απορρήτου</h1>
+    <p class="legal-meta">Τελευταία ενημέρωση: 2&nbsp;Μαΐου&nbsp;2026 · Ισχύει για το <strong>kalanera.gr</strong> (ιστότοπο και εγκαταστήσιμο PWA). Το κείμενο αντιστοιχεί στη λειτουργία της δημοσιευμένης έκδοσης.</p>
+
+    <h2>1. Ποιοι είμαστε</h2>
+    <p>Ο <strong>Κατάλογος Επιχειρήσεων Καλά Νερά</strong> και η εφαρμογή τύπου web (PWA) λειτουργούν για την ανάδειξη τοπικών επιχειρήσεων και συναφών υπηρεσιών στην περιοχή Καλά Νερά, Πήλιο (έργο «E‑Project»). Ερωτήσεις απορρήτου: <a href="mailto:info@spiti.tech">info@spiti.tech</a>.</p>
+
+    <h2>2. Τι καλύπτει</h2>
+    <p>Περιγράφονται κατηγορίες επεξεργασίας δεδομένων που συνδέονται με τις πραγματικές λειτουργίες της τρέχουσας έκδοσης (cached κατάλογος, λεωφορεία, ελαφριά τηλεμετρία, scripts αναλυτικών, offline συμπεριφορά, σύνδεσμοι/ενσωματώσεις τρίτων).</p>
+    <p>Το έγγραφο είναι ενημερωτικό και δεν υποκαθιστά νομική συμβουλή.</p>
+
+    <h2>3. Αναλυτικά &amp; μέτρηση (φυλλομετρητής)</h2>
+    <h3>3.1 Google Analytics&nbsp;4</h3>
+    <p>Ορισμένες σελίδες φορτώνουν Google Analytics μέσω Google Tag (<code>G-12LDX13JG6</code> / <code>googletagmanager.com</code>). Η Google ενδέχεται να χρησιμοποιεί cookies ή παρόμοιες τεχνολογίες σύμφωνα με τις δικές της πολιτικές.</p>
+    <h3>3.2 GoatCounter</h3>
+    <p>Σελίδες με το snippet GoatCounter στέλνουν στατιστικά προβολών σελίδας στο <strong>stats.kalanera.gr</strong> (script φιλοξενίας GoatCounter).</p>
+
+    <h2>4. Τηλεμετρία εφαρμογής (POST σε automation backend)</h2>
+    <p>Μετά τη φόρτωση, ο πελάτης στέλνει μικρό JSON (~1,5&nbsp;s καθυστέρηση) στο <strong><code>https://n8n.vanlaar.cloud/webhook/app-stats</code></strong> με HTTPS POST. Τα πεδία αντιστοιχούν στο frontend:</p>
+    <ul>
+        <li><strong>event</strong>: <code>app_open</code>, <code>installatie</code> (πρώτη καταγραφή έκδοσης), <code>update</code> (άλλαξε η έκδοση bundle)</li>
+        <li><strong>source</strong>: <code>App (PWA)</code> ή <code>Website (Browser)</code></li>
+        <li><strong>version</strong> / <strong>css_version</strong>: έκδοση εφαρμογής και stylesheet</li>
+        <li><strong>os</strong> / <strong>device</strong>: χονδρική ταξινόμηση από user-agent</li>
+        <li><strong>screen</strong>: διαστάσεις παραθύρου κατά την αποστολή</li>
+        <li><strong>referrer</strong>: <code>document.referrer</code> ή «direct»</li>
+        <li><strong>theme</strong>: φωτεινό/σκοτεινό από <code>prefers-color-scheme</code></li>
+        <li><strong>datum</strong>: αναγνώσιμη χρονοσήμανση (NL στο τρέχον script)</li>
+    </ul>
+    <p>Στη διακομιστική πλευρά η IP της αίτησης ενδέχεται να συνδυάζεται με υπηρεσίες γεωεντοπισμού (π.χ. στιλ IP‑API) για συγκεντρωτικά/μη ακριβή στατιστικά — όχι διαφημιστικό προφίλ από εμάς.</p>
+    <p>Το δημοσιευμένο frontend δεν στέλνει αυτό το POST τηλεμετρίας όσο παραμένετε σε <code>privacy.html</code> ή <code>privacy-el.html</code>.</p>
+
+    <h2>5. Κατάλογος &amp; δρομολόγια (GET webhooks)</h2>
+    <p>Ο κατάλογος φορτώνεται από <strong><code>https://n8n.vanlaar.cloud/webhook/local-businesses</code></strong>. Τα δρομολόγια από <strong><code>https://n8n.vanlaar.cloud/webhook/bus-schedule-next</code></strong>. Οι κλήσεις είναι συνήθεις HTTPS GET· υποδομές φιλοξενίας ενδέχεται να καταγράφουν τεχνικά μεταδεδομένα (IP, χρόνους). Δεν απαιτείται σύνδεσης χρήστη για προβολή.</p>
+    <p>Οι ροές στον διακομιστή ενδέχεται να κρατούν προσωρινά snapshot υπολογιστικού φύλλου (TTL) για λιγότερα hits σε Sheets — η επεξεργασία γίνεται στην υποδομή automation, όχι στο πρόγραμμα περιήγησης.</p>
+
+    <h2>6. Καιρός</h2>
+    <p>Όπου εμφανίζεται ο καιρός, γίνεται κλήση σε <strong>Open‑Meteo</strong> με σταθερές συντεταγμένες Καλά&nbsp;Νερά — όχι GPS συσκευής για αυτή την κλήση.</p>
+
+    <h2>7. Ενσωματώσεις &amp; εξωτερικοί σύνδεσμοι</h2>
+    <p>Εικόνες webcam, Meteoblue, Google&nbsp;Maps, Facebook, KTEL κ.λπ. λαμβάνουν τα συνηθισμένα τεχνικά δεδομένα σύνφωνα με τις δικές τους πολιτικές.</p>
+
+    <h2>8. Τοπική αποθήκευση στη συσκευή σας</h2>
+    <p>Χρησιμοποιείται <strong>localStorage</strong> και η μνήμη cache του PWA/service worker. Παραδείγματα από τον κώδικα:</p>
+    <ul>
+        <li><code>kalanera_offline_data</code>, <code>kalanera_last_sync</code></li>
+        <li><code>kalanera_list_mode</code></li>
+        <li><code>kalanera_wishlist</code> (αγαπημένα μόνο τοπικά)</li>
+        <li><code>kalanera_bus_schedule_cache_v3</code>, <code>kalanera_bus_dir</code>, <code>kalanera_bus_day_offset</code></li>
+        <li><code>app_version</code></li>
+        <li><code>theme</code></li>
+    </ul>
+    <p>Μπορείτε να διαγράψετε τα δεδομένα ιστότοπου από τις ρυθμίσεις του προγράμματος περιήγησης ή της εγκατεστημένης εφαρμογής.</p>
+
+    <h2>9. Service worker (PWA)</h2>
+    <p>Διατηρεί στατικά assets και δείχνει κατάσταση offline· μεταφέρει έκδοση για εμφάνιση/διαγνωστικά.</p>
+
+    <h2>10. Γραμματοσειρές &amp; CDN</h2>
+    <p><strong>Google&nbsp;Fonts</strong> και <strong>cdnjs</strong> (Font&nbsp;Awesome)· η σύνδεση υπόκειται στις πολιτικές τους.</p>
+
+    <h2>11. Νομική βάση &amp; δικαιώματα (επισκόπηση ΕΟΧ/ΗΒ)</h2>
+    <p>Όπου εφαρμόζεται GDPR/UK GDPR, βασιζόμαστε σε έννομο συμφέρον (λειτουργία ασφαλούς υπηρεσίας, συγκεντρωτικά στατιστικά) και όπου απαιτείται σε συναίνεση για μη απολύτως απαραίτητα cookies/τεχνολογίες. Δικαιώματα πρόσβασης, διόρθωσης, διαγραφής, περιορισμού, φορητότητας, εναντίωσης· επικοινωνία <a href="mailto:info@spiti.tech">info@spiti.tech</a>. Μπορείτε να υποβάλετε καταγγελία στην εποπτική αρχή σας.</p>
+
+    <h2>12. Παιδιά</h2>
+    <p>Ο ιστότοπος απευθύνεται σε ταξιδιώτες/τοπικές υπηρεσίες· δεν στοχεύει σε παιδιά και δεν συλλέγουμε συνειδητά προσωπικά δεδομένα παιδιών.</p>
+
+    <h2>13. Αλλαγές</h2>
+    <p>Θα ενημερώνουμε την ημερομηνία και το κείμενο όταν αλλάζουν ουσιωδώς λειτουργίες ή επεξεργαστές.</p>
+
+    <p class="legal-note">Αυτή η σελίδα δεν φορτώνει τα ίδια scripts αναλυτικών με τις υπόλοιπες σελίδες μάρκετινγκ, για ελαφρύτερη ανάγνωση. Επιστρέφοντας στον κύριο ιστότοπο ενδέχεται να επαναληφθεί η μέτρηση.</p>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-column">
+            <h3>Νομικά</h3>
+            <ul>
+                <li><a href="privacy-el.html" aria-current="page">Πολιτική απορρήτου</a></li>
+                <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope"></i> Επικοινωνία</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 Κατάλογος Επιχειρήσεων Καλά Νερά</p>
+    </div>
+</footer>
+
+<script src="app.js?v=2.0.91"></script>
+
+<nav class="bottom-nav" aria-label="Κύρια πλοήγηση">
+    <div class="bottom-nav-inner">
+        <a href="index-el.html"><i class="fa-solid fa-house"></i><span>Αρχική</span></a>
+        <a href="wishlist-el.html"><i class="fa-solid fa-heart"></i><span>Αγαπημένα</span></a>
+        <a href="t-form-el.html"><i class="fa-solid fa-circle-plus"></i><span>Προσθήκη</span></a>
+        <a href="#" data-more><i class="fa-solid fa-ellipsis"></i><span>Περισσότερα</span></a>
+    </div>
+</nav>
+</body>
+</html>

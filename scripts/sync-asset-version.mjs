@@ -29,6 +29,8 @@ const ROOT_HTML_FILES = [
   'wishlist-el.html',
   't-form.html',
   't-form-el.html',
+  'privacy.html',
+  'privacy-el.html',
 ];
 
 function readVersion() {

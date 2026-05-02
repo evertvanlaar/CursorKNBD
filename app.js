@@ -136,7 +136,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.0.90'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.0.91'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2364,6 +2364,7 @@ function renderMoreSheetContent() {
         about: isEl ? 'Σχετικά με εμάς' : 'About us',
         follow: isEl ? 'Ακολουθήστε μας' : 'Follow us',
         contact: isEl ? 'Επικοινωνία' : 'Contact',
+        privacy: isEl ? 'Πολιτική απορρήτου' : 'Privacy policy',
         stats: isEl ? 'Στατιστικά' : 'Statistics',
         developer: isEl ? 'Με την υποστήριξη' : 'Powered by'
     };
@@ -2390,6 +2391,7 @@ function renderMoreSheetContent() {
 
     const version = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '';
     const busHref = isEl ? 'bus-el.html' : 'bus.html';
+    const privacyHref = isEl ? 'privacy-el.html' : 'privacy.html';
 
     const formattedCopyright = (() => {
         // Avoid double copyright symbol (some pages already include "©")
@@ -2440,6 +2442,10 @@ function renderMoreSheetContent() {
                 <a href="mailto:info@spiti.tech?">
                     <span class="more-link-leading"><i class="fa-solid fa-envelope"></i><span class="more-link-label">${labels.contact}</span></span>
                     <small>info@spiti.tech</small>
+                </a>
+                <a href="${privacyHref}">
+                    <span class="more-link-leading"><i class="fa-solid fa-shield-halved"></i><span class="more-link-label">${labels.privacy}</span></span>
+                    <small>kalanera.gr</small>
                 </a>
                 <a href="${statsHref}" target="_blank" rel="noopener">
                     <span class="more-link-leading"><i class="fa-solid fa-chart-line"></i><span class="more-link-label">${statsLabel}</span></span>
@@ -2743,6 +2749,9 @@ window.addEventListener('appinstalled', () => {
 
 // Trace app versie, OS, Device, Scherm, Referrer, Theme, Install/Update en SOURCE (Web vs App)
 (function() {
+    if (/privacy(?:-el)?\.html$/i.test(window.location.pathname || '')) {
+        return;
+    }
     const WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/app-stats';
 
     function checkStatusAndSend() {
