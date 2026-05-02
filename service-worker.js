@@ -1,7 +1,7 @@
 // service-worker.js
-const VERSION = '2.0.93'; // Dit sturen we naar de Sheet
-const CACHE_NAME = 'kalanera-cache-v2.0.93'; // Dit dwingt de code-update af
-const IMAGE_CACHE = 'kalanera-images-v2.0.93'; // Afbeeldingen apart cachen voor snelheid
+const VERSION = '2.0.94'; // Dit sturen we naar de Sheet
+const CACHE_NAME = 'kalanera-cache-v2.0.94'; // Dit dwingt de code-update af
+const IMAGE_CACHE = 'kalanera-images-v2.0.94'; // Afbeeldingen apart cachen voor snelheid
 
 // VOEG DIT TOE: Luister naar vragen van de app
 self.addEventListener('message', (event) => {
