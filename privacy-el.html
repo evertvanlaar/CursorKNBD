@@ -14,7 +14,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.95">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -25,6 +25,10 @@
     <nav class="main-nav">
         <div class="nav-container">
             <a href="index-el.html" class="logo">Kala <span>Nera</span></a>
+
+            <a href="privacy.html" class="lang-link-mobile">
+                <img src="https://flagcdn.com/w20/gb.png" alt="English">
+            </a>
 
             <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556"
                 target="_blank"
@@ -49,7 +53,7 @@
                 <li><a href="wishlist-el.html"><i class="fa-solid fa-heart menu-heart"></i> Αγαπημένα</a></li>
                 <li><a href="t-form-el.html">Προσθήκη επιχείρησης</a></li>
                 <li><a href="privacy.html" class="lang-link">
-                    <span style="font-size:12px;font-weight:600;">EN</span>
+                    <img src="https://flagcdn.com/w20/gb.png" alt="English" style="width: 20px; vertical-align: middle; margin-right: 5px;">
                 </a></li>
             </ul>
         </div>
@@ -71,24 +75,15 @@
     <h3>3.1 Google Analytics&nbsp;4</h3>
     <p>Ορισμένες σελίδες χρησιμοποιούν <strong>Google Analytics&nbsp;4</strong>, που παρέχεται από την <strong>Google</strong>. Η υπηρεσία ενδέχεται να χρησιμοποιεί cookies ή παρόμοιες τεχνολογίες και να επεξεργάζεται δεδομένα χρήσης σύμφωνα με τις πολιτικές της Google· δείτε την τεκμηρίωση απορρήτου της Google για διατήρηση, υπεύθυνους επεξεργασίας ανά περιοχή και επιλογές ελέγχου.</p>
 
-    <h2>4. Τηλεμετρία εφαρμογής (POST σε automation backend)</h2>
-    <p>Μετά τη φόρτωση, ο πελάτης στέλνει μικρό JSON (~1,5&nbsp;s καθυστέρηση) με <strong>HTTPS POST</strong> σε <strong>webhook</strong> σε <strong>αυτοφιλοξενούμενο workflow automation</strong> (n8n) για τον ιστότοπο (διαδρομή που καταλήγει σε <code>/webhook/app-stats</code>). Σκόπιμα <strong>δεν δημοσιεύουμε το πλήρες hostname</strong> σε αυτό το δημόσιο κείμενο. Για ερωτήματα επεξεργαστών/GDPR (συμπεριλαμβανομένων τεχνικών λεπτομερειών κατά περίπτωση): <a href="mailto:info@spiti.tech">info@spiti.tech</a>. Τα πεδία αντιστοιχούν στο frontend:</p>
-    <ul>
-        <li><strong>event</strong>: <code>app_open</code>, <code>installatie</code> (πρώτη καταγραφή έκδοσης), <code>update</code> (άλλαξε η έκδοση bundle)</li>
-        <li><strong>source</strong>: <code>App (PWA)</code> ή <code>Website (Browser)</code></li>
-        <li><strong>version</strong> / <strong>css_version</strong>: έκδοση εφαρμογής και stylesheet</li>
-        <li><strong>os</strong> / <strong>device</strong>: χονδρική ταξινόμηση από user-agent</li>
-        <li><strong>screen</strong>: διαστάσεις παραθύρου κατά την αποστολή</li>
-        <li><strong>referrer</strong>: <code>document.referrer</code> ή «direct»</li>
-        <li><strong>theme</strong>: φωτεινό/σκοτεινό από <code>prefers-color-scheme</code></li>
-        <li><strong>datum</strong>: αναγνώσιμη χρονοσήμανση</li>
-    </ul>
-    <p>Στη διακομιστική πλευρά η IP της αίτησης ενδέχεται να συνδυάζεται με υπηρεσίες γεωεντοπισμού (π.χ. στιλ IP‑API) για συγκεντρωτικά/μη ακριβή στατιστικά — όχι διαφημιστικό προφίλ από εμάς.</p>
-    <p>Το δημοσιευμένο frontend δεν στέλνει αυτό το POST τηλεμετρίας όσο παραμένετε σε <code>privacy.html</code> ή <code>privacy-el.html</code>.</p>
+    <h2>4. Τηλεμετρία εφαρμογής</h2>
+    <p>Μετά τη φόρτωση, ο πελάτης στέλνει μικρό JSON (~1,5&nbsp;s καθυστέρηση) με <strong>HTTPS POST</strong> σε endpoint σε <strong>αυτοφιλοξενούμενο workflow automation</strong> (n8n) για τον ιστότοπο. Σκόπιμα <strong>δεν δημοσιεύουμε το πλήρες hostname</strong> εδώ. Για ερωτήματα επεξεργασίας/νόμου (συμπεριλαμβανομένων στοιχείων επεξεργαστών όπου χρειάζεται): <a href="mailto:info@spiti.tech">info@spiti.tech</a>.</p>
+    <p>Το payload αφορά μόνο ασφαλή λειτουργία και τεχνική διάγνωση — <strong>όχι</strong> διαφημιστικό προφίλ. Ενδέχεται να περιλαμβάνει: τύπο συμβάντος (π.χ. άνοιγμα, πρώτη καταγραφή εγκατάστασης/έκδοσης, ενημέρωση bundle)· αν η εφαρμογή τρέχει ως εγκατεστημένο PWA ή στον browser· χονδρικούς δείκτες έκδοσης εφαρμογής/stylesheet· χονδρική κλάση λειτουργικού/συσκευής από user-agent· μέγεθος παραθύρου· παραπομπή ή «direct»· προτίμηση φωτεινού/σκοτεινού· και αναγνώσιμη χρονοσήμανση.</p>
+    <p>Ο διακομιστής ενδέχεται να συνάγει κατά προσέγγιση, μη ακριβή τοποθετικό πλαίσιο από τη σύνδεση IP μέσω τυπικών υπηρεσιών γεωεντοπισμού, για συγκεντρωτικά λειτουργικά στατιστικά.</p>
+    <p>Δεν αποστέλλεται POST τηλεμετρίας όσο παραμένετε σε <code>privacy.html</code> ή <code>privacy-el.html</code>.</p>
 
     <h2>5. Κατάλογος &amp; δρομολόγια</h2>
     <p>Ο κατάλογος και τα δρομολόγια λεωφορείων φορτώνονται μέσω <strong>HTTPS</strong> από backend endpoints που λειτουργούν για τον ιστότοπο. Όπως σε κάθε αίτηση ιστού, η υποδομή ενδέχεται να καταγράφει τεχνικά μεταδεδομένα (π.χ. IP, χρονοσήμανση). Δεν απαιτείται σύνδεση λογαριασμού για προβολή.</p>
-    <p><strong>Δρομολόγια:</strong> για διευκόλυνση βασίζονται σε πληροφορίες από τις επίσημες πηγές των <strong>KTEL</strong> (περιφερειακοί φορείς υπεραστικών λεωφορείων). Για δεσμευτικούς χρόνους, ακυρώσεις και αλλαγές υπηρεσίας ισχύουν οι επίσημοι ιστότοποι των αντίστοιχων KTEL.</p>
+    <p><strong>Δρομολόγια:</strong> για διευκόλυνση βασίζονται σε επίσημες πληροφορίες <strong>KTEL</strong>. Για Καλά&nbsp;Νερά και την ευρύτερη περιοχή του Πηλίου ο περιφερειακός φορέας είναι το <strong>ΚΤΕΛ Νομού Μαγνησίας</strong> (<strong>Βόλος</strong>). Για δεσμευτικούς χρόνους, ακυρώσεις και αλλαγές υπηρεσίας ισχύουν οι επίσημες ανακοινώσεις του φορέα — δεν παραθέτουμε εδώ συγκεκριμένους συνδέσμους ιστότοπων δρομολογίων.</p>
     <p>Οι απαντήσεις ενδέχεται να κρατούνται προσωρινά στον διακομιστή (συμπεριλαμβανομένου υλικού που διατηρείται μέσω υπολογιστικών φύλλων ή API πίσω από αυτά τα endpoints) για μείωση φορτίου — η επεξεργασία γίνεται στην πλευρά του διακομιστή, όχι στο πρόγραμμα περιήγησής σας.</p>
 
     <h2>6. Καιρός</h2>
@@ -98,15 +93,8 @@
     <p>Εικόνες webcam, Meteoblue, Google&nbsp;Maps, Facebook, KTEL κ.λπ. λαμβάνουν τα συνηθισμένα τεχνικά δεδομένα σύνφωνα με τις δικές τους πολιτικές.</p>
 
     <h2>8. Τοπική αποθήκευση στη συσκευή σας</h2>
-    <p>Χρησιμοποιείται <strong>localStorage</strong> και η μνήμη cache του PWA/service worker. Παραδείγματα από τον κώδικα:</p>
-    <ul>
-        <li><code>kalanera_offline_data</code>, <code>kalanera_last_sync</code></li>
-        <li><code>kalanera_list_mode</code></li>
-        <li><code>kalanera_wishlist</code> (αγαπημένα μόνο τοπικά)</li>
-        <li><code>kalanera_bus_schedule_cache_v3</code>, <code>kalanera_bus_dir</code>, <code>kalanera_bus_day_offset</code></li>
-        <li><code>app_version</code></li>
-        <li><code>theme</code></li>
-    </ul>
+    <p>Χρησιμοποιείται <strong>localStorage</strong> του προγράμματος περιήγησης και <strong>cache PWA / service worker</strong> για ταχύτερη φόρτωση και μερική λειτουργία χωρίς σύνδεση (κατάλογος ή δρομολόγια). Τυπικές κατηγορίες τοπικά αποθηκευμένων στοιχείων: προτιμήσεις διεπαφής (π.χ. θέμα και διάταξη καταλόγου), αγαπημένα, snapshot καταχωρίσεων ή δρομολογίων με χρονικές ετικέτες ανανέωσης, επιλογές οθόνης λεωφορείου και δείκτες που συνδέονται με αναφορά έκδοσης.</p>
+    <p>Τα αγαπημένα παραμένουν στη συσκευή εκτός αν χρησιμοποιήσετε λειτουργία που τα στέλνει εσκεμμένα σε διακομιστή.</p>
     <p>Μπορείτε να διαγράψετε τα δεδομένα ιστότοπου από τις ρυθμίσεις του προγράμματος περιήγησης ή της εγκατεστημένης εφαρμογής.</p>
 
     <h2>9. Service worker (PWA)</h2>
@@ -138,11 +126,20 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>© 2026 Κατάλογος Επιχειρήσεων Καλά Νερά</p>
+        <div class="footer-powered">
+            <a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="Με την υποστήριξη KanteKlik — επικοινωνία μέσω email">
+                <span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <span class="footer-powered-label">Με την υποστήριξη</span>
+                <span class="footer-powered-name">KanteKlik</span>
+            </a>
+        </div>
+        <div class="footer-bottom-row">
+            <p>© 2026 Κατάλογος Επιχειρήσεων Καλά Νερά</p>
+        </div>
     </div>
 </footer>
 
-<script src="app.js?v=2.0.95"></script>
+<script src="app.js?v=2.1.4"></script>
 
 <nav class="bottom-nav" aria-label="Κύρια πλοήγηση">
     <div class="bottom-nav-inner">

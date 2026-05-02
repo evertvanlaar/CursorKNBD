@@ -136,7 +136,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.0.95'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.4'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2461,7 +2461,7 @@ function renderMoreSheetContent() {
 function getFooterAboutText() {
     const footer = document.querySelector('footer.site-footer');
     if (!footer) return '';
-    const col = footer.querySelector('.footer-container .footer-column p');
+    const col = footer.querySelector('.footer-container .footer-lead') || footer.querySelector('.footer-container .footer-column p');
     return col && col.textContent ? col.textContent.trim() : '';
 }
 
@@ -2477,11 +2477,11 @@ function getFooterFacebookLink() {
     if (!footer) return null;
     const link = footer.querySelector('.social-icons a[href*="facebook.com"]');
     if (!link) return null;
+    const socialCol = link.closest('.footer-column');
+    const heading = socialCol && socialCol.querySelector('h3');
     return {
         href: link.getAttribute('href'),
-        label: (footer.querySelector('.footer-column h3') && footer.querySelectorAll('.footer-column h3')[2])
-            ? footer.querySelectorAll('.footer-column h3')[2].textContent.trim()
-            : ''
+        label: heading ? heading.textContent.trim() : ''
     };
 }
 

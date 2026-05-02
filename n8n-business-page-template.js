@@ -26,7 +26,7 @@ const dict = {
   Koropi: 'Κορώπη',
   Milies: 'Μηλιές',
   Vizitsa: 'Βυζίτσα',
-  Afissos: 'Αφήσσος',
+  Afissos: 'Αφησσος',
 };
 
 const t = (text, isGreek) => {
@@ -104,15 +104,25 @@ for (const item of $input.all()) {
 
     const summary = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
 
-    const footerAboutTitle = isGreek ? 'Σχετικά με εμάς' : 'About us';
     const footerAboutText = isGreek
-      ? 'Βοηθάμε τους ταξιδιώτες να ανακαλύψουν τα καλύτερα μέρη, από αυθεντικές ταβέρνες μέχρι τις καλύτερες διαμονές στα Καλά Νερά και την ευρύτερη περιοχή.'
-      : 'We help travelers discover the best places from authentic taverns to the finest accommodations in Kala Nera and the surrounding area.';
-    const footerFollowTitle = isGreek ? 'Ακολουθήστε μας' : 'Follow Us';
+      ? 'Βοηθάμε τους επισκέπτες να ανακαλύψουν τα καλύτερα σημεία—από αυθεντικές ταβέρνες μέχρι όμορφες διαμονές—στα Καλά Νερά και το ευρύτερο Πήλιο.'
+      : 'We help travelers discover the best places—from authentic taverns to wonderful stays—in Kala Nera and the wider Pelion area.';
+    const footerSiteTitle = isGreek ? 'Ιστότοπος' : 'Site';
+    const footerInfoTitle = isGreek ? 'Πληροφορίες' : 'Info';
+    const footerTagline = isGreek ? 'Καλά Νερά · Πήλιο, Ελλάδα' : 'Kala Nera · Pelion, Greece';
+    const footerBusLabel = isGreek ? 'Λεωφορείο (Καλά Νερά)' : 'Bus (Kala Nera)';
+    const footerFavoritesLabel = isGreek ? 'Αγαπημένα' : 'Favorites';
+    const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρησή' : 'Add your Business';
+    const footerSocialTitle = isGreek ? 'Κοινωνικά δίκτυα' : 'Social';
     const footerContactTitle = isGreek ? 'Επικοινωνία' : 'Contact';
+    const footerPrivacyLabel = isGreek ? 'Πολιτική απορρήτου' : 'Privacy policy';
     const footerCopyright = isGreek
       ? '© 2026 Κατάλογος Επιχειρήσεων Καλά Νερά. E-Project όλα τα δικαιώματα διατηρούνται.'
       : '© 2026 Kala Nera Business Directory. E-Project all rights reserved.';
+    const footerPoweredLabel = isGreek ? 'Με την υποστήριξη' : 'Powered by';
+    const footerPoweredAria = isGreek
+      ? 'Με την υποστήριξη KanteKlik — επικοινωνία μέσω email'
+      : 'Powered by KanteKlik — email contact';
 
     const cat = t(biz.Category, isGreek);
     const loc = t(biz.Location, isGreek);
@@ -315,30 +325,55 @@ for (const item of $input.all()) {
 
   <footer class="site-footer">
     <div class="footer-container">
-      <div class="footer-column">
-        <h3>${escapeHtml(footerAboutTitle)}</h3>
-        <p>${escapeHtml(footerAboutText)}</p>
+      <div class="footer-column footer-column--brand">
+        ${
+          isGreek
+            ? `<a href="../index-el.html" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml('Καλά Νερά')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">Καλά <span>Νερά</span></span></a>`
+            : `<a href="../index.html" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml('Kala Nera')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">Kala <span>Nera</span></span></a>`
+        }
+        <p class="footer-tagline">${escapeHtml(footerTagline)}</p>
+        <p class="footer-lead">${escapeHtml(footerAboutText)}</p>
       </div>
 
-      <div class="footer-column">
-        <h3>${escapeHtml(footerContactTitle)}</h3>
-        <ul>
-          <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope"></i> ${escapeHtml(footerContactTitle)}</a></li>
-        </ul>
+      <div class="footer-column footer-column--site">
+        <div class="footer-nav-section">
+          <h3>${escapeHtml(footerSiteTitle)}</h3>
+          <ul>
+            <li><a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> ${escapeHtml(footerBusLabel)}</a></li>
+            <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
+            <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
+          </ul>
+        </div>
+        <div class="footer-nav-section">
+          <h3>${escapeHtml(footerInfoTitle)}</h3>
+          <ul>
+            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
+            <li><a href="../privacy${isGreek ? '-el' : ''}.html">${escapeHtml(footerPrivacyLabel)}</a></li>
+          </ul>
+        </div>
       </div>
 
-      <div class="footer-column">
-        <h3>${escapeHtml(footerFollowTitle)}</h3>
+      <div class="footer-column footer-column--social">
+        <h3>${escapeHtml(footerSocialTitle)}</h3>
         <div class="social-icons">
-          <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook">
-            <i class="fab fa-facebook-f"></i>
+          <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook">
+            <i class="fab fa-facebook-f" aria-hidden="true"></i>
           </a>
         </div>
       </div>
     </div>
 
     <div class="footer-bottom">
+      <div class="footer-powered">
+        <a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="${escapeHtml(footerPoweredAria)}">
+          <span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+          <span class="footer-powered-label">${escapeHtml(footerPoweredLabel)}</span>
+          <span class="footer-powered-name">KanteKlik</span>
+        </a>
+      </div>
+      <div class="footer-bottom-row">
       <p>${escapeHtml(footerCopyright)}</p>
+      </div>
     </div>
   </footer>
 
@@ -394,14 +429,14 @@ for (const item of $input.all()) {
           <div class="more-links" style="margin-top:10px;">
             <div class="more-card is-meta">
               <div class="meta-row">
-                <span>${escapeHtml(poweredBy)}: Kanteklik</span>
+                <span>${escapeHtml(poweredBy)}: KanteKlik</span>
                 <div class="meta-right">
                   <div class="meta-version"><code>v${escapeHtml(appVersion)}</code></div>
                 </div>
               </div>
               <div class="copyright-row">
                 <span class="copyright-text">© ${formattedCopyright}</span>
-                <img class="meta-logo" src="../logo-72x72.png" alt="Kanteklik" width="28" height="28" loading="lazy">
+                <img class="meta-logo" src="../logo-72x72.png" alt="KanteKlik" width="28" height="28" loading="lazy">
               </div>
             </div>
           </div>

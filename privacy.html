@@ -14,7 +14,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.0.95">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -25,6 +25,10 @@
     <nav class="main-nav">
         <div class="nav-container">
             <a href="index.html" class="logo">Kala <span>Nera</span></a>
+
+            <a href="privacy-el.html" class="lang-link-mobile">
+                <img src="https://flagcdn.com/w20/gr.png" alt="Ελληνικά">
+            </a>
 
             <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556"
                 target="_blank"
@@ -71,24 +75,15 @@
     <h3>3.1 Google Analytics&nbsp;4</h3>
     <p>Certain pages include <strong>Google Analytics&nbsp;4</strong>, operated by <strong>Google</strong>. That service may use cookies or similar technologies and process usage-related data under Google’s policies. See Google’s privacy documentation for retention, regional controllers, and available controls.</p>
 
-    <h2>4. Application telemetry (POST to automation backend)</h2>
-    <p>After load, the client sends a small JSON payload (typically ~1.5&nbsp;s delay) via <strong>HTTPS POST</strong> to a <strong>webhook endpoint</strong> on <strong>self-hosted workflow automation</strong> (n8n) operated for this site (path ends with <code>/webhook/app-stats</code>). We intentionally <strong>do not print the full hostname</strong> in this public notice to avoid unnecessary disclosure. For regulatory or data-protection enquiries about processors (including endpoint details where appropriate), contact <a href="mailto:info@spiti.tech">info@spiti.tech</a>. Fields match the live frontend implementation:</p>
-    <ul>
-        <li><strong>event</strong>: one of <code>app_open</code>, <code>installatie</code> (first recorded version), <code>update</code> (bundle version changed)</li>
-        <li><strong>source</strong>: <code>App (PWA)</code> vs <code>Website (Browser)</code> (standalone display-mode detection)</li>
-        <li><strong>version</strong> / <strong>css_version</strong>: application and stylesheet cache-bust markers</li>
-        <li><strong>os</strong> / <strong>device</strong>: coarse flags derived from the user-agent (e.g. Android / iOS / Desktop, Mobile vs Desktop)</li>
-        <li><strong>screen</strong>: viewport width×height at send time</li>
-        <li><strong>referrer</strong>: <code>document.referrer</code> or “direct”</li>
-        <li><strong>theme</strong>: light/dark inferred from <code>prefers-color-scheme</code></li>
-        <li><strong>datum</strong>: human-readable timestamp string</li>
-    </ul>
-    <p>Automation on the server may combine the request IP (as seen by the webhook) with third-party geo-lookup tools (for example IP-API style services) for aggregated, non-precise location context. Purpose: operations, adoption, and debugging — not profiling for advertising on our side.</p>
-    <p>The published frontend skips sending this telemetry POST while you stay on <code>privacy.html</code> or <code>privacy-el.html</code>.</p>
+    <h2>4. Application telemetry</h2>
+    <p>Shortly after load, the client sends a small JSON payload (typically ~1.5&nbsp;s delay) via <strong>HTTPS POST</strong> to an endpoint on <strong>self-hosted workflow automation</strong> (n8n) operated for this site. We intentionally <strong>do not publish the full hostname</strong> here. Regulatory or data-protection enquiries (including processor details where appropriate): <a href="mailto:info@spiti.tech">info@spiti.tech</a>.</p>
+    <p>The payload supports secure operation and product diagnostics only — <strong>not</strong> advertising profiling. It may include: event kind (for example open, first recorded install/version, bundle update); whether the UI ran as an installed PWA or in the browser; coarse app/stylesheet version markers; coarse OS/device class from the user-agent; viewport size; referrer or “direct”; light/dark preference; and a human-readable timestamp.</p>
+    <p>The server may derive approximate, non-precise location context from the connection IP using standard geo-lookup services, for aggregated operational statistics.</p>
+    <p>No telemetry POST is sent while you stay on <code>privacy.html</code> or <code>privacy-el.html</code>.</p>
 
     <h2>5. Directory &amp; timetable data</h2>
     <p>The business directory and bus timetable views load content over <strong>HTTPS</strong> from backend endpoints operated for this site. Like any web request, infrastructure may log technical metadata (for example IP address and timestamps). No login is required to view this information.</p>
-    <p><strong>Bus timetables:</strong> schedules shown in the app are provided for convenience and are based on <strong>official KTEL</strong> (regional intercity bus operator) information. For authoritative times, cancellations, and service changes, check the relevant KTEL operators’ websites.</p>
+    <p><strong>Bus timetables:</strong> schedules shown are for convenience and reflect <strong>official KTEL</strong> information. For Kala&nbsp;Nera and the wider Pelion area, the regional operator is <strong>KTEL Magnesia</strong> (<strong>Volos</strong>). For authoritative times, cancellations, and service changes, follow that operator’s official channels — we do not list third‑party timetable URLs in this notice.</p>
     <p>Responses may be cached briefly on the server (including material maintained via spreadsheets or APIs behind those endpoints) to reduce upstream load; that processing happens server-side, not in your browser.</p>
 
     <h2>6. Weather widget</h2>
@@ -98,16 +93,9 @@
     <p>Pages may embed or link to external resources (e.g. live webcam images, Meteoblue, Google&nbsp;Maps, Facebook, KTEL websites). Opening those links or embeds exposes standard connection data to those third parties under their policies.</p>
 
     <h2>8. Local storage on your device</h2>
-    <p>The app uses <strong>browser localStorage</strong> (and PWA caches via the service worker) to improve performance and offline use. Examples aligned with the current codebase include (non-exhaustive):</p>
-    <ul>
-        <li><code>kalanera_offline_data</code> / <code>kalanera_last_sync</code> — cached business directory snapshot and last refresh label</li>
-        <li><code>kalanera_list_mode</code> — directory view mode preference</li>
-        <li><code>kalanera_wishlist</code> — favourites you save in the browser (stays on device unless you later use a server feature that transmits it)</li>
-        <li><code>kalanera_bus_schedule_cache_v3</code>, <code>kalanera_bus_dir</code>, <code>kalanera_bus_day_offset</code> — bus UI state and timetable cache slots</li>
-        <li><code>app_version</code> — last reported app bundle version for telemetry event type</li>
-        <li><code>theme</code> — dark/light preference</li>
-    </ul>
-    <p>You can clear site data via browser or PWA settings; that removes these local copies.</p>
+    <p>The app uses <strong>browser localStorage</strong> and <strong>PWA / service-worker caches</strong> so content loads faster and parts of the directory or bus views can work offline. Typical categories stored locally include UI preferences (such as theme and directory layout), favourites, cached snapshots of listings or timetables with refresh timestamps, bus-screen choices, and markers linked to version reporting.</p>
+    <p>Favourites stay on your device unless you later use a feature that deliberately sends them to a server.</p>
+    <p>You can clear site data via browser or installed-app settings.</p>
 
     <h2>9. Service worker (PWA)</h2>
     <p>A service worker caches static assets and may serve an offline banner. It reports its version string to the page for display/diagnostics. It does not replace the analytics/telemetry statements above.</p>
@@ -138,11 +126,20 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>© 2026 Kala Nera Business Directory</p>
+        <div class="footer-powered">
+            <a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="Powered by KanteKlik — email contact">
+                <span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <span class="footer-powered-label">Powered by</span>
+                <span class="footer-powered-name">KanteKlik</span>
+            </a>
+        </div>
+        <div class="footer-bottom-row">
+            <p>© 2026 Kala Nera Business Directory</p>
+        </div>
     </div>
 </footer>
 
-<script src="app.js?v=2.0.95"></script>
+<script src="app.js?v=2.1.4"></script>
 
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">
