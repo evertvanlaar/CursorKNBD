@@ -70,7 +70,7 @@ const unpackJs = [
 const writeCacheJs = [
   '// TTL alleen hier (ms). Bus_Schedule wijzigt zelden (anders dan local-businesses); zet gerust 30 dagen of langer.',
   '// Filtering (tijd/dir/remaining) gebeurt per request — lange TTL is veilig voor de Sheet-snapshot.',
-  '// Bij spoed-wijziging: Manual reset, API reset, of X-LB-Cache-Bypass met zelfde secret als businesses.',
+  '// Bij spoed-wijziging: reset-webhook (GET + token), of X-LB-Cache-Bypass op bus-schedule-next — géén Manual Execute voor persisted cache.',
   'const TTL_MS = 30 * 24 * 60 * 60 * 1000;',
   '',
   'const rows = $input.all().map((i) => i.json);',
@@ -82,6 +82,7 @@ const writeCacheJs = [
   'return [{ json: { rows } }];',
 ].join('\n');
 
+/** Manual Trigger uit editor = geen persisted static data (n8n docs); gebruik reset-webhook voor echte wipe. */
 const manualClearJs = [
   "const sd = $getWorkflowStaticData('global');",
   'delete sd.busScheduleRawRows;',
@@ -89,8 +90,12 @@ const manualClearJs = [
   'return [',
   '  {',
   '    json: {',
-  '      cleared: true,',
-  "      hint: 'Volgende GET bus-schedule-next leest Bus_Schedule opnieuw in.',",
+  '      ok: true,',
+  '      persistedClear: false,',
+  "      why:",
+  "        'n8n slaat workflow static data niet op bij Execute Workflow / Manual trigger uit de editor (alleen echte webhook/trigger runs).',",
+  '      doInstead:',
+  "        'Roep GET .../webhook/bus-schedule-next-reset-cache?token=<LB_CACHE_BYPASS_SECRET> aan terwijl workflow ACTIEF is, of gebruik bypass op bus-schedule-next (header/query).',",
   '    },',
   '  },',
   '];',
