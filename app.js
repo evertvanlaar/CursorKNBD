@@ -3,9 +3,12 @@
  */
 
 const N8N_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/local-businesses';
-// Bus schedule endpoint (n8n). Query: from, dir, remaining=0|1, dayOffset=0..6 (Athens calendar; n8n must filter by that day’s weekday).
-const N8N_BUS_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/bus-schedule-next';
-const BUS_STORAGE_KEY = 'kalanera_bus_schedule_cache_v2';
+// Bus timetable (n8n path bus-schedule-next). Query: from, dir, remaining=0|1, dayOffset=0..6 (Athens calendar).
+// Legacy webhook /webhook/bus-schedule blijft in n8n actief voor oudere app.js die nog niet via service worker is bijgewerkt.
+const N8N_WEBHOOK_URL_BUS_SCHEDULE_NEXT = 'https://n8n.vanlaar.cloud/webhook/bus-schedule-next';
+// Server-side cache (Sheet-regels): zie n8n/bus-schedule-next-cached-workflow.example.json (+ build-bus-schedule-next-cached-example.mjs).
+/** client-side slots: sleutel dir + Athens kalenderdatum doeldag (niet alleen offset), sync met n8n dayOffset-filter. */
+const BUS_STORAGE_KEY = 'kalanera_bus_schedule_cache_v3';
 const BUS_CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
 /** Today + 6 days: seven consecutive Athens calendar days */
 const BUS_DAY_OFFSET_MAX = 6;
@@ -96,6 +99,33 @@ let activeLocations = new Set();
 let deferredPrompt; // Global variabele voor PWA
 let listMode = (localStorage.getItem('kalanera_list_mode') || 'categories'); // 'categories' | 'az'
 
+/** Webhook: platte array óf `{ rows|data|items: [...] }` (cache-/Respond-node verschillen). */
+function normalizeBusinessWebhookPayload(parsed) {
+    if (parsed == null) return [];
+    if (typeof parsed === 'string') return null;
+    if (Array.isArray(parsed)) return parsed;
+    if (typeof parsed === 'object') {
+        if (Array.isArray(parsed.rows)) return parsed.rows;
+        if (Array.isArray(parsed.data)) return parsed.data;
+        if (Array.isArray(parsed.items)) return parsed.items;
+    }
+    return null;
+}
+
+function sheetLikeStatusValue(biz) {
+    if (!biz || typeof biz !== 'object') return '';
+    let s = biz.Status ?? biz.status ?? biz.STATUS;
+    if (s != null && String(s).trim() !== '') return s;
+    const key = Object.keys(biz).find(
+        (k) => String(k).replace(/^\ufeff/, '').trim().toLowerCase() === 'status'
+    );
+    return key ? biz[key] : '';
+}
+
+function businessRowIsActive(biz) {
+    return String(sheetLikeStatusValue(biz) ?? '').trim().toLowerCase() === 'active';
+}
+
 // Icon Map voor categorieën
 const iconMap = {
     'Bakery': 'fa-bread-slice', 'Bakker': 'fa-bread-slice', 'Coffee': 'fa-coffee', 'Koffie': 'fa-coffee',
@@ -106,7 +136,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.0.83'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.0.88'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -142,7 +172,10 @@ async function init() {
     const isWishlistPage = document.getElementById('empty-wishlist') !== null;
 
     // Functie om de juiste weergave te kiezen
+    /** Voorkom eeuwig “loading…” als fetch faalt zonder geldige cache of bij alleen !response.ok */
+    let directoryUiRendered = false;
     const showData = () => {
+        if (!isWishlistPage) directoryUiRendered = true;
         if (isWishlistPage) {
             renderWishlist(); 
         } else {
@@ -170,9 +203,67 @@ async function init() {
 // --- STAP 3: Haal verse data op via n8n ---
     try {
         const response = await fetch(N8N_WEBHOOK_URL);
-        if (response.ok) {
-            const rawData = await response.json();
-            const freshData = rawData.filter(biz => biz.Status === 'Active');
+        if (!response.ok) {
+            const bodySnippet = await response.text().catch(() => '');
+            console.warn(
+                'Businesses webhook niet OK:',
+                response.status,
+                bodySnippet.slice(0, 400)
+            );
+        } else {
+            const bodyText = await response.text();
+            const trimmed = bodyText.trim();
+            let payload;
+            if (!trimmed) {
+                console.warn(
+                    'Businesses webhook: lege response body (HTTP',
+                    response.status,
+                    ') — meestal n8n Respond zonder body of $json.rows undefined. Check workflow / cache branch.'
+                );
+                payload = [];
+            } else {
+                try {
+                    payload = JSON.parse(trimmed);
+                } catch (parseErr) {
+                    console.warn(
+                        'Businesses webhook: body is geen geldige JSON',
+                        parseErr,
+                        '| snippet:',
+                        trimmed.slice(0, 400)
+                    );
+                    throw parseErr;
+                }
+            }
+            if (typeof payload === 'string') {
+                try {
+                    payload = JSON.parse(payload);
+                } catch (parseErr) {
+                    console.warn('Businesses webhook: body is string maar geen geldige JSON', parseErr);
+                    throw new Error('Invalid businesses payload shape');
+                }
+            }
+            const rawData = normalizeBusinessWebhookPayload(payload);
+            if (!Array.isArray(rawData)) {
+                console.warn(
+                    'Businesses webhook: verwacht array of object.rows[], ontving:',
+                    typeof payload,
+                    payload && typeof payload === 'object' ? Object.keys(payload).slice(0, 15) : payload
+                );
+                throw new Error('Invalid businesses payload shape');
+            }
+            const freshData = rawData.filter(businessRowIsActive);
+            if (rawData.length > 0 && freshData.length === 0) {
+                const sample = rawData[0];
+                console.warn(
+                    'Businesses webhook: alle rijen uitgefilterd op Status≠Active. Voorbeeld Status-waarde:',
+                    sheetLikeStatusValue(sample),
+                    '| sleutels:',
+                    sample && typeof sample === 'object' ? Object.keys(sample).slice(0, 20) : sample
+                );
+            }
+            if (rawData.length === 0) {
+                console.warn('Businesses webhook: lege array — check n8n Google Sheets bereik/tab en workflow.');
+            }
            
             const now = new Date();
             
@@ -195,7 +286,11 @@ async function init() {
             showData(); 
         }
     } catch (error) {
-        console.warn("Offline mode.");
+        console.warn('Offline mode.', error?.message || error);
+    }
+
+    if (!isWishlistPage && businessList && !directoryUiRendered) {
+        showData();
     }
 
     // --- STAP 4: Overige extra's ---
@@ -1020,6 +1115,22 @@ function busClampDayOffset(n) {
     return Math.max(0, Math.min(BUS_DAY_OFFSET_MAX, Math.floor(x)));
 }
 
+/** Athens kalenderdatum YYYY-MM-DD voor strip-offset — zelfde civil-logica als n8n (addDaysToGregorianYmd). */
+function busScheduleTargetYmd(dayOffset) {
+    const off = busClampDayOffset(dayOffset);
+    const today = busNowAthensParts();
+    const [y, m, d] = today.ymd.split('-').map(Number);
+    const x = new Date(Date.UTC(y, m - 1, d + off));
+    const ys = x.getUTCFullYear();
+    const ms = String(x.getUTCMonth() + 1).padStart(2, '0');
+    const ds = String(x.getUTCDate()).padStart(2, '0');
+    return `${ys}-${ms}-${ds}`;
+}
+
+function busScheduleSlotKey(dir, dayOffset) {
+    return `${dir}:${busScheduleTargetYmd(dayOffset)}`;
+}
+
 /** Instant for Athens calendar day = today + offset (0..6), from today's Athens ymd. */
 function busAthensTargetInstant(dayOffset) {
     const off = busClampDayOffset(dayOffset);
@@ -1786,7 +1897,7 @@ function busRenderFullTimetable(container, buses, { routeDir, dayOffset } = {}) 
 }
 
 async function busFetchSchedule(dir, dayOffset) {
-    const url = new URL(N8N_BUS_WEBHOOK_URL);
+    const url = new URL(N8N_WEBHOOK_URL_BUS_SCHEDULE_NEXT);
     // ?from=Kala%20Nera&dir=…&remaining=0|1&dayOffset=0..6 (Athens calendar day; n8n filters days column for that weekday)
     url.searchParams.set('from', 'Kala Nera');
     url.searchParams.set('dir', dir || BUS_DEFAULT_DIR);
@@ -1809,8 +1920,8 @@ function busReadCacheSlot(dir, dayOffset) {
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object') return null;
-        if (parsed.version !== 2 || !parsed.slots || typeof parsed.slots !== 'object') return null;
-        const key = `${dir}:${busClampDayOffset(dayOffset)}`;
+        if (parsed.version !== 3 || !parsed.slots || typeof parsed.slots !== 'object') return null;
+        const key = busScheduleSlotKey(dir, dayOffset);
         const slot = parsed.slots[key];
         if (!slot || !Array.isArray(slot.items)) return null;
         return { savedAt: slot.savedAt, items: slot.items };
@@ -1826,17 +1937,17 @@ function busWriteCacheSlot(dir, dayOffset, items) {
         if (raw) {
             try {
                 const parsed = JSON.parse(raw);
-                if (parsed && parsed.version === 2 && parsed.slots && typeof parsed.slots === 'object') {
+                if (parsed && parsed.version === 3 && parsed.slots && typeof parsed.slots === 'object') {
                     slots = { ...parsed.slots };
                 }
             } catch (e) { /* ignore */ }
         }
-        const key = `${dir}:${busClampDayOffset(dayOffset)}`;
+        const key = busScheduleSlotKey(dir, dayOffset);
         slots[key] = {
             savedAt: new Date().toISOString(),
             items: Array.isArray(items) ? items : [],
         };
-        localStorage.setItem(BUS_STORAGE_KEY, JSON.stringify({ version: 2, slots }));
+        localStorage.setItem(BUS_STORAGE_KEY, JSON.stringify({ version: 3, slots }));
     } catch (e) { /* ignore */ }
 }
 
@@ -1846,7 +1957,7 @@ function busGetSlotsFromStorage() {
         const raw = localStorage.getItem(BUS_STORAGE_KEY);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
-        if (!parsed || parsed.version !== 2 || !parsed.slots || typeof parsed.slots !== 'object') return null;
+        if (!parsed || parsed.version !== 3 || !parsed.slots || typeof parsed.slots !== 'object') return null;
         return parsed.slots;
     } catch (e) {
         return null;
@@ -1879,7 +1990,7 @@ async function busPrefetchMissingDirs() {
     if (!navigator.onLine) return;
     const slots = busGetSlotsFromStorage() || {};
     const missing = BUS_VALID_DIRS.filter((d) => {
-        const slot = slots[`${d}:0`];
+        const slot = slots[busScheduleSlotKey(d, 0)];
         return !slot || !Array.isArray(slot.items);
     });
     if (!missing.length) return;
