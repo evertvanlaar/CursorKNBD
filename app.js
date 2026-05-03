@@ -196,7 +196,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.53'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.65'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -930,6 +930,7 @@ function busUiString(key, repl = {}) {
     }
     if (repl.n != null) s = String(s).replace(/\{n\}/g, String(repl.n));
     if (repl.time != null) s = String(s).replace(/\{time\}/g, String(repl.time));
+    if (repl.destination != null) s = String(s).replace(/\{destination\}/g, String(repl.destination));
     return s;
 }
 
@@ -1144,7 +1145,7 @@ function busScheduleLongPlain(pattern) {
             });
         case 'weekdays':
             return busText('sched_plain_weekdays', {
-                en: 'Monday to Friday',
+                en: 'Mon to Fri',
                 nl: 'Maandag t/m vrijdag',
                 el: 'Δευτέρα έως Παρασκευή',
             });
@@ -1603,31 +1604,21 @@ function busUnifiedDestinationsList(bus, routeDirKey) {
     return list;
 }
 
-/** Platte tekst (aria-label, kopie); zonder HTML. */
+/** Platte tekst (aria-label, kopie): alleen bestemmingsnamen; rooster is al gefilterd op gekozen dag. */
 function busUnifiedDestinationsPlain(bus, routeDirKey) {
     const list = busUnifiedDestinationsList(bus, routeDirKey);
-    return list
-        .map(({ label, detailPlain }) => {
-            const d = String(detailPlain || '').trim();
-            if (!d || d === '—') return label;
-            return `${label} · ${d}`;
-        })
-        .join(' · ');
+    return list.map(({ label }) => String(label || '').trim()).filter(Boolean).join(' · ');
 }
 
-/** Per bestemming als flex-item: scheiding zit vóór nr. 2+, dus nooit een losse «·» aan regel-einde. */
+/** Bestemmingen als doorlopende tekst (geen pills, geen frequentie — dagfilter dekt dat al). */
 function busUnifiedDestinationsHtml(bus, routeDirKey) {
     const list = busUnifiedDestinationsList(bus, routeDirKey);
     if (!list.length) return '';
-    return list
-        .map(({ label, detailHtml, detailPlain }, idx) => {
-            const d = String(detailPlain || '').trim();
-            const hasSched = d && d !== '—';
-            const stop = hasSched
-                ? `<span class="bus-route-stop"><span class="bus-route-stop__block"><span class="bus-route-stop__dest">${busEscapeHtml(label)}</span><span class="bus-route-stop__sched">${detailHtml}</span></span></span>`
-                : `<span class="bus-route-stop">${busEscapeHtml(label)}</span>`;
-            if (idx === 0) return `<span class="bus-route-item">${stop}</span>`;
-            return `<span class="bus-route-item"><span class="bus-route-sep" aria-hidden="true">\u00A0·\u00A0</span>${stop}</span>`;
+    const labels = list.map(({ label }) => busEscapeHtml(label));
+    return labels
+        .map((esc, i) => {
+            if (i === labels.length - 1) return `<span class="bus-route-compact-unit">${esc}</span>`;
+            return `<span class="bus-route-compact-unit">${esc}<span class="bus-route-compact-sep" aria-hidden="true">\u00A0· </span></span>`;
         })
         .join('');
 }
@@ -2093,7 +2084,7 @@ function busRenderList(container, buses, { limit, routeDir, dayOffset } = {}) {
                     ${etaHtml}
                 </div>
                 <div class="bus-info">
-                    <div class="bus-route-stops">${stopsHtml}</div>
+                    <div class="bus-route-stops${stopsHtml ? ' bus-route-stops--compact bus-route-stops--clamp' : ''}">${stopsHtml}</div>
                     ${note ? `<div class="bus-note">${note}</div>` : ``}
                     ${stopLabel ? `<div class="bus-stop">${stopLabel}</div>` : ``}
                     ${arr ? `<div class="bus-arrival">${arr}</div>` : ``}
@@ -2152,21 +2143,31 @@ function busRenderTimelineList(container, buses, {
     }
     const listAria = busEscapeHtml(listAriaPlain);
 
-    const nextIdx = off === 0 ? busNextDepartureIndex(buses, 10) : -1;
+    /** Vandaag: eerstvolgende rit; andere gekozen dag: eerste rit (zelfde als ΠΡΩΤΟ/FIRST). */
+    const nextIdx = off === 0
+        ? busNextDepartureIndex(buses, 10)
+        : (buses.length > 0 ? 0 : -1);
     const nextLblPlain = busText('bus_timeline_next_badge', {
         en: 'Next bus',
         nl: 'Volgende bus',
         el: busT('bus_timeline_next_badge', 'Επόμενο'),
     });
+    const firstDepartureAria = busText('bus_first_departure_verbose', {
+        en: 'First departure',
+        nl: 'Eerste vertrek',
+        el: busT('bus_first_departure_verbose', 'Πρώτο δρομολόγιο'),
+    });
 
     const itemsHtml = buses.slice(0, Math.max(0, max)).map((bus, idx, list) => {
+        const rawDep = String(bus.departure || '').trim();
         const dep = busEscapeHtml(bus.departure);
         const stopsPlain = busUnifiedDestinationsPlain(bus, dirKey);
         const stopsHtml = busUnifiedDestinationsHtml(bus, dirKey);
         const isLast = idx === list.length - 1;
         const isNext = nextIdx >= 0 && idx === nextIdx;
+        const highlightAria = off === 0 ? nextLblPlain : firstDepartureAria;
         const itemAria = busEscapeHtml(
-            `${isNext ? `${nextLblPlain}: ` : ''}${String(bus.departure || '').trim()}: ${stopsPlain}`
+            `${isNext ? `${highlightAria}: ` : ''}${rawDep}: ${stopsPlain}`
         );
         const note = bus.note ? busEscapeHtml(bus.note) : '';
         const arrivalLine = bus.arrival ? busEscapeHtml(`${arrivalPrefix}: ${bus.arrival}`) : '';
@@ -2175,7 +2176,6 @@ function busRenderTimelineList(container, buses, {
             ? busEscapeHtml(`${busText('stop_label', { en: 'Stop', nl: 'Halte', el: busT('bus_stop_label', 'Στάση') })}: ${stopText}`)
             : '';
         const metaLine = stopLabel || '';
-        const rawDep = String(bus.departure || '').trim();
         let etaTimelineHtml = '';
         if (showNextEta && off === 0 && isNext && rawDep) {
             const minsUntilToday = busMinutesUntilDepartureToday(rawDep, off);
@@ -2199,7 +2199,7 @@ function busRenderTimelineList(container, buses, {
                     ${etaTimelineHtml}
                 </div>
                 <div class="bus-timeline__body">
-                    <div class="bus-route-stops">${stopsHtml}</div>
+                    <div class="bus-route-stops${stopsHtml ? ' bus-route-stops--compact bus-route-stops--clamp' : ''}">${stopsHtml}</div>
                     ${note ? `<div class="bus-timeline__note">${note}</div>` : ``}
                     ${metaLine ? `<div class="bus-timeline__meta">${metaLine}</div>` : ``}
                     ${arrivalLine ? `<div class="bus-timeline__arrival">${arrivalLine}</div>` : ``}
@@ -2480,7 +2480,12 @@ async function initBusSchedule() {
         });
     };
 
+    let lastNormalizedForRerender = null;
+    let lastSavedAtForRerender = null;
+
     const renderFromNormalized = (normalized, savedAtIso) => {
+        lastNormalizedForRerender = normalized;
+        lastSavedAtForRerender = savedAtIso || null;
         const forDir = busApplyConsolidatedList(normalized, activeDir);
         const merged = busMergeTripsByTripId(forDir, activeDir);
         const off = busClampDayOffset(activeDayOffset);
