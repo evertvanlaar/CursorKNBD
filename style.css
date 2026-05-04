@@ -1,4 +1,4 @@
-/* version 2.1.99 */
+/* version 2.1.100 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -933,16 +933,17 @@ html[lang="el"] .bus-page-title.bus-page-title--border-pill{
   gap:10px;
   flex-wrap:wrap;
   margin:12px calc(-1 * clamp(10px, 3.6vw, 20px)) 0;
-  padding:8px clamp(10px, 3.6vw, 20px) 7px;
+  padding:10px clamp(12px, 3.8vw, 22px) 9px;
   box-sizing:border-box;
-  background:linear-gradient(180deg, rgba(248,250,252,0.85) 0%, rgba(241,245,249,0.75) 100%);
-  border-bottom:1px solid rgba(15,23,42,0.08);
-  box-shadow:0 1px 0 rgba(15,23,42,0.04);
+  background:linear-gradient(180deg, rgba(248,250,252,0.92) 0%, rgba(241,245,249,0.82) 100%);
+  border:1px solid rgba(15,23,42,0.07);
+  border-radius:12px;
+  box-shadow:0 1px 2px rgba(15,23,42,0.04);
 }
 /* Binnen het full panel geen negatieve margins: die kunnen rechts buiten het blok steken. */
 .bus-full-panel .bus-timeline__section-head{
   margin-inline:0;
-  padding-inline:0;
+  padding:10px clamp(12px, 3.5vw, 18px) 9px;
 }
 .bus-timeline__section-title{
   font-size:11px;
