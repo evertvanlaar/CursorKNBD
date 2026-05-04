@@ -212,7 +212,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.97'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.98'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2279,6 +2279,8 @@ function busRenderTimelineList(container, buses, {
     isAutoMode = false,
     /** Optional counts from full list so buttons stay visible when filtered */
     timeBandCounts,
+    /** Optional: highlight this exact next departure (precomputed from full list). */
+    nextDepartureKey,
 } = {}) {
     if (!container) return;
     const off = busClampDayOffset(dayOffset);
@@ -2353,12 +2355,28 @@ function busRenderTimelineList(container, buses, {
     }
     const listAria = busEscapeHtml(listAriaPlain);
 
-    /** Vandaag: eerstvolgende rit; andere gekozen dag: eerste rit (zelfde als ΠΡΩΤΟ/FIRST). */
-    let nextIdx = off === 0
-        ? busNextDepartureIndex(buses, 10)
-        : (buses.length > 0 ? 0 : -1);
-    // Robust: if "Athens now" cannot be parsed in some browsers, still highlight the first departure.
-    if (off === 0 && nextIdx < 0 && buses.length > 0) nextIdx = 0;
+    const makeKey = (bus) => {
+        if (!bus) return '';
+        const tid = String(bus.trip_id || '').trim();
+        if (tid) return `trip:${tid}`;
+        const dep = String(bus.departure || '').trim();
+        const dest = String(bus.destination || '').trim();
+        return `dep:${dep}::${dest}`;
+    };
+
+    /** Vandaag: highlight only the true global "next" departure (if it exists in this list). */
+    let nextIdx = -1;
+    if (off !== 0) {
+        nextIdx = (buses.length > 0 ? 0 : -1);
+    } else if (nextDepartureKey) {
+        const k = String(nextDepartureKey || '');
+        for (let i = 0; i < buses.length; i++) {
+            if (makeKey(buses[i]) === k) { nextIdx = i; break; }
+        }
+    } else {
+        // Fallback behavior: compute next within the currently visible list.
+        nextIdx = busNextDepartureIndex(buses, 10);
+    }
     const nextLblPlain = busText('bus_timeline_next_badge', {
         en: 'Next bus',
         nl: 'Volgende bus',
@@ -2866,6 +2884,7 @@ async function initBusSchedule() {
     let activeTimeBand = (localStorage.getItem('kalanera_bus_timeband') || 'auto');
     let lastSortedAllForBands = null;
     let lastTimeBandCounts = null;
+    let lastNextDepartureKey = null;
 
     const renderFromNormalized = (normalized, savedAtIso) => {
         lastNormalizedForRerender = normalized;
@@ -2881,6 +2900,16 @@ async function initBusSchedule() {
                 acc[k] = (acc[k] || 0) + 1;
                 return acc;
             }, { night: 0, morning: 0, midday: 0, evening: 0 });
+            lastNextDepartureKey = (() => {
+                const idx = off === 0 ? busNextDepartureIndex(sortedAll, 10) : (sortedAll.length ? 0 : -1);
+                const b = idx >= 0 ? sortedAll[idx] : null;
+                if (!b) return null;
+                const tid = String(b.trip_id || '').trim();
+                if (tid) return `trip:${tid}`;
+                const dep = String(b.departure || '').trim();
+                const dest = String(b.destination || '').trim();
+                return `dep:${dep}::${dest}`;
+            })();
             const upcoming = (off === 0)
                 ? busSortByDeparture(busFilterRemainingToday([...merged], 10))
                 : sortedAll;
@@ -2931,6 +2960,7 @@ async function initBusSchedule() {
                     activeTimeBand: effectiveForUi,
                     isAutoMode: bandKey === 'auto',
                     timeBandCounts: lastTimeBandCounts,
+                    nextDepartureKey: lastNextDepartureKey,
                 });
             }
         } else {
