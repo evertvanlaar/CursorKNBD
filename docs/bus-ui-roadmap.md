@@ -1,6 +1,6 @@
 # Bus UI — plan van aanpak (roadmap)
 
-Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in [`locales/bus-strings.json`](../locales/bus-strings.json). Volgorde: eerst kleine sprint met directe scanbaarheid, daarna compactere ritregels (Fase 2.1/2.2).
+Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in [`locales/bus-strings.json`](../locales/bus-strings.json). **Huidige richting (mei 2026):** compacte **verticale tijdlijn**, **alle bestemmingen per vertrektijd** als **doorlopende tekst** (geen pills, geen frequentie in de rij — dagfilter dekt dat), **max. 2 regels** met ellipsis waar nodig, **geen** focus/toggle meer.
 
 ---
 
@@ -18,29 +18,35 @@ Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in 
 - **Technisch:** witruimte-bug opgelost (`flex-grow` op `.bus-controls--select` gaf een lege band tussen bestemmings- en datumkiezer in kolom-layout).
 - **Sprint — countdown + tijdlijn-highlight (mei 2026):**
   - Op de **NEXT**-kaart (één rit, **vandaag**): tekst **„ongeveer X min“** onder de vertrektijd (`nextDepartMinutes` / `nextDepartSoon`), live bijgewerkt (interval + tab terug naar voorgrond).
-  - In het **volledige schema**: de eerstvolgende rit (zelfde **10 min**-buffer als filtering) heeft een **duidelijkere rij-highlight** (zachte achtergrond + inset-rand naast bestaande groene dot/bus-icoon).
+  - In het **volledige schema**: **eerstvolgende rit** (vandaag: zelfde **10 min**-buffer als filtering; andere gekozen dag: **eerste rit van die dag**) heeft **oranje stip + bus-icoon** en zachte rij-highlight (consistent met ΠΡΩΤΟ/FIRST).
 - **Tijdlijn UI — layout & PWA-cache (iteraties mei 2026):**
-  - **NEXT** en volledig schema delen dezelfde **tijdlijnsweergave** (geen aparte witte card); **tijdkolom links uitgelijnd** (desktop = mobiel) zodat **NEXT** / **eerste rit** gelijk ligt met de rest.
-  - **ETA onder de tijd:** timeline-ETA niet meer `max-content`-smal (**Due soon / Σύντομα** staat onder de kloktekst).
-  - **Grieks** `nextDepartMinutes`: verkorte vorm **`Σε ~{n} λ.`** (compact op smal scherm).
-  - **Ruimte** rond stip/pills: **`bus-timeline-wrap`** + **`li`-padding** op alle rijen; NEXT-highlight **`::before`** weer volle rijbreedte (geen „smalle strip“).
-  - **Brede witte kaart:** `bus-section` **max-width 1040px**, `main-container` **1140px**; mobiel bus-pagina iets meer contentbreedte (minder outer padding).
+  - **NEXT** en volledig schema delen dezelfde **tijdlijnsweergave**; **tijdkolom** compacter; **bestemmingen links uitgelijnd** naast de tijd (meer bruikbare breedte).
+  - **ETA onder de tijd:** timeline-ETA onder de kloktekst.
+  - **Grieks** `nextDepartMinutes`: verkorte vorm **`Σε ~{n} λ.`**
+  - **`bus-timeline-wrap`** + compacte **`li`-padding**; NEXT-highlight **`::before`** over volle rijbreedte.
+  - **Brede witte kaart:** `bus-section` **max-width 1040px**, `main-container` **1140px**; mobiel iets meer contentbreedte.
   - **`service-worker.js`:** **`style.css?v=` / `app.js?v=`** network-first om oude SW-cache bij deploy te vermijden (PWA/geïnstalleerde app).
-- **Fase 3.2 (eerste oplevering — focusmodus + toggle):** Standaard **geen lijst** van andere rooster-bestemmingen bij elke tijdlijnsrij (**FULL TIMETABLE** / **FIRST / NEXT**, zelfde `showFullRowStops`): het rooster aan de halte kan per **vertrektijd slot** meerdere bestemmingen of meerdere diensten koppelen — **focusmodus** toont alleen de reis naar de gekozen bestemming. **`bus-schedule-view-controls`:** hint (`scheduleFocusHint`) + knop (`scheduleShowFullRowStops` / `scheduleShowFocusedOnly` met `{destination}`); voorkeur optioneel **`localStorage`** `kalanera_bus_schedule_full_row_stops`. In focus: **compactere tijdlijn** (`.bus-timeline--focus`) en **tik op de tijdkolom** opent per rit de volledige bestemmingen (`bus-route-stops--revealed`, `scheduleTimeExpandAria`).
+- **Compacte ritregels (huidige oplossing i.p.v. chips + sheet):**
+  - Alle bestemmingen per vertrektijd als **doorlopende tekst**, gescheiden door **` · `** (HTML-units zodat er geen los scheidingsteken aan het begin van een nieuwe regel komt).
+  - **Geen** pills, **geen** Font Awesome-patroon-iconen in de rij, **geen** frequentie/dagen-tekst in de rij (frontend filtert al op gekozen kalenderdag).
+  - **Max. 2 regels** per rij (`bus-route-stops--clamp` + `-webkit-line-clamp: 2`); volledige lijst blijft in **`aria-label`** op het `<li>`.
+  - **Geen** `bus-schedule-view-controls` (hint + toggle); **geen** focusmodus, **geen** tik-op-tijd expand, **geen** `localStorage` `kalanera_bus_schedule_full_row_stops`.
+  - **Legenda “symbols”** onder het schema: **verwijderd** (symbolen niet meer in gebruik in de lijst).
 
 ### Bewust niet gerealiseerd
 
 - **Sticky invoerzone op mobiel** (oud stap 1.2): geprobeerd met CSS `position: sticky` en daarna met een JS fixed-pin fallback — **volledig teruggedraaid**. In deze layout/stack bleek sticky niet betrouwbaar; er is gekozen voor een **compacte vaste kop** i.p.v. plakkende invoer.
 
-### Nog open uit dit document
+### Nog open / optioneel (niet gecommitteerd)
 
-- **Fase 2.1 / 2.2:** compactere ritregels + sheet/modal bij chips — nog te bouwen (op het pad *volledige rij-detail* / `showFullRowStops`).
-- **Fase 3.2 (vervolg):** optionele aparte kopregel „Filtered for …“; explorer‑modus **alle `dir` in één lijst** (fetch/API-merge) — buiten scope eerste toggle‑oplevering.
+- **Fase 3.1 — tijdvak-koppen** (Morning / Midday / Evening): nog niet gebouwd.
+- **“Filtered for …”-kop** of **alle `dir` in één lijst** (fetch/API-merge): nog niet; blijft aparte epic als ooit gewenst.
+- **Fase 2.1 / 2.2 (chips + sheet):** niet meer nodig voor de huidige UX; alleen nog relevant als je **per rit extra detail** wilt (haltes, uitzonderingen) zonder de lijst langer te maken — dan desgewenst heropenen.
 
 ### Ideeën op reserve (nog niet gebouwd)
 
 - Optionele **microkoppen** (kleine caps of sr-only) boven de twee invoerpaneelen voor extra hiërarchie — alleen als het visueel nog steeds rustig blijft.
-- **Fase 3.1-variant:** tijdvakken niet alleen als koppen, maar optioneel **inklapbare blokken** per dagdeel (Morning / Midday / Evening) voor nog minder scroll — alleen als het geen extra tik-last wordt.
+- **Fase 3.1-variant:** tijdvakken niet alleen als koppen, maar optioneel **inklapbare blokken** per dagdeel — alleen als het geen extra tik-last wordt.
 
 ---
 
@@ -76,119 +82,53 @@ Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in 
 - **Dubbele bestemming** (route-regel + dropdown + hero) werd als storend ervaren → route-regel/`TODAY`-rij verwijderd ten gunste van picker + resultaat.
 - **Native datumveld** past bij een vast venster van 7 kalenderdagen en bespaart verticale ruimte t.o.v. zeven chips.
 - **Flexbox:** `flex-grow: 1` op een kolom-kind (`.bus-controls--select`) kan **ongebruikte verticale ruimte** tussen blokken creëren — bij stack-layout liever `flex: 0 1 auto`.
+- **Focus + toggle** werkte technisch, maar werd **bewust teruggedraaid**: het rooster is al gefilterd op bestemming + dag; **één compacte tekstregel** met alle slot-bestemmingen is eenvoudiger dan modi wisselen.
 
 ---
 
 ## Fase 2 — Lengte van het scherm aanpakken (kern)
 
-**Volgorde:** eerst sprint „NEXT-context“ (countdown + tijdlijn-highlight) af — daarna onderstaande stappen voor compactere ritregels.
+**Status:** het oorspronkelijke doel (“minder hoogte per rit”) is bereikt met **doorlopende bestemmingstekst + 2-regels clamp**, niet met chips + sheet.
 
 | Stap | Actie | Status |
 |------|--------|--------|
 | — | **Countdown bij NEXT** (geschatte minuten tot vertrek, alleen **vandaag**) + DOM-verversing op interval / visibility. | **Gedaan** |
-| — | **Zelfde „next“ als hero visueel in de tijdlijn** (heldere rij-highlight voor eerste nog-te-komen rit). | **Gedaan** |
-| 2.1 | Per vertrektijd: toon **max. 2–3** bestemmings-chips; rest als **`chipMoreStops`** / **`chipMoreSuffix`** (klikbaar). | Open |
-| 2.2 | **Sheet of modal** bij tik: `sheetTitleDeparture` of `sheetTitleWhereBusGoes`, ondertitel `sheetSubtitleStopFull` / `sheetSubtitleStopShort`, optioneel `sheetFooterPlansChange`, knoppen `btnClose` / `btnDone`, **`ariaAdditionalDestinations`** op de chip. | Open |
-| 2.3 | *(Geïntegreerd in sprint hierboven.)* Highlight „eerstvolgende rit“ in tijdlijn — zie eerste rijen van deze tabel. | **Gedaan** |
+| — | **Highlight eerste relevante rit in tijdlijn** (oranje stip + bus waar van toepassing). | **Gedaan** |
+| 2.1 | Per vertrektijd: max. 2–3 **chips** + `chipMoreStops` / `chipMoreSuffix`. | **Niet gepland** — vervangen door compacte tekst + clamp |
+| 2.2 | **Sheet/modal** bij tik voor volledige detail. | **Niet gepland** — zelfde; optioneel later als aparte feature |
+| 2.3 | Highlight „eerstvolgende rit“ / eerste rit van de dag in tijdlijn. | **Gedaan** |
 
-**Deliverable:** minder verticale hoogte per rit; detail op aanvraag — onderdelen **2.1 + 2.2** nog.
-
-*(De invoerbalk gebruikt nu een **datumveld** i.p.v. dag-chips; deze fase gaat vooral over **compactere ritregels** in het schema.)*
+*(De invoerbalk gebruikt een **datumveld** i.p.v. dag-chips.)*
 
 ---
 
 ## Fase 3 — Scanbaarheid en modus
 
-| Stap | Actie |
-|------|--------|
-| 3.1 | **Tijdvakken** in de lijst: subtiele koppen (bijv. Morning / Midday / Evening) op basis van vertrektijd — copy desgewenst taalgebonden in `busStrings`. *(Variant later: inklapbare dagdelen — zie Voortgang.)* |
-| 3.2 | **Filtered-mental model + focus:** zie **Besluit: focusmodus en volledige rijen**. Hint + toggle (focus ↔ volledige weergave van alle rooster-bestemmingen gekoppeld aan die vertrektijd); `localStorage` `kalanera_bus_schedule_full_row_stops`. | **Toggle + focusweergave gedaan**; optionele „Filtered for…“-kop + alle-`dir`-schema: zie *Nog open*. |
+| Stap | Actie | Status |
+|------|--------|--------|
+| 3.1 | **Tijdvak-koppen** (Morning / Midday / Evening) — copy in `busStrings` indien gebouwd. | Open |
+| 3.2 | **Focusmodus + toggle** (`showFullRowStops`, hint, uitklap per tijd). | **Verwijderd uit product** — vervangen door altijd-tonen + compacte tekst |
 
-**Deliverable:** sneller scrollen naar relevant deel; minder zoekwerk bij gekozen bestemming.
-
----
-
-## Besluit: focusmodus en volledige rij-detail (vastgelegd)
-
-**Uitgangspunt:** De reiziger kiest **bestemming** (“Where to?”) en **dag**; API en `busApplyConsolidatedList` leveren **ritten die die bestemming bedienen**. Het spreadsheet/rooster kan per **klokuur op de halte** meerdere **bestemmingen** of meer dan één **dienstregel** koppelen aan **dezelfde vertrektijd** (zowel “één bus, meerdere haltes langs de route” als “meerdere bussen/overstapachtige clustering” valt daar semantisch onder zolang de bron één blok per tijdstip groepeert). In **focusmodus** wordt die volledige lijst niet getoond; na **expand** wel de inhoud zoals nu in de tijdlijntegels wordt gerenderd.
-
-### Afgesproken gedrag
-
-1. **Standaard (focusmodus, zelfde data als nu)**  
-   - Zelfde fetch-cache per gekozen **`dir`**; geen wijziging aan n8n vereist voor deze stap.  
-   - **FULL TIMETABLE** / **FIRST / NEXT:** **geen** volledige weergave van andere rooster-bestemmingen gekoppeld aan dat vertrekmoment (**geen tijdlijntegel-stapel** zoals uitgebreid); wel tijdlijnkolom + ETA/highlight/notities/halte/arrival waar aanwezig.  
-   - **Trust / halte / KTEL** via **ⓘ About times** (`dialog`).
-
-2. **Altijd beschikbare escape**  
-   - Secundaire actie: **uitgebreide weergave** = volledige set bestemmingen/diensten die het rooster per tijdsregel **toont** voor die halte (huidige tegel-render), tot **2.1/2.2**: compacte chips + `+ N` + sheet op dat pad.  
-   - Terug naar **focusmodus**.  
-
-3. **Niet in scope van dit besluit (later / optioneel)**  
-   - Eén chronologisch overzicht dat **alle bestemmingen tegelijk** mengt **zonder** van `dir` te wisselen vereist **samenvoegen van meerdere fetches** of een API‑uitbreiding — dat is een **aparte epic**, niet onderdeel van de eerste implementatie van 3.2.  
-   - **Meerdere bussen om dezelfde kloktijd** blijft afhankelijk van hoe rijen in de data staan; de UI kan alleen eerlijk tonen wat het model levert.
-
-### Samenhang met fase 2
-
-- **2.1 / 2.2** zijn gericht op **inkorten van de VOLLEDIGE‑rij‑weergave** (chips + sheet).  
-- **3.2 focusmodus** vermindert ruis **vóór** die complexiteit: zelfs zonder sheet is de lijst kort.  
-- Aanbevolen **bouwvolgorde:** eerst **3.2 focus + toggle**, daarna **2.1/2.2** op het pad **“volledige rij-detail”** (zelfde toggle‑status).
+**Deliverable (huidig):** stabiele, scanbare tijdlijn zonder moduswissel; volledige bestemmingsinformatie in aria waar de zichtbare tekst afkapt.
 
 ---
 
-## Implementatievoorstel (concreet) — 3.2 focus + toggle
+## Historisch: focusmodus en toggle (niet meer actief)
 
-Onderstaand sluit aan op de huidige code: `initBusSchedule` → `renderFromNormalized` → `busRenderTimelineList` / `busRenderFullTimetable`, met `busUnifiedDestinationsHtml` in `bus-timeline__body`.
+Eerder is **focus + toggle** ontworpen om per vertrektijd alleen de gekozen picker-bestemming te tonen en de rest achter een actie te verbergen. Dat is **niet meer** de gekozen richting: de UI toont nu **altijd** alle bestemmingen die het rooster aan dat tijdslot koppelt (als tekst, max. 2 zichtbare regels). De onderstaande bullets zijn alleen ter **documentatie** van het oude besluit.
 
-### 1. State
-
-- Boolean **`showFullRowStops`** (persisteert als `localStorage` **`kalanera_bus_schedule_full_row_stops`**, waarde `'1'` = uitgebreid):  
-  - `false` = **focusmodus** (standaard).  
-  - `true` = **uitgebreide weergave** (huidige tegel-lijst zoals het rooster ze per tijdregel toont; later te vervangen door 2.1/2.2 waar nodig).
-
-### 2. Render-pad (`app.js`)
-
-- **`busUnifiedDestinationsHtml(bus, routeDirKey, options?)`** met `{ fullRowStops: boolean }`.  
-  - `fullRowStops === false` (focus): return **leeg** (geen blok met andere rooster-bestemmingen/diensten die bij hetzelfde tijdslot worden getoond).  
-  - `fullRowStops === true`: huidige weergave (alle segmenten/chips zoals het rooster ze voor die tijdregel heeft).  
-- **`busRenderTimelineList`** / **`busRenderList`:** boolean doorgeven.  
-- **`aria-label`** op elk `<li>`: in focus kort (**tijd + gekozen picker-bestemming**); in uitgebreid modus zoals nodig uitgebreid.
-
-### 3. UI (`bus.html` / `bus-el.html`)
-
-- Onder kop **FULL TIMETABLE**: `scheduleFocusHint` + toggle. Labels o.a.: **`scheduleShowFullRowStops`** (expand: alle rooster-bestemmingen per vertrektijd) en **`scheduleShowFocusedOnly`** met `{destination}` (terug naar focus).
-
-### 4. Copy (`locales/bus-strings.json` + embedded fallback)
-
-| Key | Functie |
-|-----|---------|
-| `scheduleFocusHint` | Nuanceert: per vertrektijd kunnen meerdere diensten/bestemmingen in het rooster staan; focus verbergt die lijst. |
-| `scheduleShowFullRowStops` | Expand — geen imply “één bus”. |
-| `scheduleShowFocusedOnly` | Terug naar focus (`{destination}`). |
-
-### 5. Styling (`style.css`)
-
-- Minimale klasse voor de hint+toggle‑rij (flex, kleine typo, géén nieuwe zware banner — lijn naadloos onder bestaande **FULL TIMETABLE**‑kop).
-
-### 6. Testchecklist
-
-- Elke `dir` in `BUS_VALID_DIRS`: focus levert kortere rijen; toggle herstelt vorige hoogte.  
-- **NEXT / FIRST** gedrag gelijkgetrokken met focus/expanded (geen rare mismatch).  
-- Dag-offset ≠ 0: zelfde logica.  
-- Offline cache: geen extra requests; zelfde render flags.
-
-### 7. Versie
-
-- Na merge: `asset-version.txt` verhogen + `node scripts/sync-asset-version.mjs` (projectconventie).
+- **Oude idee:** `showFullRowStops` + `localStorage` `kalanera_bus_schedule_full_row_stops`, `bus-schedule-view-controls`, tik op tijdkolom voor `bus-route-stops--revealed`.
+- **Huidige code:** `busUnifiedDestinationsHtml(bus, routeDirKey)` zonder focus-flag; `busRenderTimelineList` zonder expandable kolom; gerelateerde strings (`scheduleFocusHint`, enz.) uit embedded copy gehaald.
 
 ---
 
 ## Fase 4 — Vertrouwen en context op het juiste moment
 
-| Stap | Actie |
-|------|--------|
-| 4.1 | **Hero-kaart:** één actieregel (bijv. “Be at the main-road stop …”) + link **Maps** naar halte (copy uitbreiden in `bus-strings` wanneer gebouwd). |
-| 4.2 | **Offline / cache:** badge bij “Last updated” (bijv. offline + cached schedule) — keys uitbreiden in `bus-strings` wanneer gebouwd. |
-| 4.3 | Legenda **standaard ingeklapt** na eerste bezoek (`localStorage`), kop bv. “Symbols” met bestaande iconen-uitleg. |
+| Stap | Actie | Status |
+|------|--------|--------|
+| 4.1 | **Hero-kaart:** één actieregel + link **Maps** naar halte (copy in `bus-strings` wanneer gebouwd). | Open |
+| 4.2 | **Offline / cache:** badge bij “Last updated” (offline + cached schedule) — keys in `bus-strings` wanneer gebouwd. | Open |
+| 4.3 | Legenda **symbols** onderaan. | **Geschrapt** — geen symbolen meer in ritregels |
 
 ---
 
@@ -196,18 +136,18 @@ Onderstaand sluit aan op de huidige code: `initBusSchedule` → `renderFromNorma
 
 | Stap | Actie |
 |------|--------|
-| 5.1 | **Breakpoint-check:** desktop met brede pills behouden; mobiel alleen compact + sheet. |
-| 5.2 | **Touch targets** ≥ ~44px voor chips die een sheet openen. |
-| 5.3 | Optioneel **GA4-events**: sheet open, filter change, KTEL-link (privacy-bewust). |
+| 5.1 | **Breakpoint-check:** compacte tekst + clamp op smal vs. breder scherm (eventueel clamp alleen mobiel). |
+| 5.2 | Touch targets voor primaire acties (info, dagkiezer, bestemming) blijven ≥ ~44px waar relevant. |
+| 5.3 | Optioneel **GA4-events**: filter change, KTEL-link (privacy-bewust). |
 
 ---
 
 ## Prioriteit als tijd beperkt is
 
-1. **Must:** **Fase 3.2 focusmodus + toggle** (dit document, *Implementatievoorstel*) — groot effect op lengte van de lijst; sluit aan op reizigers‑mental model.  
-2. **Must (daarna of parallel indien capaciteit):** **Fase 2.1 + 2.2** op het pad *volledige rij-detail* — chips + sheet/modal.  
-3. **Should:** **Fase 3.1** (tijdvak-koppen; optioneel later inklapbare dagdelen) + breakpoint-/touch-polish (**geen** sticky hero meer als doel).  
-4. **Nice:** Fase 3.2‑uitbreiding “alle `dir`s in één lijst” (API/fetch‑merge) + Fase 4.
+1. **Should:** **Fase 3.1** (tijdvak-koppen) als de lijst verder leesbaarheid kan gebruiken.
+2. **Nice:** **Fase 4.1 / 4.2** (context rond halte + offline-badge bij last updated).
+3. **Nice:** “alle `dir`s in één lijst” (API/fetch-merge) — aparte epic.
+4. **Alleen bij nieuwe inhoudsbehoefte:** heropen **sheet/modal (oud 2.2)** voor diepere ritinfo, los van de huidige compacte lijst.
 
 ---
 
@@ -222,7 +162,7 @@ Onderstaand sluit aan op de huidige code: `initBusSchedule` → `renderFromNorma
 
 - [`locales/bus-strings.json`](../locales/bus-strings.json) — EN/EL copy en placeholders
 - [`bus.html`](../bus.html) / [`bus-el.html`](../bus-el.html) — markup invoerpaneelen + trust-`dialog`
-- [`app.js`](../app.js) — datum-offset (`busScheduleTargetYmd`, date input), trust-UI (`refreshBusTrustUi`), NEXT-ETA (`busRefreshNextEtaDom`), pelion-mapdialog
-- [`style.css`](../style.css) — invoerpanels, timelines (`.bus-timeline-*`, `.bus-next-eta--timeline`), NEXT-highlight
+- [`app.js`](../app.js) — `busRenderTimelineList`, `busUnifiedDestinationsHtml`, NEXT-ETA, cache-keys (`BUS_STORAGE_KEY`, …)
+- [`style.css`](../style.css) — `.bus-timeline-*`, `.bus-route-stops--compact`, `.bus-route-stops--clamp`, NEXT-highlight
 - [`service-worker.js`](../service-worker.js) — cache; versie-cache voor `*.css?v=` / `*.js?v=`
 - [`docs/google-play-pwa.md`](google-play-pwa.md) — Play Store / TWA (apart onderwerp)
