@@ -26,6 +26,20 @@ Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in 
   - **`bus-timeline-wrap`** + compacte **`li`-padding**; NEXT-highlight **`::before`** over volle rijbreedte.
   - **Brede witte kaart:** `bus-section` **max-width 1040px**, `main-container` **1140px**; mobiel iets meer contentbreedte.
   - **`service-worker.js`:** **`style.css?v=` / `app.js?v=`** network-first om oude SW-cache bij deploy te vermijden (PWA/geïnstalleerde app).
+- **Compacte filterbalk + chooser (mei 2026):**
+  - **Eén rij:** samenvatting **bestemming · datum** (tikbaar) + **ⓘ** (trust) + **kaart**-icoon (Pelion); tik op de balk opent een **`dialog`** met bestemmings-`select` + datumveld (**progressive disclosure**).
+  - **`asset-version.txt` + `scripts/sync-asset-version.mjs`:** één bron voor `APP_VERSION`, SW-cache-namen, `style.css`-banner, root-HTML `?v=`, en **`n8n/n8n-business-page-template.js`** `appVersion` (los van de gegenereerde `business/*.html`).
+- **Titels & service-info:**
+  - Hoofdtitel: **„stop“ / „στάση“** i.p.v. herhaling in departures-titel; departures-pill zonder dubbele stop-naam.
+  - **Buses:** zichtbare linktekst **Volos / Βόλος**; volledig adres alleen in `href` / `title` / `aria-label` (maps opent juiste locatie).
+- **NEXT-kaart + tip:** **Tip (10 min eerder)** staat **binnen** dezelfde highlight/rand als de NEXT-rij (ook in volledige tijdlijn waar van toepassing).
+- **Dagdeel-filter (Fase 3.1 — ingevoerd):**
+  - **Tijdvak-koppen** in de volledige lijst (Morning / Midday / Evening / Night + tijdsbereik uit `bus-strings`).
+  - **Jumpbar:** gefilterd op dagdeel; **„All“** + vier banden; lege banden **disabled** met toegankelijke titel.
+  - **Auto-dagdeel:** standaard band rond **eerstvolgende vertrek** (globaal), met robuuste fallback als „nu“ niet betrouwbaar parseerbaar is; op **Firefox mobiel** na cache-reset: **dag terug naar vandaag** waar localStorage wél bleef staan.
+  - **UI-varianten:** **B** = segmented control (normale mobiel); **D** = **menu + `dialog`** onder **~360px** als safety-net.
+  - **NEXT-highlight bij filter:** oranje indicatie alleen op de **échte** eerstvolgende rit van vandaag; **niet** op „eerste rit van het gefilterde dagdeel“ als die niet de globale next is.
+  - **Visuele polish:** langere labels (**Afternoon / Απόγευμα**) passen in het segment; **sectie-subtitels** (tijdvak-balk in de lijst) met **border-radius** en **inset-padding** (niet hoekig/strak tegen de tekst).
 - **Compacte ritregels (huidige oplossing i.p.v. chips + sheet):**
   - Alle bestemmingen per vertrektijd als **doorlopende tekst**, gescheiden door **` · `** (HTML-units zodat er geen los scheidingsteken aan het begin van een nieuwe regel komt).
   - **Geen** pills, **geen** Font Awesome-patroon-iconen in de rij, **geen** frequentie/dagen-tekst in de rij (frontend filtert al op gekozen kalenderdag).
@@ -37,16 +51,16 @@ Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in 
 
 - **Sticky invoerzone op mobiel** (oud stap 1.2): geprobeerd met CSS `position: sticky` en daarna met een JS fixed-pin fallback — **volledig teruggedraaid**. In deze layout/stack bleek sticky niet betrouwbaar; er is gekozen voor een **compacte vaste kop** i.p.v. plakkende invoer.
 
-### Nog open / optioneel (niet gecommitteerd)
+### Nog open / optioneel
 
-- **Fase 3.1 — tijdvak-koppen** (Morning / Midday / Evening): nog niet gebouwd.
 - **“Filtered for …”-kop** of **alle `dir` in één lijst** (fetch/API-merge): nog niet; blijft aparte epic als ooit gewenst.
 - **Fase 2.1 / 2.2 (chips + sheet):** niet meer nodig voor de huidige UX; alleen nog relevant als je **per rit extra detail** wilt (haltes, uitzonderingen) zonder de lijst langer te maken — dan desgewenst heropenen.
+- **Verdere Firefox-mobiel polish** (overflow/jumpbar): eerdere regressies zijn teruggedraaid; eventueel later opnieuw zeer gericht tweaken.
 
 ### Ideeën op reserve (nog niet gebouwd)
 
-- Optionele **microkoppen** (kleine caps of sr-only) boven de twee invoerpaneelen voor extra hiërarchie — alleen als het visueel nog steeds rustig blijft.
-- **Fase 3.1-variant:** tijdvakken niet alleen als koppen, maar optioneel **inklapbare blokken** per dagdeel — alleen als het geen extra tik-last wordt.
+- Optionele **microkoppen** (kleine caps of sr-only) boven filter/hero voor extra hiërarchie — alleen als het visueel nog steeds rustig blijft.
+- **Variant op dagdeel:** naast vaste koppen + jumpbar, optioneel **inklapbare blokken** per dagdeel — alleen als het geen extra tik-last wordt.
 
 ---
 
@@ -106,10 +120,10 @@ Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in 
 
 | Stap | Actie | Status |
 |------|--------|--------|
-| 3.1 | **Tijdvak-koppen** (Morning / Midday / Evening) — copy in `busStrings` indien gebouwd. | Open |
+| 3.1 | **Tijdvak-koppen + dagdeel-filter** (Night / Morning / Midday / Evening + ranges), jumpbar (All + banden), auto-band, segmented/menu op zeer smal scherm — copy in `bus-strings.json`. | **Gedaan** |
 | 3.2 | **Focusmodus + toggle** (`showFullRowStops`, hint, uitklap per tijd). | **Verwijderd uit product** — vervangen door altijd-tonen + compacte tekst |
 
-**Deliverable (huidig):** stabiele, scanbare tijdlijn zonder moduswissel; volledige bestemmingsinformatie in aria waar de zichtbare tekst afkapt.
+**Deliverable (huidig):** stabiele, scanbare tijdlijn zonder moduswissel; optioneel **dagdeel-filter** met correcte **NEXT**-markering t.o.v. het volledige rooster; volledige bestemmingsinformatie in aria waar de zichtbare tekst afkapt.
 
 ---
 
@@ -144,9 +158,9 @@ Eerder is **focus + toggle** ontworpen om per vertrektijd alleen de gekozen pick
 
 ## Prioriteit als tijd beperkt is
 
-1. **Should:** **Fase 3.1** (tijdvak-koppen) als de lijst verder leesbaarheid kan gebruiken.
-2. **Nice:** **Fase 4.1 / 4.2** (context rond halte + offline-badge bij last updated).
-3. **Nice:** “alle `dir`s in één lijst” (API/fetch-merge) — aparte epic.
+1. **Should:** **Fase 4.1 / 4.2** (context rond halte + offline-badge bij last updated) — nu 3.1 af is, logische volgende „should“.
+2. **Nice:** “alle `dir`s in één lijst” (API/fetch-merge) — aparte epic.
+3. **Nice:** verdere **breakpoint-/browser-verfijning** (o.a. Firefox mobiel) zonder layout-regressies elders.
 4. **Alleen bij nieuwe inhoudsbehoefte:** heropen **sheet/modal (oud 2.2)** voor diepere ritinfo, los van de huidige compacte lijst.
 
 ---
@@ -161,8 +175,15 @@ Eerder is **focus + toggle** ontworpen om per vertrektijd alleen de gekozen pick
 ## Gerelateerde bestanden
 
 - [`locales/bus-strings.json`](../locales/bus-strings.json) — EN/EL copy en placeholders
-- [`bus.html`](../bus.html) / [`bus-el.html`](../bus-el.html) — markup invoerpaneelen + trust-`dialog`
-- [`app.js`](../app.js) — `busRenderTimelineList`, `busUnifiedDestinationsHtml`, NEXT-ETA, cache-keys (`BUS_STORAGE_KEY`, …)
-- [`style.css`](../style.css) — `.bus-timeline-*`, `.bus-route-stops--compact`, `.bus-route-stops--clamp`, NEXT-highlight
+- [`bus.html`](../bus.html) / [`bus-el.html`](../bus-el.html) — filterbalk, trip-chooser-`dialog`, trust-`dialog`, Pelion-map-`dialog`
+- [`app.js`](../app.js) — `busRenderTimelineList`, `busTimelineJumpbarHtml`, trip-chooser, `busUnifiedDestinationsHtml`, NEXT-ETA, timeband-events, cache-keys (`BUS_STORAGE_KEY`, `kalanera_bus_timeband`, …)
+- [`style.css`](../style.css) — `.bus-timeline-*`, `.bus-timeband-*`, `.bus-filter-bar*`, `.bus-route-stops--compact`, `.bus-route-stops--clamp`, NEXT-highlight
 - [`service-worker.js`](../service-worker.js) — cache; versie-cache voor `*.css?v=` / `*.js?v=`
+- [`scripts/sync-asset-version.mjs`](../scripts/sync-asset-version.mjs) — versie uit [`asset-version.txt`](../asset-version.txt)
 - [`docs/google-play-pwa.md`](google-play-pwa.md) — Play Store / TWA (apart onderwerp)
+
+---
+
+## Privacy / policy
+
+**Geen aanpassing privacytekst nodig** voor de bus-UI-wijzigingen tot nu toe: er zijn geen nieuwe **categorieën** persoonsgegevens, geen wijziging in **localStorage**-keys die de policy niet al dekt (UI-voorkeuren, bus-scherm, versie), en het offline/SW-gedrag is **inhoudelijk hetzelfde** als al beschreven in §5–6 van `privacy.html` / `privacy-el.html`. Bij toekomstige features (bv. analytics-events, login) opnieuw beoordelen.
