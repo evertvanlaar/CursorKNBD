@@ -1,4 +1,4 @@
-/* version 2.1.98 */
+/* version 2.1.99 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -1009,11 +1009,13 @@ html[lang="el"] .bus-page-title.bus-page-title--border-pill{
   border:none;
   padding:6px 6px;
   border-radius:999px;
-  font-size:10.5px;
+  font-size:clamp(9px,2.65vw,10.5px);
   font-weight:950;
+  letter-spacing:-0.015em;
   color:rgba(71,85,105,0.92);
   justify-self:stretch;
   min-width:0;
+  white-space:nowrap;
 }
 .bus-timeband-seg .bus-timeline-jumpbar__btn.is-active{color:#1e293b}
 .bus-timeband-seg .bus-timeline-jumpbar__clock{margin-right:4px;color:rgba(45,90,39,0.75)}
@@ -1089,6 +1091,12 @@ html[lang="el"] .bus-page-title.bus-page-title--border-pill{
 @media (max-width:360px){
   .bus-timeband-seg{display:none}
   .bus-timeband-menu__open{display:flex}
+}
+
+/* Extra-tight labels so "Afternoon/Απόγευμα" stay inside the pill */
+@media (max-width:420px){
+  .bus-timeband-seg .bus-timeline-jumpbar__btn{padding:6px 4px}
+  html[lang="el"] .bus-timeband-seg .bus-timeline-jumpbar__btn{letter-spacing:-0.02em}
 }
 .bus-timeline__badge{
   font-size:10px;
