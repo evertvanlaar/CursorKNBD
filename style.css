@@ -1,4 +1,4 @@
-/* version 2.1.107 */
+/* version 2.1.108 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -326,7 +326,7 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:18px;line-heig
   align-items:center;
   justify-content:center;
   height:38px;
-  padding:0 12px;
+  padding:0 10px;
   border-radius:12px;
   border:1px solid rgba(74,108,74,0.30);
   background:
@@ -757,6 +757,7 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:18px;line-heig
 .bus-page-title{margin:0 0 6px;font-size:clamp(1.35rem,4.2vw,1.8rem);font-weight:1000;color:#0f172a;letter-spacing:-0.02em;line-height:1.15}
 
 .bus-page-title-row{display:inline-flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bus-page-title-row .bus-map-open--title{width:34px;height:34px;border-radius:999px}
 
 .bus-page-title-icon{color:#2d5a27;font-size:0.95em;line-height:1;opacity:0.95}
 

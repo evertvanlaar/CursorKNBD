@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.107'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.108'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2810,10 +2810,10 @@ async function initBusSchedule() {
             const isToday = busClampDayOffset(activeDayOffset) === 0;
             todayBtn.disabled = isToday;
             todayBtn.setAttribute('aria-disabled', isToday ? 'true' : 'false');
-            todayBtn.textContent = busText('bus_today', {
-                en: 'Today',
-                nl: 'Vandaag',
-                el: busT('bus_today', 'Σήμερα'),
+            todayBtn.textContent = busText('bus_now_short', {
+                en: 'Now',
+                nl: 'Nu',
+                el: busT('bus_now_short', 'Τώρα'),
             });
             todayBtn.setAttribute('title', busText('bus_today', {
                 en: 'Today',

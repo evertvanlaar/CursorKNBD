@@ -37,7 +37,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.107">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.108">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -116,6 +116,9 @@
                 <span class="bus-page-title-row">
                     <i class="fa-solid fa-bus bus-page-title-icon" aria-hidden="true"></i>
                     <span class="bus-page-title-plain">Bus timetable · Kala Nera stop</span>
+                    <button type="button" class="bus-map-open bus-map-open--title" id="bus-pelion-map-open" aria-haspopup="dialog" aria-controls="bus-pelion-map-dialog" aria-label="Open Pelion &amp; Magnesia map" title="Open Pelion &amp; Magnesia map">
+                        <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                    </button>
                 </span>
             </h1>
             <div class="bus-page-deck">
@@ -134,9 +137,6 @@
                 <div class="bus-filter-bar__actions">
                     <button type="button" class="bus-filter-today" id="bus-filter-today" aria-label="Select today" title="Today">
                         Today
-                    </button>
-                    <button type="button" class="bus-map-open" id="bus-pelion-map-open" aria-haspopup="dialog" aria-controls="bus-pelion-map-dialog" aria-label="Open Pelion &amp; Magnesia map" title="Open Pelion &amp; Magnesia map">
-                        <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                     </button>
                     <button type="button" id="bus-trust-info-open" class="bus-trust-info-btn bus-trust-info-btn--toolbar" aria-haspopup="dialog" aria-controls="bus-trust-info-dialog">
                         <span class="bus-trust-info-btn__ico" aria-hidden="true">ⓘ</span>
@@ -258,7 +258,7 @@
     </section>
 </div>
 
-<script src="app.js?v=2.1.107"></script>
+<script src="app.js?v=2.1.108"></script>
 
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">
