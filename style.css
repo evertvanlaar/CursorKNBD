@@ -1,4 +1,4 @@
-/* version 2.1.111 */
+/* version 2.1.112 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -897,8 +897,7 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:18px;line-heig
 /* Title pill interrupts the top border line (like the "Departures today" pill). */
 .bus-page-heading--top-pill{display:flex;flex-direction:column;align-items:center;margin-bottom:2px;text-align:center;position:relative}
 .bus-page-topbar{display:none}
-.bus-top-divider{position:absolute;top:18px;left:0;right:0;display:flex;align-items:center;gap:10px;pointer-events:none}
-.bus-top-divider__line{flex:1 1 auto;height:1px;background:rgba(15,23,42,0.13);border-radius:2px}
+.bus-full-divider--title{position:absolute;top:18px;left:0;right:0;margin:0;padding:0 2px;pointer-events:none}
 .bus-top-divider__center{position:relative;z-index:2;display:inline-flex;align-items:center;gap:10px;justify-content:center}
 .bus-trust-info-btn--topbar{
   margin-left:0;
