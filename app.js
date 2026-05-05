@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.105'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.106'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2800,11 +2800,31 @@ async function initBusSchedule() {
 
     const filterSummaryEl = document.getElementById('bus-filter-summary');
     const tripChooserOpenBtn = document.getElementById('bus-trip-chooser-open');
+    const todayBtn = document.getElementById('bus-filter-today');
     const refreshFilterSummary = () => {
         if (!filterSummaryEl) return;
         const dest = busDirLabel(activeDir);
         const datePhrase = busFilterSummaryDatePhrase(activeDayOffset);
         filterSummaryEl.textContent = `${dest} · ${datePhrase}`;
+        if (todayBtn) {
+            const isToday = busClampDayOffset(activeDayOffset) === 0;
+            todayBtn.classList.toggle('is-hidden', isToday);
+            todayBtn.textContent = busText('bus_today', {
+                en: 'Today',
+                nl: 'Vandaag',
+                el: busT('bus_today', 'Σήμερα'),
+            });
+            todayBtn.setAttribute('title', busText('bus_today', {
+                en: 'Today',
+                nl: 'Vandaag',
+                el: busT('bus_today', 'Σήμερα'),
+            }));
+            todayBtn.setAttribute('aria-label', busText('bus_today_select', {
+                en: 'Select today',
+                nl: 'Selecteer vandaag',
+                el: busT('bus_today_select', 'Επιλογή σήμερα'),
+            }));
+        }
         if (tripChooserOpenBtn) {
             const ariaTpl = busText('bus_filter_bar_aria', {
                 en: 'Timetable: {dest}, {date}. Change destination or day.',
@@ -2820,6 +2840,16 @@ async function initBusSchedule() {
         dayInputEl.min = busScheduleTargetYmd(0);
         dayInputEl.max = busScheduleTargetYmd(BUS_DAY_OFFSET_MAX);
         dayInputEl.value = busScheduleTargetYmd(activeDayOffset);
+    };
+
+    const setDayOffset = (off) => {
+        const next = busClampDayOffset(off);
+        if (next === activeDayOffset) return;
+        activeDayOffset = next;
+        try { localStorage.setItem(BUS_DAY_OFFSET_STORAGE_KEY, String(activeDayOffset)); } catch { /* ignore */ }
+        syncDayPickerFromOffset();
+        updateDayChrome();
+        load({ force: false });
     };
 
     const mountDayPicker = () => {
@@ -2838,18 +2868,15 @@ async function initBusSchedule() {
                 return;
             }
             const off = busDayOffsetFromPickedYmd(raw);
-            if (off === activeDayOffset) return;
-            activeDayOffset = off;
-            try {
-                localStorage.setItem(BUS_DAY_OFFSET_STORAGE_KEY, String(activeDayOffset));
-            } catch (err) { /* ignore */ }
-            syncDayPickerFromOffset();
-            updateDayChrome();
-            load({ force: false });
+            setDayOffset(off);
         });
     };
 
     mountDayPicker();
+    if (todayBtn && !todayBtn.dataset.mounted) {
+        todayBtn.dataset.mounted = '1';
+        todayBtn.addEventListener('click', () => setDayOffset(0));
+    }
 
     if (nextContainer) {
         busInitEtaDomHooks();
