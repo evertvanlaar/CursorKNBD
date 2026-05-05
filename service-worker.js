@@ -10,29 +10,22 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Zorg ook dat deze erin staan (die dwingen de update af):
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
-});
-
 // manifest.json niet pre-cachen: oude background_color bleef anders "vast" in splash/PWA-metadata
 const STATIC_ASSETS = [
   '/',
   '/icon-512.png'
 ];
 
-self.addEventListener('install', event => {
+// Single install handler: precache + immediate activation.
+self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
+// Single activate handler: cleanup + claim.
+self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
