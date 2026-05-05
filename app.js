@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.112'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.113'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2885,7 +2885,15 @@ async function initBusSchedule() {
     }
 
     const updateDayChrome = () => {
-        if (fullTitleEl) fullTitleEl.textContent = busFullTimetableTitle(activeDayOffset);
+        if (fullTitleEl) {
+            const title = busFullTimetableTitle(activeDayOffset);
+            const textNode = fullTitleEl.querySelector('.bus-subsection-pill__text');
+            if (textNode) {
+                textNode.textContent = title;
+            } else {
+                fullTitleEl.textContent = title;
+            }
+        }
         if (nextTitleEl) {
             const plain = activeDayOffset === 0
                 ? busText('bus_next_heading', {
