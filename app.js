@@ -31,6 +31,10 @@ const BUS_UI_STRINGS_EMBEDDED = {
     "trustOfflineCached": "If you are offline, this page shows the last timetable cached from your last successful load.",
     "trustPrimary": "Times are estimates (Volos KTEL + ~30 min to this stop). Not an official timetable.",
     "trustUltraCompact": "Est. from Volos KTEL (+~30 min). Not official.",
+    "trustPrimaryFromVolos": "Times shown are estimates for the Kala Nera stop — they apply to buses departing from Volos (KTEL) towards Kala Nera / Pelion (+~30 min to this stop). Not an official timetable.",
+    "trustUltraCompactFromVolos": "Est. for Kala Nera stop (from Volos KTEL, +~30 min). Not official.",
+    "trustPrimaryToVolos": "Times shown are for the Kala Nera stop. Not an official timetable.",
+    "trustUltraCompactToVolos": "Times for Kala Nera stop. Not official.",
     "linkOfficialKtelShort": "Official KTEL",
     "linkOfficialKtelLong": "Open official KTEL timetables",
     "chipMoreStops": "+{n} stops",
@@ -61,6 +65,10 @@ const BUS_UI_STRINGS_EMBEDDED = {
     "trustOfflineCached": "Αν είστε offline, η σελίδα δείχνει το τελευταίο αποθηκευμένο πρόγραμμα από την τελευταία επιτυχή φόρτωση.",
     "trustPrimary": "Οι ώρες είναι εκτιμώμενες (δρομολόγιο ΚΤΕΛ Βόλου + ~30 λεπτά για τη στάση). Δεν είναι επίσημο πρόγραμμα.",
     "trustUltraCompact": "Εκτίμηση από ΚΤΕΛ Βόλου (+~30 λεπτά). Όχι επίσημο.",
+    "trustPrimaryFromVolos": "Οι ώρες είναι εκτιμήσεις για τη στάση στα Καλά Νερά — ισχύουν για λεωφορεία που αναχωρούν από ΚΤΕΛ Βόλου προς Καλά Νερά / Πήλιο (+~30 λεπτά μέχρι τη στάση). Δεν είναι επίσημο πρόγραμμα.",
+    "trustUltraCompactFromVolos": "Εκτίμηση για στάση Καλά Νερά (από ΚΤΕΛ Βόλου, +~30′). Όχι επίσημο.",
+    "trustPrimaryToVolos": "Οι ώρες αφορούν τη στάση στα Καλά Νερά. Δεν είναι επίσημο πρόγραμμα.",
+    "trustUltraCompactToVolos": "Ώρες για στάση Καλά Νερά. Όχι επίσημο.",
     "linkOfficialKtelShort": "Επίσημο ΚΤΕΛ",
     "linkOfficialKtelLong": "Άνοιγμα επίσημων δρομολογίων ΚΤΕΛ",
     "chipMoreStops": "+{n} στάσεις",
@@ -212,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.101'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.102'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -959,14 +967,19 @@ function refreshBusTrustUi() {
     const dialogTitle = document.getElementById('bus-trust-dialog-title');
     const btn = document.getElementById('bus-trust-info-open');
     const btnTxt = btn && btn.querySelector ? btn.querySelector('.bus-trust-info-btn__txt') : null;
-    const tip = busUiString('trustUltraCompact');
+    const dirRaw = (() => {
+        try { return localStorage.getItem('kalanera_bus_dir') || BUS_DEFAULT_DIR; } catch { return BUS_DEFAULT_DIR; }
+    })();
+    const dir = BUS_VALID_DIRS.includes(String(dirRaw || '')) ? String(dirRaw || '') : BUS_DEFAULT_DIR;
+    const isToVolos = dir === 'volos';
+    const tip = busUiString(isToVolos ? 'trustUltraCompactToVolos' : 'trustUltraCompactFromVolos') || busUiString('trustUltraCompact');
     const openHint = busText('bus_trust_open_sheet_hint', {
         en: 'Opens details and official KTEL link.',
         nl: 'Opent details en officiële KTEL-link.',
         el: busT('bus_trust_open_sheet_hint', 'Ανοίγει λεπτομέρειες και επίσημο σύνδεσμο ΚΤΕΛ.'),
     });
 
-    const primary = busUiString('trustPrimary');
+    const primary = busUiString(isToVolos ? 'trustPrimaryToVolos' : 'trustPrimaryFromVolos') || busUiString('trustPrimary');
 
     const tipEl = document.getElementById('bus-next-tip');
     if (tipEl) tipEl.textContent = busUiString('tipBeEarly');
@@ -2390,7 +2403,12 @@ function busRenderTimelineList(container, buses, {
     });
 
     const list = buses.slice(0, Math.max(0, max));
-    const useTimeSections = timeSections !== false && !nextPreview && list.length > 1;
+    // Only show MORNING / AFTERNOON / EVENING dividers when a daypart filter is active.
+    // In "All" mode, the list should be uninterrupted.
+    const useTimeSections = timeSections !== false
+        && !nextPreview
+        && list.length > 1
+        && String(activeTimeBand || '') !== 'all';
     let lastBand = null;
     const bandsSeen = [];
     const itemFragments = [];
