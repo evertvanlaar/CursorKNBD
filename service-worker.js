@@ -13,6 +13,8 @@ self.addEventListener('message', (event) => {
 // manifest.json niet pre-cachen: oude background_color bleef anders "vast" in splash/PWA-metadata
 const STATIC_ASSETS = [
   '/',
+  '/offline.html',
+  '/icon-192.png',
   '/icon-512.png'
 ];
 
@@ -174,7 +176,9 @@ self.addEventListener('fetch', event => {
           }
           return networkResponse;
         })
-        .catch(() => caches.match(event.request)),
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match('/offline.html'))
+        ),
     );
     return;
   }
