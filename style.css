@@ -1,4 +1,4 @@
-/* version 2.1.110 */
+/* version 2.1.111 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -894,12 +894,12 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:18px;line-heig
 
 .bus-full-divider__line{flex:1 1 auto;min-width:20px;height:1px;background:rgba(15,23,42,0.13);margin:0;border-radius:2px}
 
-/* Paginatitel-pil ligt op/over de bovenrand v.h. blok (zelfde pil-stijl als Last updated; géén divider-lijnen). */
-.bus-page-heading--top-pill{display:flex;flex-direction:column;align-items:center;margin-bottom:2px;text-align:center}
-.bus-page-topbar{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-.bus-page-topbar__pad{justify-self:start}
-.bus-page-topbar .bus-page-title{grid-column:2}
-.bus-page-topbar .bus-trust-info-btn--topbar{grid-column:3;justify-self:start;margin-left:10px}
+/* Title pill interrupts the top border line (like the "Departures today" pill). */
+.bus-page-heading--top-pill{display:flex;flex-direction:column;align-items:center;margin-bottom:2px;text-align:center;position:relative}
+.bus-page-topbar{display:none}
+.bus-top-divider{position:absolute;top:18px;left:0;right:0;display:flex;align-items:center;gap:10px;pointer-events:none}
+.bus-top-divider__line{flex:1 1 auto;height:1px;background:rgba(15,23,42,0.13);border-radius:2px}
+.bus-top-divider__center{position:relative;z-index:2;display:inline-flex;align-items:center;gap:10px;justify-content:center}
 .bus-trust-info-btn--topbar{
   margin-left:0;
   width:36px;
@@ -913,7 +913,7 @@ h1{font-size:28px;font-weight:800;text-align:center;margin-bottom:18px;line-heig
 
 .bus-page-title.bus-page-title--border-pill{
   flex:0 1 auto;
-  margin:clamp(-20px,-3.9vw,-14px) 0 10px 0;
+  margin:0 0 10px 0;
   min-width:0;
   position:relative;
   z-index:2;
