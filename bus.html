@@ -37,7 +37,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.108">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.109">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -112,15 +112,19 @@
 <div class="main-container">
     <section class="bus-section" aria-label="Bus timetable · Kala Nera stop">
         <header class="bus-page-heading bus-page-heading--top-pill">
-            <h1 class="bus-page-title bus-page-title--border-pill">
-                <span class="bus-page-title-row">
-                    <i class="fa-solid fa-bus bus-page-title-icon" aria-hidden="true"></i>
-                    <span class="bus-page-title-plain">Bus timetable · Kala Nera stop</span>
-                    <button type="button" class="bus-map-open bus-map-open--title" id="bus-pelion-map-open" aria-haspopup="dialog" aria-controls="bus-pelion-map-dialog" aria-label="Open Pelion &amp; Magnesia map" title="Open Pelion &amp; Magnesia map">
-                        <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
-                    </button>
-                </span>
-            </h1>
+            <div class="bus-page-topbar">
+                <span class="bus-page-topbar__pad" aria-hidden="true"></span>
+                <h1 class="bus-page-title bus-page-title--border-pill">
+                    <span class="bus-page-title-row">
+                        <i class="fa-solid fa-bus bus-page-title-icon" aria-hidden="true"></i>
+                        <span class="bus-page-title-plain">Bus timetable · Kala Nera stop</span>
+                    </span>
+                </h1>
+                <button type="button" id="bus-trust-info-open" class="bus-trust-info-btn bus-trust-info-btn--topbar" aria-haspopup="dialog" aria-controls="bus-trust-info-dialog">
+                    <span class="bus-trust-info-btn__ico" aria-hidden="true">ⓘ</span>
+                    <span class="bus-trust-info-btn__txt">About times</span>
+                </button>
+            </div>
             <div class="bus-page-deck">
                 <a class="bus-ktel-glossy" href="https://ktelvolou.gr/en/routes/list/" target="_blank" rel="noopener noreferrer" title="KTEL Volos — official route list" aria-label="KTEL Volos — official route list (opens in new tab)">
                     <img class="bus-ktel-logo" src="pix/ktel-logo.jpg" alt="KTEL Volos" width="120" height="36" loading="lazy" decoding="async">
@@ -138,9 +142,8 @@
                     <button type="button" class="bus-filter-today" id="bus-filter-today" aria-label="Select today" title="Today">
                         Today
                     </button>
-                    <button type="button" id="bus-trust-info-open" class="bus-trust-info-btn bus-trust-info-btn--toolbar" aria-haspopup="dialog" aria-controls="bus-trust-info-dialog">
-                        <span class="bus-trust-info-btn__ico" aria-hidden="true">ⓘ</span>
-                        <span class="bus-trust-info-btn__txt">About times</span>
+                    <button type="button" class="bus-map-open" id="bus-pelion-map-open" aria-haspopup="dialog" aria-controls="bus-pelion-map-dialog" aria-label="Open Pelion &amp; Magnesia map" title="Open Pelion &amp; Magnesia map">
+                        <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -258,7 +261,7 @@
     </section>
 </div>
 
-<script src="app.js?v=2.1.108"></script>
+<script src="app.js?v=2.1.109"></script>
 
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">

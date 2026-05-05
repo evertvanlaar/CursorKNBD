@@ -141,7 +141,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.108';
+    const appVersion = '2.1.109';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
