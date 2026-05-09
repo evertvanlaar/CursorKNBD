@@ -21,7 +21,16 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
 
-/** Root-level HTML only; business/* is maintained via n8n. */
+function walkHtmlFiles(dir, acc = []) {
+  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) walkHtmlFiles(p, acc);
+    else if (ent.name.endsWith('.html')) acc.push(p);
+  }
+  return acc;
+}
+
+/** Root-level HTML; business/*.html gets the same ../style.css?v= (no app.js there). */
 const ROOT_HTML_FILES = [
   'index.html',
   'index-el.html',
@@ -116,6 +125,16 @@ for (const name of ROOT_HTML_FILES) {
     .replace(/href="style\.css\?v=[^"]*"/g, `href="style.css?v=${v}"`)
     .replace(/<script src="app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="app.js?v=${v}"></script>`);
   writeIfChanged(fp, next);
+}
+
+const businessDir = path.join(root, 'business');
+if (fs.existsSync(businessDir)) {
+  for (const fp of walkHtmlFiles(businessDir)) {
+    let html = fs.readFileSync(fp, 'utf8');
+    if (!/href="\.\.\/style\.css\?v=[^"]*"/.test(html)) continue;
+    const next = html.replace(/href="\.\.\/style\.css\?v=[^"]*"/g, `href="../style.css?v=${v}"`);
+    writeIfChanged(fp, next);
+  }
 }
 
 console.log('sync-asset-version: OK →', v);
