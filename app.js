@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.135'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.148'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -3297,7 +3297,8 @@ function renderMoreSheetContent() {
         travelHub: isEl ? 'Επισκόπηση' : 'Overview',
         travelFlights: isEl ? 'Πτήσεις (αεροδρόμιο Βόλου)' : 'Flights (Volos area airport)',
         travelEvents: isEl ? 'Τοπικές εκδηλώσεις' : 'Regional events',
-        travelWalking: isEl ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)'
+        travelWalking: isEl ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)',
+        travelExternal: isEl ? 'Εξωτερικός ιστότοπος' : 'External site'
     };
 
     const aboutText = getFooterAboutText() || (isEl
@@ -3340,15 +3341,13 @@ function renderMoreSheetContent() {
                 </a>
                 <a href="${flightsHref}">
                     <span class="more-link-leading"><i class="fa-solid fa-plane-departure"></i><span class="more-link-label">${labels.travelFlights}</span></span>
-                    <small>${isEl ? 'Sheet + n8n' : 'Sheets + n8n'}</small>
                 </a>
                 <a href="${eventsHref}">
                     <span class="more-link-leading"><i class="fa-solid fa-calendar-days"></i><span class="more-link-label">${labels.travelEvents}</span></span>
-                    <small>${isEl ? 'Sheet + n8n' : 'Sheets + n8n'}</small>
                 </a>
                 <a href="${walkingPelionHref}" target="_blank" rel="noopener noreferrer">
                     <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">${labels.travelWalking}</span></span>
-                    <small>walking-pelion.blogspot.com</small>
+                    <small>${labels.travelExternal}</small>
                 </a>
             </div>
         </section>

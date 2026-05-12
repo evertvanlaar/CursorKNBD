@@ -134,6 +134,13 @@ for (const item of $input.all()) {
     const tabAdd = isGreek ? 'Προσθήκη' : 'Add';
     const tabMore = isGreek ? 'Περισσότερα' : 'More';
 
+    const moreTravelTitle = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
+    const moreTravelHub = isGreek ? 'Επισκόπηση' : 'Overview';
+    const moreTravelFlights = isGreek ? 'Πτήσεις (αεροδρόμιο Βόλου)' : 'Flights (Volos area airport)';
+    const moreTravelEvents = isGreek ? 'Τοπικές εκδηλώσεις' : 'Regional events';
+    const moreTravelWalking = isGreek ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)';
+    const moreTravelExternal = isGreek ? 'Εξωτερικός ιστότοπος' : 'External site';
+
     const moreUseful = isGreek ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers';
     const moreInstallTitle = isGreek ? 'Εγκατάσταση εφαρμογής' : 'Install App';
     const moreInstallBtn = isGreek ? 'Εγκατάσταση' : 'Install';
@@ -142,7 +149,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.135';
+    const appVersion = '2.1.148';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
@@ -395,6 +402,26 @@ for (const item of $input.all()) {
       if (!moreBtn) return;
 
       const html = \`
+        <section class="more-section">
+          <h3>${escapeHtml(moreTravelTitle)}</h3>
+          <div class="more-links">
+            <a href="../info${isGreek ? '-el' : ''}.html">
+              <span class="more-link-leading"><i class="fa-solid fa-compass"></i><span class="more-link-label">${escapeHtml(moreTravelHub)}</span></span>
+              <small>kalanera.gr</small>
+            </a>
+            <a href="../flights${isGreek ? '-el' : ''}.html">
+              <span class="more-link-leading"><i class="fa-solid fa-plane-departure"></i><span class="more-link-label">${escapeHtml(moreTravelFlights)}</span></span>
+            </a>
+            <a href="../events${isGreek ? '-el' : ''}.html">
+              <span class="more-link-leading"><i class="fa-solid fa-calendar-days"></i><span class="more-link-label">${escapeHtml(moreTravelEvents)}</span></span>
+            </a>
+            <a href="https://walking-pelion.blogspot.com/" target="_blank" rel="noopener noreferrer">
+              <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">${escapeHtml(moreTravelWalking)}</span></span>
+              <small>${escapeHtml(moreTravelExternal)}</small>
+            </a>
+          </div>
+        </section>
+
         <section class="more-section">
           <h3>${escapeHtml(moreUseful)}</h3>
           <div class="more-links">
