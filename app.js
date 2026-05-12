@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.132'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.133'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -3839,21 +3839,6 @@ if (document.getElementById('webcamImage')) {
 }
 
 
-
-function toggleNavEmergency(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const menu = document.getElementById("navEmergencyMenu");
-    menu.classList.toggle("is-open");
-}
-
-// Sluit het menu als je ergens anders klikt
-window.addEventListener('click', function(e) {
-    const menu = document.getElementById("navEmergencyMenu");
-    if (menu && !menu.contains(e.target) && !e.target.closest('.sos-trigger')) {
-        menu.classList.remove("is-open");
-    }
-});
 
 
 
