@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.131'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.132'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -3292,7 +3292,11 @@ function renderMoreSheetContent() {
         follow: isEl ? 'Ακολουθήστε μας' : 'Follow us',
         contact: isEl ? 'Επικοινωνία' : 'Contact',
         privacy: isEl ? 'Πολιτική απορρήτου' : 'Privacy policy',
-        developer: isEl ? 'Με την υποστήριξη' : 'Powered by'
+        developer: isEl ? 'Με την υποστήριξη' : 'Powered by',
+        travelTitle: isEl ? 'Ταξίδι & πληροφορίες' : 'Travel & Info',
+        travelHub: isEl ? 'Κέντρο πληροφοριών' : 'Overview hub',
+        travelFlights: isEl ? 'Πτήσεις (αεροδρόμιο Βόλου)' : 'Flights (Volos area airport)',
+        travelEvents: isEl ? 'Τοπικές εκδηλώσεις' : 'Regional events'
     };
 
     const aboutText = getFooterAboutText() || (isEl
@@ -3313,6 +3317,9 @@ function renderMoreSheetContent() {
 
     const version = (typeof APP_VERSION !== 'undefined') ? APP_VERSION : '';
     const privacyHref = isEl ? 'privacy-el.html' : 'privacy.html';
+    const infoHref = isEl ? 'info-el.html' : 'info.html';
+    const flightsHref = isEl ? 'flights-el.html' : 'flights.html';
+    const eventsHref = isEl ? 'events-el.html' : 'events.html';
 
     const formattedCopyright = (() => {
         // Avoid double copyright symbol (some pages already include "©")
@@ -3322,6 +3329,24 @@ function renderMoreSheetContent() {
     })();
 
     container.innerHTML = `
+        <section class="more-section">
+            <h3>${labels.travelTitle}</h3>
+            <div class="more-links">
+                <a href="${infoHref}">
+                    <span class="more-link-leading"><i class="fa-solid fa-compass"></i><span class="more-link-label">${labels.travelHub}</span></span>
+                    <small>kalanera.gr</small>
+                </a>
+                <a href="${flightsHref}">
+                    <span class="more-link-leading"><i class="fa-solid fa-plane-departure"></i><span class="more-link-label">${labels.travelFlights}</span></span>
+                    <small>${isEl ? 'Sheet + n8n' : 'Sheets + n8n'}</small>
+                </a>
+                <a href="${eventsHref}">
+                    <span class="more-link-leading"><i class="fa-solid fa-calendar-days"></i><span class="more-link-label">${labels.travelEvents}</span></span>
+                    <small>${isEl ? 'Sheet + n8n' : 'Sheets + n8n'}</small>
+                </a>
+            </div>
+        </section>
+
         <section class="more-section">
             <h3>${labels.useful}</h3>
             <div class="more-links">

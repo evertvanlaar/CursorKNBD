@@ -42,6 +42,12 @@ const ROOT_HTML_FILES = [
   't-form-el.html',
   'privacy.html',
   'privacy-el.html',
+  'info.html',
+  'info-el.html',
+  'flights.html',
+  'flights-el.html',
+  'events.html',
+  'events-el.html',
 ];
 
 function readVersion() {

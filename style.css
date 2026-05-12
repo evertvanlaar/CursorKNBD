@@ -1,4 +1,4 @@
-/* version 2.1.131 */
+/* version 2.1.132 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -2605,3 +2605,24 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 .bus-page-privacy-foot{text-align:center;font-size:13px;margin:16px 0 8px}
 .bus-page-privacy-foot a{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--muted,#64748b);text-decoration:underline;text-underline-offset:2px}
 .bus-page-privacy-foot a .fa-user-shield{color:var(--primary-olive,#4a6c4a);opacity:.95}
+
+/* Travel & Info hub + sheet placeholder pages */
+.info-hub-page{max-width:56rem;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;box-sizing:border-box}
+.info-hub-lead{font-size:.95rem;color:var(--muted,#64748b);line-height:1.55;margin:0 0 1.25rem}
+.info-hub-grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:640px){.info-hub-grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:992px){.info-hub-grid{grid-template-columns:repeat(3,1fr)}}
+.info-hub-card{display:flex;flex-direction:column;gap:.5rem;padding:1.15rem 1.1rem;border-radius:12px;border:1px solid var(--border,#e2e8f0);background:#fff;text-decoration:none;color:inherit;box-shadow:0 2px 10px rgba(0,0,0,.04);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.info-hub-card:hover,.info-hub-card:focus-visible{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:rgba(74,108,74,.35);outline:none}
+.info-hub-card h2{margin:0;font-size:1.05rem;color:var(--primary-olive,#4a6c4a)}
+.info-hub-card p{margin:0;font-size:.875rem;line-height:1.5;color:var(--text-main,#334155)}
+.info-hub-card__icon{font-size:1.5rem;color:var(--primary-olive,#4a6c4a)}
+.info-hub-card--placeholder{border-style:dashed;cursor:default;box-shadow:none}
+.info-hub-card--placeholder:hover,.info-hub-card--placeholder:focus-visible{transform:none;box-shadow:none;border-color:var(--border,#e2e8f0)}
+.sheet-data-page{max-width:42rem;margin:0 auto;padding:24px 20px calc(var(--bottom-nav-h,64px)+40px);box-sizing:border-box}
+.sheet-data-page h1{font-size:clamp(1.35rem,4vw,1.65rem);margin:0 0 .5rem;color:var(--primary-olive,#4a6c4a)}
+.sheet-data-breadcrumb{margin:0 0 1rem;font-size:.9rem}
+.sheet-data-breadcrumb a{color:var(--muted,#64748b);text-decoration:underline;text-underline-offset:2px}
+.sheet-data-lead{font-size:.9375rem;color:var(--text-main,#334155);line-height:1.6;margin:0 0 1.25rem}
+#flights-root,#events-root{min-height:120px}
+.sheet-data-placeholder{padding:1.25rem 1rem;border-radius:10px;border:1px dashed var(--border,#cbd5e1);background:rgba(74,108,74,.04);color:var(--muted,#64748b);font-size:.9rem;line-height:1.55;text-align:center}
