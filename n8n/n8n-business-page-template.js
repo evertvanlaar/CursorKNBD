@@ -110,6 +110,7 @@ for (const item of $input.all()) {
     const footerSiteTitle = isGreek ? 'Ιστότοπος' : 'Site';
     const footerInfoTitle = isGreek ? 'Πληροφορίες' : 'Info';
     const footerTagline = isGreek ? 'Καλά Νερά · Πήλιο, Ελλάδα' : 'Kala Nera · Pelion, Greece';
+    const footerBusLabel = isGreek ? 'Λεωφορείο (Καλά Νερά)' : 'Bus (Kala Nera)';
     const footerFavoritesLabel = isGreek ? 'Αγαπημένα' : 'Favorites';
     const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρησή' : 'Add your Business';
     const footerSocialTitle = isGreek ? 'Κοινωνικά δίκτυα' : 'Social';
@@ -338,6 +339,7 @@ for (const item of $input.all()) {
         <div class="footer-nav-section">
           <h3>${escapeHtml(footerSiteTitle)}</h3>
           <ul>
+            <li><a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> ${escapeHtml(footerBusLabel)}</a></li>
             <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
             <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
           </ul>
