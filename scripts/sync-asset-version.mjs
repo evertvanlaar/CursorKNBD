@@ -132,7 +132,10 @@ if (fs.existsSync(businessDir)) {
   for (const fp of walkHtmlFiles(businessDir)) {
     let html = fs.readFileSync(fp, 'utf8');
     if (!/href="\.\.\/style\.css\?v=[^"]*"/.test(html)) continue;
-    const next = html.replace(/href="\.\.\/style\.css\?v=[^"]*"/g, `href="../style.css?v=${v}"`);
+    const next = html
+      .replace(/href="\.\.\/style\.css\?v=[^"]*"/g, `href="../style.css?v=${v}"`)
+      // Legacy inline More menu meta card shows a hardcoded version.
+      .replace(/<div class="meta-version"><code>v[^<]*<\/code><\/div>/g, `<div class="meta-version"><code>v${v}</code></div>`);
     writeIfChanged(fp, next);
   }
 }
