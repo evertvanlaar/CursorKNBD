@@ -110,7 +110,6 @@ for (const item of $input.all()) {
     const footerSiteTitle = isGreek ? 'Ιστότοπος' : 'Site';
     const footerInfoTitle = isGreek ? 'Πληροφορίες' : 'Info';
     const footerTagline = isGreek ? 'Καλά Νερά · Πήλιο, Ελλάδα' : 'Kala Nera · Pelion, Greece';
-    const footerBusLabel = isGreek ? 'Λεωφορείο (Καλά Νερά)' : 'Bus (Kala Nera)';
     const footerFavoritesLabel = isGreek ? 'Αγαπημένα' : 'Favorites';
     const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρησή' : 'Add your Business';
     const footerSocialTitle = isGreek ? 'Κοινωνικά δίκτυα' : 'Social';
@@ -141,7 +140,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.129';
+    const appVersion = '2.1.130';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
@@ -339,7 +338,6 @@ for (const item of $input.all()) {
         <div class="footer-nav-section">
           <h3>${escapeHtml(footerSiteTitle)}</h3>
           <ul>
-            <li><a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> ${escapeHtml(footerBusLabel)}</a></li>
             <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
             <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
           </ul>
@@ -380,6 +378,7 @@ for (const item of $input.all()) {
   <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">
       <a href="../${escapeHtml(ix)}"><i class="fa-solid fa-house"></i><span>${escapeHtml(tabHome)}</span></a>
+      <a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus"></i><span>${escapeHtml(isGreek ? 'Λεωφορείο' : 'Bus')}</span></a>
       <a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart"></i><span>${escapeHtml(tabFav)}</span></a>
       <a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus"></i><span>${escapeHtml(tabAdd)}</span></a>
       <a href="#" data-more><i class="fa-solid fa-ellipsis"></i><span>${escapeHtml(tabMore)}</span></a>
@@ -392,16 +391,6 @@ for (const item of $input.all()) {
       if (!moreBtn) return;
 
       const html = \`
-        <section class="more-section">
-          <h3>${escapeHtml(footerBusLabel)}</h3>
-          <div class="more-links">
-            <a href="../bus${isGreek ? '-el' : ''}.html">
-              <span class="more-link-leading"><i class="fa-solid fa-bus"></i><span class="more-link-label">${escapeHtml(footerBusLabel)}</span></span>
-              <small>${isGreek ? 'ΣΗΜΕΡΑ' : 'TODAY'}</small>
-            </a>
-          </div>
-        </section>
-
         <section class="more-section">
           <h3>${escapeHtml(moreUseful)}</h3>
           <div class="more-links">
