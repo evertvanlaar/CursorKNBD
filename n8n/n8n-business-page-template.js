@@ -111,7 +111,7 @@ for (const item of $input.all()) {
     const footerInfoTitle = isGreek ? 'Πληροφορίες' : 'Info';
     const footerTagline = isGreek ? 'Καλά Νερά · Πήλιο, Ελλάδα' : 'Kala Nera · Pelion, Greece';
     const footerBusLabel = isGreek ? 'Λεωφορείο (Καλά Νερά)' : 'Bus (Kala Nera)';
-    const footerTravelLabel = isGreek ? 'Ταξίδι & πληροφορίες' : 'Travel & Info';
+    const footerTravelLabel = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
     const footerFavoritesLabel = isGreek ? 'Αγαπημένα' : 'Favorites';
     const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρησή' : 'Add your Business';
     const footerSocialTitle = isGreek ? 'Κοινωνικά δίκτυα' : 'Social';
@@ -142,7 +142,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.134';
+    const appVersion = '2.1.135';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';

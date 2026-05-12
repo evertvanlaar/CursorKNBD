@@ -1,4 +1,4 @@
-/* version 2.1.134 */
+/* version 2.1.135 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -2606,7 +2606,7 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 .bus-page-privacy-foot a{display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--muted,#64748b);text-decoration:underline;text-underline-offset:2px}
 .bus-page-privacy-foot a .fa-user-shield{color:var(--primary-olive,#4a6c4a);opacity:.95}
 
-/* Travel & Info hub + sheet placeholder pages */
+/* Pelion guide hub + sheet placeholder pages */
 .info-hub-page{max-width:56rem;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;box-sizing:border-box}
 .info-hub-lead{font-size:.95rem;color:var(--muted,#64748b);line-height:1.55;margin:0 0 1.25rem}
 .info-hub-grid{display:grid;grid-template-columns:1fr;gap:16px}
