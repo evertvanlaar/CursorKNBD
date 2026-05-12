@@ -220,7 +220,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '2.1.133'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '2.1.134'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -3296,7 +3296,8 @@ function renderMoreSheetContent() {
         travelTitle: isEl ? 'Ταξίδι & πληροφορίες' : 'Travel & Info',
         travelHub: isEl ? 'Κέντρο πληροφοριών' : 'Overview hub',
         travelFlights: isEl ? 'Πτήσεις (αεροδρόμιο Βόλου)' : 'Flights (Volos area airport)',
-        travelEvents: isEl ? 'Τοπικές εκδηλώσεις' : 'Regional events'
+        travelEvents: isEl ? 'Τοπικές εκδηλώσεις' : 'Regional events',
+        travelWalking: isEl ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)'
     };
 
     const aboutText = getFooterAboutText() || (isEl
@@ -3320,6 +3321,7 @@ function renderMoreSheetContent() {
     const infoHref = isEl ? 'info-el.html' : 'info.html';
     const flightsHref = isEl ? 'flights-el.html' : 'flights.html';
     const eventsHref = isEl ? 'events-el.html' : 'events.html';
+    const walkingPelionHref = 'https://walking-pelion.blogspot.com/';
 
     const formattedCopyright = (() => {
         // Avoid double copyright symbol (some pages already include "©")
@@ -3343,6 +3345,10 @@ function renderMoreSheetContent() {
                 <a href="${eventsHref}">
                     <span class="more-link-leading"><i class="fa-solid fa-calendar-days"></i><span class="more-link-label">${labels.travelEvents}</span></span>
                     <small>${isEl ? 'Sheet + n8n' : 'Sheets + n8n'}</small>
+                </a>
+                <a href="${walkingPelionHref}" target="_blank" rel="noopener noreferrer">
+                    <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">${labels.travelWalking}</span></span>
+                    <small>walking-pelion.blogspot.com</small>
                 </a>
             </div>
         </section>
