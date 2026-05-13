@@ -129,7 +129,8 @@ for (const name of ROOT_HTML_FILES) {
   }
   const next = html
     .replace(/href="style\.css\?v=[^"]*"/g, `href="style.css?v=${v}"`)
-    .replace(/<script src="app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="app.js?v=${v}"></script>`);
+    .replace(/<script src="app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="app.js?v=${v}"></script>`)
+    .replace(/<script src="events-page\.js\?v=[^"]*"/g, `<script src="events-page.js?v=${v}"`);
   writeIfChanged(fp, next);
 }
 

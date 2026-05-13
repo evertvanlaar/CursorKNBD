@@ -11,7 +11,7 @@
     <meta charset="UTF-8">
     <title>Regional events | Kala Nera Guide</title>
     <link rel="canonical" href="https://www.kalanera.gr/events.html">
-    <meta name="description" content="Events and happenings around Pelion and Magnesia: markets, festivals and local dates for visitors.">
+    <meta name="description" content="Regional events — village festivals and traditions across Pelion, by season or A–Z, for visitors to Kala Nera and Magnesia.">
     <link rel="alternate" hreflang="en" href="https://www.kalanera.gr/events.html">
     <link rel="alternate" hreflang="el" href="https://www.kalanera.gr/events-el.html">
     <link rel="alternate" hreflang="x-default" href="https://www.kalanera.gr/events.html">
@@ -19,7 +19,7 @@
     <meta name="theme-color" content="#4a6c4a">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.148">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=2.1.154">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -48,10 +48,10 @@
                 <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
             </button>
             <ul class="nav-links" id="nav-list">
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html"><i class="fa-solid fa-house" aria-hidden="true"></i> Home</a></li>
                 <li><a href="bus.html"><i class="fa-solid fa-bus"></i> Bus (Kala Nera)</a></li>
                 <li><a href="wishlist.html"><i class="fa-solid fa-heart menu-heart"></i> Favorites</a></li>
-                <li><a href="t-form.html">Add your Business</a></li>
+                <li><a href="t-form.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add your Business</a></li>
                 <li><a href="info.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> Pelion guide</a></li>
                 <li id="menu-install-item" class="mobile-only-item">
                     <a href="#" onclick="triggerManualInstall(event)">
@@ -68,18 +68,86 @@
     </nav>
 </header>
 
-<main class="sheet-data-page" id="top">
-    <p class="sheet-data-breadcrumb"><a href="info.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> Pelion guide</a></p>
-    <p class="sheet-data-crosslink"><a href="info.html#useful-numbers"><i class="fa-solid fa-phone" aria-hidden="true"></i> Useful numbers</a> — emergency and local services (also under <strong>More</strong> on mobile).</p>
-    <h1><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Regional events</h1>
-    <p class="sheet-data-lead">Concerts, markets, festivals and other local dates around the region. Items appear below when they are published.</p>
+<main class="sheet-data-page events-page flights-page" id="top">
+    <header class="flights-page-head">
+        <div class="flights-page-head-main">
+            <h1 class="flights-page-title"><i class="fa-solid fa-masks-theater" aria-hidden="true"></i> Regional events</h1>
+            <p class="flights-iata-badge"><abbr title="Pelion peninsula, Magnesia">Pelion</abbr></p>
+        </div>
+        <p class="flights-page-kicker">Magnesia <span class="flights-kicker-sep" aria-hidden="true">·</span> villages &amp; coast</p>
+        <p class="flights-page-lead flights-page-lead--desktop">Festivals, name days, wine and harvest celebrations, and other traditions from around the peninsula. Dates in the list are fixed each year unless the description says otherwise.</p>
+        <p class="flights-page-lead flights-page-lead--mobile">Village traditions — fixed dates unless noted in the text.</p>
+        <div class="events-sort-wrap">
+            <div class="view-toggle view-toggle-inline view-toggle--segment events-sort-toggle" role="tablist" aria-label="Sort list">
+                <button type="button" class="view-toggle-btn" id="events-sort-season" role="tab" aria-selected="true">By season</button>
+                <button type="button" class="view-toggle-btn" id="events-sort-alpha" role="tab" aria-selected="false">A–Z</button>
+            </div>
+        </div>
+    </header>
+
     <div id="events-root" aria-live="polite">
-        <div class="sheet-data-placeholder">No events are listed yet. Please check again later.</div>
+        <div class="sheet-data-placeholder">Loading events…</div>
     </div>
-    <p class="bus-page-privacy-foot"><a href="privacy.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Privacy policy</a></p>
 </main>
 
-<script src="app.js?v=2.1.148"></script>
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-column footer-column--brand">
+            <a href="index.html" class="footer-brand-lockup">
+                <img src="logo.png" alt="Kala Nera" width="52" height="52" class="footer-brand-logo" loading="lazy">
+                <span class="footer-lockup-wordmark logo">Kala <span>Nera</span></span>
+            </a>
+            <p class="footer-tagline">Kala Nera · Pelion, Greece</p>
+            <p class="footer-lead">We help travelers discover the best places—from authentic taverns to wonderful stays—in Kala Nera and the wider Pelion area.</p>
+        </div>
+        <div class="footer-column footer-column--site">
+            <div class="footer-nav-section">
+                <h3>Site</h3>
+                <ul>
+                    <li><a href="bus.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> Bus (Kala Nera)</a></li>
+                    <li><a href="wishlist.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> Favorites</a></li>
+                    <li><a href="t-form.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add your Business</a></li>
+                    <li><a href="info.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> Pelion guide</a></li>
+                </ul>
+            </div>
+            <div class="footer-nav-section">
+                <h3>Info</h3>
+                <ul>
+                    <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> Contact</a></li>
+                    <li><a href="privacy.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Privacy policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-column footer-column--social">
+            <h3>Social</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Kala Nera on Facebook">
+                    <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="footer-powered">
+            <a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="Powered by KanteKlik — email contact">
+                <span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+                <span class="footer-powered-label">Powered by</span>
+                <span class="footer-powered-name">KanteKlik</span>
+            </a>
+        </div>
+        <div class="footer-bottom-row">
+            <p>© 2026 Kala Nera Business Directory. E-Project all rights reserved.</p>
+            <div class="app-version-tag"><i class="fa fa-th-large" aria-hidden="true"></i> Mobile App</div>
+        </div>
+    </div>
+</footer>
+
+<a href="https://www.google.com/maps/search/?api=1&amp;query=Kala+Nera" target="_blank" rel="noopener" class="map-fab-fixed" aria-label="Open Kala Nera in Google Maps">
+    <i class="fa-solid fa-map-location-dot"></i>
+</a>
+
+<script src="app.js?v=2.1.154"></script>
+<script src="events-page.js?v=2.1.154" defer></script>
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">
         <a href="index.html"><i class="fa-solid fa-house"></i><span>Home</span></a>

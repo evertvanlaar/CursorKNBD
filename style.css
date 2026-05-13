@@ -1,4 +1,4 @@
-/* version 2.1.148 */
+/* version 2.1.154 */
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
 @keyframes slideDown{from{transform: translate(-50%, -100%); opacity: 0}to{transform: translate(-50%, 0); opacity: 1}}
@@ -2608,17 +2608,26 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 
 /* Pelion guide hub + sheet placeholder pages */
 .info-hub-page{max-width:56rem;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;box-sizing:border-box}
-.info-hub-lead{font-size:.95rem;color:var(--muted,#64748b);line-height:1.55;margin:0 0 1.25rem}
+.info-hub-lead{font-size:.95rem;color:var(--muted,#64748b);line-height:1.55;margin:0 0 .55rem}
+.info-hub-hint{font-size:.8125rem;color:var(--muted,#64748b);line-height:1.45;margin:0 0 1.1rem;letter-spacing:.01em}
 .info-hub-grid{display:grid;grid-template-columns:1fr;gap:16px}
 @media (min-width:640px){.info-hub-grid{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:992px){.info-hub-grid{grid-template-columns:repeat(3,1fr)}}
-.info-hub-card{display:flex;flex-direction:column;gap:.5rem;padding:1.15rem 1.1rem;border-radius:12px;border:1px solid var(--border,#e2e8f0);background:#fff;text-decoration:none;color:inherit;box-shadow:0 2px 10px rgba(0,0,0,.04);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
-.info-hub-card:hover,.info-hub-card:focus-visible{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:rgba(74,108,74,.35);outline:none}
-.info-hub-card h2{margin:0;font-size:1.05rem;color:var(--primary-olive,#4a6c4a)}
+.info-hub-card{display:flex;flex-direction:column;gap:.5rem;min-height:100%;box-sizing:border-box;padding:1.15rem 1.1rem .95rem;border-radius:12px;border:1px solid var(--border,#e2e8f0);background:#fff;text-decoration:none;color:inherit;box-shadow:0 2px 10px rgba(0,0,0,.04);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.info-hub-card:hover,.info-hub-card:focus-visible{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:rgba(74,108,74,.35)}
+.info-hub-card:focus-visible{outline:none;box-shadow:0 8px 24px rgba(0,0,0,.08),0 0 0 3px rgba(74,108,74,.28)}
+.info-hub-card h2{margin:0;font-size:1.05rem;color:var(--primary-olive,#4a6c4a);text-decoration:underline;text-decoration-color:transparent;text-underline-offset:.2em;text-decoration-thickness:1px;transition:text-decoration-color .15s ease,color .15s ease}
+.info-hub-card:hover h2,.info-hub-card:focus-visible h2{text-decoration-color:rgba(74,108,74,.38)}
 .info-hub-card p{margin:0;font-size:.875rem;line-height:1.5;color:var(--text-main,#334155)}
 .info-hub-card__icon{font-size:1.5rem;color:var(--primary-olive,#4a6c4a)}
+.info-hub-card::after{content:"\203A";margin-top:auto;padding-top:.4rem;align-self:flex-end;font-size:1.35rem;font-weight:300;line-height:1;color:rgba(74,108,74,.38);transition:transform .18s ease,color .15s ease}
+.info-hub-card:hover::after,.info-hub-card:focus-visible::after{color:rgba(74,108,74,.88);transform:translateX(4px)}
+.info-hub-card[target="_blank"]::after{content:"\2197\00a0\203A";font-size:1.05rem;padding-top:.5rem}
 .info-hub-card--placeholder{border-style:dashed;cursor:default;box-shadow:none}
+.info-hub-card--placeholder::after{display:none}
 .info-hub-card--placeholder:hover,.info-hub-card--placeholder:focus-visible{transform:none;box-shadow:none;border-color:var(--border,#e2e8f0)}
+.info-hub-card--placeholder:hover h2,.info-hub-card--placeholder:focus-visible h2{text-decoration-color:transparent}
+@media (prefers-reduced-motion:reduce){.info-hub-card,.info-hub-card::after,.info-hub-card h2{transition:none}.info-hub-card:hover::after,.info-hub-card:focus-visible::after{transform:none}}
 .sheet-data-page{max-width:42rem;margin:0 auto;padding:24px 20px calc(var(--bottom-nav-h,64px)+40px);box-sizing:border-box}
 .sheet-data-page.flights-page{padding-top:clamp(32px,3.5vw,48px)}
 .sheet-data-page h1{font-size:clamp(1.35rem,4vw,1.65rem);margin:0 0 .5rem;color:var(--primary-olive,#4a6c4a)}
@@ -2698,3 +2707,49 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 .flights-meta-season{flex:0 0 38%;max-width:9.5rem;margin:0;padding:0 0 0 .45rem;border-left:1px solid rgba(74,108,74,.2);display:flex;flex-direction:column;justify-content:center;text-align:right;min-width:0}
 .flights-meta-season dt{margin:0;font-size:.58rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted,#64748b);font-weight:700;line-height:1.15}
 .flights-meta-season dd{margin:.05rem 0 0;font-variant-numeric:tabular-nums;font-weight:600;color:var(--text-main,#334155);font-size:.72rem;line-height:1.25}
+
+/* Pelion cultural events (events.html) — same table/stack pattern as flights */
+.flights-schedule-table.events-cultural-table{min-width:min(100%,40rem)}
+.flights-schedule-table.events-cultural-table tbody td.events-col-when{white-space:nowrap;font-weight:600;font-size:.8rem;color:var(--text-main,#334155)}
+.flights-schedule-table.events-cultural-table tbody th.events-col-village{font-weight:800}
+.events-col-details{font-size:.8125rem;line-height:1.45;color:var(--text-main,#334155)}
+.events-evt-card .events-evt-meta.flights-card-meta{flex-direction:column;align-items:stretch;gap:.12rem}
+.events-evt-meta-pair{width:100%}
+.events-card-details{margin:.2rem 0 0;font-size:.78rem;line-height:1.42;color:var(--muted,#64748b)}
+.events-source-credit{margin:0 0 .85rem;font-size:.8125rem;line-height:1.5;color:var(--text-main,#334155)}
+.events-source-credit a{color:var(--primary-olive,#4a6c4a);font-weight:700;text-decoration:underline;text-underline-offset:2px;word-break:break-word}
+.events-afterword .flights-reviewed{margin-top:0;padding-top:.65rem;border-top:1px solid var(--border,#e8eef0)}
+.events-page .flights-page-head .events-sort-wrap{margin:.55rem 0 0;margin-inline-start:max(4px, env(safe-area-inset-left, 0px));margin-inline-end:max(4px, env(safe-area-inset-right, 0px))}
+.events-sort-wrap{margin:0}
+.events-page .events-sort-toggle{width:100%;max-width:min(100%,21.5rem);margin:0;box-sizing:border-box}
+.events-page .events-sort-toggle.view-toggle--segment{display:flex;align-items:stretch;padding:3px;gap:3px;box-sizing:border-box;height:40px;min-height:40px;max-height:40px;border-radius:999px;background:rgba(148,163,184,0.2);border:1px solid rgba(15,23,42,0.09);box-shadow:inset 0 2px 4px rgba(15,23,42,0.07),inset 0 -1px 0 rgba(255,255,255,0.45);-webkit-tap-highlight-color:transparent}
+.events-page .events-sort-toggle.view-toggle--segment .view-toggle-btn{flex:1 1 auto;margin:0;padding:0 10px;min-height:0;min-width:0;font-size:11px;font-weight:800;line-height:1.15;appearance:none;-webkit-appearance:none;white-space:nowrap;border:0!important;border-radius:999px!important;background:transparent!important;color:#94a3b8!important;box-shadow:none!important;display:flex;align-items:center;justify-content:center;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.events-page .events-sort-toggle.view-toggle--segment .view-toggle-btn[aria-selected="true"]{background:linear-gradient(180deg,#f4faf4 0%,#cfe3cf 100%)!important;color:#2d5a27!important;font-weight:900;box-shadow:0 1px 2px rgba(15,23,42,0.08),0 3px 10px rgba(45,90,39,0.14),inset 0 1px 0 rgba(255,255,255,0.92)!important;border:1px solid rgba(74,108,74,0.32)!important;outline:none!important}
+.events-page .events-sort-toggle.view-toggle--segment .view-toggle-btn:focus-visible{outline:2px solid rgba(74,108,74,0.45);outline-offset:2px}
+.events-desktop-alpha{display:none;margin:0 0 .5rem}
+.events-page--alpha .events-desktop-periods{display:none!important}
+@media (min-width:768px){
+  .events-page--alpha .events-desktop-alpha{display:block}
+}
+.events-alpha-mobile-inner{padding:0 .125rem}
+.events-page--alpha .events-evt-card[data-events-alpha],
+.events-page--alpha .events-cultural-table tbody tr[data-events-alpha]{scroll-margin-top:min(140px,24vh)}
+.events-page-alpha-index--compact{gap:1px;padding:5px 3px}
+.events-page-alpha-index--compact .alpha-letter{width:16px;height:11px;font-size:8px}
+.events-desktop-periods{display:block;margin:0 0 .5rem}
+.events-page .events-desktop-periods .flights-table-scroll{margin-top:0}
+.events-period-details{border-radius:12px;border:1px solid rgba(74,108,74,.2);background:rgba(255,255,255,.92);box-shadow:0 1px 10px rgba(0,0,0,.04);margin:0 0 .85rem;overflow:hidden}
+.events-period-summary{display:flex;align-items:center;justify-content:space-between;gap:.5rem;list-style:none;cursor:pointer;padding:.55rem .65rem;margin:0;font:inherit;background:linear-gradient(180deg,rgba(74,108,74,.08) 0%,rgba(74,108,74,.03) 100%);border-bottom:1px solid transparent;transition:background .15s ease,border-color .15s ease}
+.events-period-details:not([open]) .events-period-summary{border-bottom-color:rgba(74,108,74,.12)}
+.events-period-details[open] .events-period-summary{border-bottom-color:rgba(74,108,74,.22);background:rgba(74,108,74,.1)}
+.events-period-summary::-webkit-details-marker{display:none}
+.events-period-summary__title{flex:1 1 auto;min-width:0;text-align:left}
+.events-period-summary .flights-day-heading{margin:0;padding:0;border-bottom:none;line-height:1.25}
+.events-period-summary__meta{display:flex;align-items:center;gap:.45rem;flex-shrink:0}
+.events-period-count{font-size:.68rem;font-weight:600;color:var(--muted,#64748b);white-space:nowrap}
+.events-period-chevron{font-size:.62rem;color:var(--primary-olive,#4a6c4a);transition:transform .2s ease}
+.events-period-details[open] .events-period-chevron{transform:rotate(180deg)}
+.events-period-cards{padding:.35rem .35rem .5rem}
+.events-period-summary:focus-visible{outline:2px solid var(--primary-olive,#4a6c4a);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){.events-period-chevron{transition:none}}
+@media (max-width:767px){.events-page .events-desktop-periods{display:none!important}}

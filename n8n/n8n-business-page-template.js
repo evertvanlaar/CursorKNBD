@@ -113,7 +113,7 @@ for (const item of $input.all()) {
     const footerBusLabel = isGreek ? 'Λεωφορείο (Καλά Νερά)' : 'Bus (Kala Nera)';
     const footerTravelLabel = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
     const footerFavoritesLabel = isGreek ? 'Αγαπημένα' : 'Favorites';
-    const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρησή' : 'Add your Business';
+    const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρηση' : 'Add your Business';
     const footerSocialTitle = isGreek ? 'Κοινωνικά δίκτυα' : 'Social';
     const footerContactTitle = isGreek ? 'Επικοινωνία' : 'Contact';
     const footerPrivacyLabel = isGreek ? 'Πολιτική απορρήτου' : 'Privacy policy';
@@ -149,7 +149,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.148';
+    const appVersion = '2.1.154';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
