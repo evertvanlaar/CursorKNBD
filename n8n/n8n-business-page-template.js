@@ -137,7 +137,7 @@ for (const item of $input.all()) {
 
     const moreTravelTitle = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
     const moreTravelHub = isGreek ? 'Επισκόπηση' : 'Overview';
-    const moreTravelFlights = isGreek ? 'Πτήσεις (αεροδρόμιο Βόλου)' : 'Flights (Volos area airport)';
+    const moreTravelFlights = isGreek ? 'Πτήσεις (αεροδρόμιο Βόλου - VOL)' : 'Flights (Volos airport - VOL)';
     const moreTravelEvents = isGreek ? 'Τοπικές εκδηλώσεις' : 'Regional events';
     const moreTravelWalking = isGreek ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)';
     const moreTravelExternal = isGreek ? 'Εξωτερικός ιστότοπος' : 'External site';
@@ -151,7 +151,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.170';
+    const appVersion = '2.1.171';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
