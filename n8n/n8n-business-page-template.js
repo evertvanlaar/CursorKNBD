@@ -114,7 +114,8 @@ for (const item of $input.all()) {
     const footerTravelLabel = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
     const footerFavoritesLabel = isGreek ? 'Αγαπημένα' : 'Favorites';
     const footerAddBizLabel = isGreek ? 'Προσθέστε Επιχείρηση' : 'Add your Business';
-    const footerSocialTitle = isGreek ? 'Κοινωνικά δίκτυα' : 'Social';
+    const footerSocialTitle = isGreek ? 'Κοινωνικά' : 'Social';
+    const footerMobileApp = isGreek ? 'Εφαρμογή Κινητού' : 'Mobile App';
     const footerContactTitle = isGreek ? 'Επικοινωνία' : 'Contact';
     const footerPrivacyLabel = isGreek ? 'Πολιτική απορρήτου' : 'Privacy policy';
     const footerCopyright = isGreek
@@ -131,7 +132,7 @@ for (const item of $input.all()) {
 
     const tabHome = isGreek ? 'Αρχική' : 'Home';
     const tabFav = isGreek ? 'Αγαπημένα' : 'Favorites';
-    const tabAdd = isGreek ? 'Προσθήκη' : 'Add';
+    const tabGuide = isGreek ? 'Οδηγός' : 'Guide';
     const tabMore = isGreek ? 'Περισσότερα' : 'More';
 
     const moreTravelTitle = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
@@ -140,8 +141,9 @@ for (const item of $input.all()) {
     const moreTravelEvents = isGreek ? 'Τοπικές εκδηλώσεις' : 'Regional events';
     const moreTravelWalking = isGreek ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)';
     const moreTravelExternal = isGreek ? 'Εξωτερικός ιστότοπος' : 'External site';
+    const moreTravelNumbers = isGreek ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers';
+    const moreTravelNumbersSub = isGreek ? 'Τοπικοί & έκτακτοι' : 'Local & emergency';
 
-    const moreUseful = isGreek ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers';
     const moreInstallTitle = isGreek ? 'Εγκατάσταση εφαρμογής' : 'Install App';
     const moreInstallBtn = isGreek ? 'Εγκατάσταση' : 'Install';
     const moreAbout = isGreek ? 'Σχετικά με εμάς' : 'About us';
@@ -149,7 +151,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.154';
+    const appVersion = '2.1.170';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
@@ -168,6 +170,9 @@ for (const item of $input.all()) {
     );
 
     const ix = `${isGreek ? 'index-el' : 'index'}.html`;
+    const bizAltPath = isGreek ? `../business/${slug}.html` : `../business/${slug}-el.html`;
+    const langAltLabel = isGreek ? 'English' : 'Ελληνικά';
+    const langFlagFile = isGreek ? 'gb' : 'gr';
 
     const pageUrl = `${SITE_ORIGIN}/business/${slug}${isGreek ? '-el' : ''}.html`;
     const alternateEn = `${SITE_ORIGIN}/business/${slug}.html`;
@@ -274,14 +279,33 @@ for (const item of $input.all()) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="../style.css?v=${appVersion}">
+  <link rel="manifest" href="/manifest.json">
 </head>
 
 <body class="detail-body">
 
   <header class="site-header">
     <nav class="main-nav">
-      <div class="nav-container" style="justify-content: center;">
-        <a href="../${escapeHtml(ix)}" class="logo">Kala <span>Nera</span></a>
+      <div class="nav-container nav-container--detail-lite">
+        <a href="../${escapeHtml(ix)}" class="logo">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</a>
+
+        <a href="${escapeHtml(bizAltPath)}" class="lang-link-mobile" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}">
+          <img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}">
+        </a>
+
+        <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556"
+            target="_blank"
+            rel="noopener"
+            style="text-decoration: none; color: inherit;">
+        <div class="weather-icon-container">
+            <span id="weather-icon"></span>
+            <span id="weather-temp">--°C</span>
+        </div>
+        </a>
+
+        <a href="${escapeHtml(bizAltPath)}" class="lang-link lang-link--detail-bar-desktop" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}">
+          <img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}" style="width: 20px; vertical-align: middle;">
+        </a>
       </div>
     </nav>
   </header>
@@ -351,13 +375,7 @@ for (const item of $input.all()) {
             <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
             <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
             <li><a href="../info${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> ${escapeHtml(footerTravelLabel)}</a></li>
-          </ul>
-        </div>
-        <div class="footer-nav-section">
-          <h3>${escapeHtml(footerInfoTitle)}</h3>
-          <ul>
-            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
-            <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
+            <li><a href="../useful-numbers${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-phone" aria-hidden="true"></i> ${escapeHtml(moreTravelNumbers)}</a></li>
           </ul>
         </div>
       </div>
@@ -368,6 +386,13 @@ for (const item of $input.all()) {
           <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook">
             <i class="fab fa-facebook-f" aria-hidden="true"></i>
           </a>
+        </div>
+        <div class="footer-nav-section footer-nav-section--under-social">
+          <h3>${escapeHtml(footerInfoTitle)}</h3>
+          <ul>
+            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
+            <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -382,6 +407,7 @@ for (const item of $input.all()) {
       </div>
       <div class="footer-bottom-row">
       <p>${escapeHtml(footerCopyright)}</p>
+      <div class="app-version-tag"><i class="fa fa-th-large" aria-hidden="true"></i> ${escapeHtml(footerMobileApp)}</div>
       </div>
     </div>
   </footer>
@@ -391,7 +417,7 @@ for (const item of $input.all()) {
       <a href="../${escapeHtml(ix)}"><i class="fa-solid fa-house"></i><span>${escapeHtml(tabHome)}</span></a>
       <a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus"></i><span>${escapeHtml(isGreek ? 'Λεωφορείο' : 'Bus')}</span></a>
       <a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart"></i><span>${escapeHtml(tabFav)}</span></a>
-      <a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus"></i><span>${escapeHtml(tabAdd)}</span></a>
+      <a href="../info${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-compass"></i><span>${escapeHtml(tabGuide)}</span></a>
       <a href="#" data-more><i class="fa-solid fa-ellipsis"></i><span>${escapeHtml(tabMore)}</span></a>
     </div>
   </nav>
@@ -419,16 +445,10 @@ for (const item of $input.all()) {
               <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">${escapeHtml(moreTravelWalking)}</span></span>
               <small>${escapeHtml(moreTravelExternal)}</small>
             </a>
-          </div>
-        </section>
-
-        <section class="more-section">
-          <h3>${escapeHtml(moreUseful)}</h3>
-          <div class="more-links">
-            <a href="tel:+302423086222"><span class="more-link-leading"><i class="fa-solid fa-shield"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Αστυνομία Μηλιές' : 'Police Office Milies')}</span></span><small>+30 24230 86222</small></a>
-            <a href="tel:+302423022385"><span class="more-link-leading"><i class="fa-solid fa-pills"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Φαρμακείο Καλά Νερά' : 'Pharmacy Kala Nera')}</span></span><small>+30 24230 22385</small></a>
-            <a href="tel:+302423022160"><span class="more-link-leading"><i class="fa-solid fa-pills"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Φαρμακείο Κάτω Γατζέα' : 'Pharmacy Kato Gatzea')}</span></span><small>+30 24230 22160</small></a>
-            <a href="tel:+302423086666"><span class="more-link-leading"><i class="fa-solid fa-user-doctor"></i><span class="more-link-label">${escapeHtml(isGreek ? 'Ιατρός Καλά Νερά' : 'Doctor Kala Nera')}</span></span><small>+30 24230 86666</small></a>
+            <a href="../useful-numbers${isGreek ? '-el' : ''}.html">
+              <span class="more-link-leading"><i class="fa-solid fa-phone"></i><span class="more-link-label">${escapeHtml(moreTravelNumbers)}</span></span>
+              <small>${escapeHtml(moreTravelNumbersSub)}</small>
+            </a>
           </div>
         </section>
 
@@ -539,6 +559,7 @@ for (const item of $input.all()) {
     })();
   </script>
 
+  <script src="../app.js?v=${appVersion}"></script>
 </body>
 </html>`;
   };

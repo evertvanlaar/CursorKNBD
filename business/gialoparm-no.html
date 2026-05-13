@@ -39,15 +39,34 @@
   <link rel="icon" type="image/png" href="../favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="../style.css?v=2.1.154">
+  <link rel="stylesheet" href="../style.css?v=2.1.170">
+  <link rel="manifest" href="/manifest.json">
 </head>
 
 <body class="detail-body">
 
-  <header class="site-header">
+    <header class="site-header">
     <nav class="main-nav">
-      <div class="nav-container" style="justify-content: center;">
+      <div class="nav-container nav-container--detail-lite">
         <a href="../index.html" class="logo">Kala <span>Nera</span></a>
+
+        <a href="../business/gialoparm-no-el.html" class="lang-link-mobile" title="Ελληνικά" aria-label="Ελληνικά">
+          <img src="../pix/flags/gr.svg" alt="Ελληνικά">
+        </a>
+
+        <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556"
+            target="_blank"
+            rel="noopener"
+            style="text-decoration: none; color: inherit;">
+        <div class="weather-icon-container">
+            <span id="weather-icon"></span>
+            <span id="weather-temp">--°C</span>
+        </div>
+        </a>
+
+        <a href="../business/gialoparm-no-el.html" class="lang-link lang-link--detail-bar-desktop" title="Ελληνικά" aria-label="Ελληνικά">
+          <img src="../pix/flags/gr.svg" alt="Ελληνικά" style="width: 20px; vertical-align: middle;">
+        </a>
       </div>
     </nav>
   </header>
@@ -98,13 +117,7 @@
             <li><a href="../wishlist.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> Favorites</a></li>
             <li><a href="../t-form.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add your Business</a></li>
             <li><a href="../info.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> Pelion guide</a></li>
-          </ul>
-        </div>
-        <div class="footer-nav-section">
-          <h3>Info</h3>
-          <ul>
-            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> Contact</a></li>
-            <li><a href="../privacy.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Privacy policy</a></li>
+            <li><a href="../useful-numbers.html"><i class="fa-solid fa-phone" aria-hidden="true"></i> Useful numbers</a></li>
           </ul>
         </div>
       </div>
@@ -115,6 +128,13 @@
           <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook">
             <i class="fab fa-facebook-f" aria-hidden="true"></i>
           </a>
+        </div>
+        <div class="footer-nav-section footer-nav-section--under-social">
+          <h3>Info</h3>
+          <ul>
+            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> Contact</a></li>
+            <li><a href="../privacy.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> Privacy policy</a></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -129,6 +149,7 @@
       </div>
       <div class="footer-bottom-row">
       <p>© 2026 Kala Nera Business Directory. E-Project all rights reserved.</p>
+            <div class="app-version-tag"><i class="fa fa-th-large" aria-hidden="true"></i> Mobile App</div>
       </div>
     </div>
   </footer>
@@ -138,7 +159,7 @@
       <a href="../index.html"><i class="fa-solid fa-house"></i><span>Home</span></a>
       <a href="../bus.html"><i class="fa-solid fa-bus"></i><span>Bus</span></a>
       <a href="../wishlist.html"><i class="fa-solid fa-heart"></i><span>Favorites</span></a>
-      <a href="../t-form.html"><i class="fa-solid fa-circle-plus"></i><span>Add</span></a>
+      <a href="../info.html"><i class="fa-solid fa-compass"></i><span>Guide</span></a>
       <a href="#" data-more><i class="fa-solid fa-ellipsis"></i><span>More</span></a>
     </div>
   </nav>
@@ -166,16 +187,10 @@
               <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">Walking routes (English guide)</span></span>
               <small>External site</small>
             </a>
-          </div>
-        </section>
-
-        <section class="more-section">
-          <h3>Useful numbers</h3>
-          <div class="more-links">
-            <a href="tel:+302423086222"><span class="more-link-leading"><i class="fa-solid fa-shield"></i><span class="more-link-label">Police Office Milies</span></span><small>+30 24230 86222</small></a>
-            <a href="tel:+302423022385"><span class="more-link-leading"><i class="fa-solid fa-pills"></i><span class="more-link-label">Pharmacy Kala Nera</span></span><small>+30 24230 22385</small></a>
-            <a href="tel:+302423022160"><span class="more-link-leading"><i class="fa-solid fa-pills"></i><span class="more-link-label">Pharmacy Kato Gatzea</span></span><small>+30 24230 22160</small></a>
-            <a href="tel:+302423086666"><span class="more-link-leading"><i class="fa-solid fa-user-doctor"></i><span class="more-link-label">Doctor Kala Nera</span></span><small>+30 24230 86666</small></a>
+            <a href="../useful-numbers.html">
+              <span class="more-link-leading"><i class="fa-solid fa-phone"></i><span class="more-link-label">Useful numbers</span></span>
+              <small>Local &amp; emergency</small>
+            </a>
           </div>
         </section>
 
@@ -212,7 +227,7 @@
               <div class="meta-row">
                 <span class="more-link-label">Powered by: KanteKlik</span>
                 <div class="meta-right">
-                  <div class="meta-version"><code>v2.1.154</code></div>
+                  <div class="meta-version"><code>v2.1.170</code></div>
                 </div>
               </div>
               <div class="copyright-row">
@@ -286,5 +301,6 @@
     })();
   </script>
 
+  <script src="../app.js?v=2.1.166"></script>
 </body>
 </html>
