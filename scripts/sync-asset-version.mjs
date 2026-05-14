@@ -48,6 +48,8 @@ const ROOT_HTML_FILES = [
   'flights-el.html',
   'events.html',
   'events-el.html',
+  'useful-numbers.html',
+  'useful-numbers-el.html',
 ];
 
 function readVersion() {

@@ -119,8 +119,8 @@ for (const item of $input.all()) {
     const footerContactTitle = isGreek ? 'Επικοινωνία' : 'Contact';
     const footerPrivacyLabel = isGreek ? 'Πολιτική απορρήτου' : 'Privacy policy';
     const footerCopyright = isGreek
-      ? '© 2026 Κατάλογος Επιχειρήσεων Καλά Νερά. E-Project όλα τα δικαιώματα διατηρούνται.'
-      : '© 2026 Kala Nera Business Directory. E-Project all rights reserved.';
+      ? '© 2026 Οδηγός Καλών Νερών. E-Project όλα τα δικαιώματα διατηρούνται.'
+      : '© 2026 Kala Nera Guide. E-Project all rights reserved.';
     const footerPoweredLabel = isGreek ? 'Με την υποστήριξη' : 'Powered by';
     const footerPoweredAria = isGreek
       ? 'Με την υποστήριξη KanteKlik — επικοινωνία μέσω email'
@@ -151,7 +151,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.171';
+    const appVersion = '2.1.172';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
