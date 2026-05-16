@@ -151,7 +151,7 @@ for (const item of $input.all()) {
     const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
     const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
 
-    const appVersion = '2.1.174';
+    const appVersion = '2.1.177';
 
     const formattedCopyright = (() => {
       const raw = footerCopyright || '';
@@ -287,7 +287,10 @@ for (const item of $input.all()) {
   <header class="site-header">
     <nav class="main-nav">
       <div class="nav-container nav-container--detail-lite">
-        <a href="../${escapeHtml(ix)}" class="logo">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</a>
+        <a href="../${escapeHtml(ix)}" class="logo logo--with-tag" aria-label="${isGreek ? 'Οδηγός Καλών Νερών — αρχική' : 'Kala Nera Guide — home'}">
+        <span class="logo-main">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span>
+        <span class="logo-tag" aria-hidden="true">Guide</span>
+      </a>
 
         <a href="${escapeHtml(bizAltPath)}" class="lang-link-mobile" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}">
           <img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}">
