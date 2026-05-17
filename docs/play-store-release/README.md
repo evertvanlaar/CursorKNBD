@@ -1,0 +1,32 @@
+# Play Store release materials (2.1.174+)
+
+Documenten voor ASO en store listing. Gebaseerd op **huidige app (≥ 2.1.173)** en screenshots uit mei 2026.
+
+## Context testrapport
+
+Het externe testrapport (`Test-reports/com.kalanera.app_feedback.pdf`) reflecteert een **oudere build (~2.1.117)** met beperktere functionaliteit en UI. Sindsdien zijn o.a. toegevoegd of verbeterd:
+
+- Bus-dienstregeling (Kala Nera) met richting/dag/filters
+- Pelion Guide-hub (vluchten, events, wandelen, nuttige nummers, bus)
+- Uitgebreide directory (categorieën, locaties, A–Z, favorieten)
+- Verbeterde More-menu en bottom navigation
+- Merknaam **Kala Nera Guide** / **Οδηγός Καλών Νερών**
+
+Bij invullen van het Google **production access**-formulier: alleen claimen wat live staat na deploy.
+
+## Bestanden
+
+| Bestand | Taak backlog |
+|---------|----------------|
+| [A1-keywords-aso.md](./A1-keywords-aso.md) | Keyword-onderzoek EN/EL |
+| [A2-play-store-copy.md](./A2-play-store-copy.md) | Listing-teksten Play Console |
+| [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
+
+## Onboarding
+
+Gepland voor **release 2.1.175** (niet 2.1.174). Zie release-backlog in chat / projectplanning.
+
+## Credits (store listing)
+
+- Video/trailer: **Dejan MP** (indien vermeld bij feature graphic of beschrijving)
+- Contact: **info@spiti.tech**

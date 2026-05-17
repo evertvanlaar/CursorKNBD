@@ -1,0 +1,60 @@
+{
+  "packageId": "com.kalanera.app",
+  "host": "kalanera.gr",
+  "name": "Kala Nera Guide",
+  "launcherName": "Kala Nera",
+  "display": "standalone",
+  "themeColor": "#4A6C4A",
+  "themeColorDark": "#000000",
+  "navigationColor": "#000000",
+  "navigationColorDark": "#000000",
+  "navigationDividerColor": "#000000",
+  "navigationDividerColorDark": "#000000",
+  "backgroundColor": "#86BCE8",
+  "enableNotifications": true,
+  "startUrl": "/index.html",
+  "iconUrl": "https://kalanera.gr/icon-512.png",
+  "maskableIconUrl": "https://kalanera.gr/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "C:\\Users\\EvertvanLaar\\OneDrive - vanlaar\\Documents\\CursorKNBD\\Kala Nera - Google Play package\\signing.keystore",
+    "alias": "my-key-alias"
+  },
+  "appVersionCode": 3,
+  "shortcuts": [
+    {
+      "name": "Bus timetable",
+      "shortName": "Bus",
+      "url": "https://kalanera.gr/bus.html",
+      "chosenIconUrl": "https://kalanera.gr/icon-192.png"
+    },
+    {
+      "name": "Favorites",
+      "shortName": "Favorites",
+      "url": "https://kalanera.gr/wishlist.html",
+      "chosenIconUrl": "https://kalanera.gr/icon-192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://kalanera.gr/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://kalanera.gr/",
+  "minSdkVersion": 23,
+  "orientation": "any",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersionName": "2.1",
+  "appVersion": "2.1"
+}
