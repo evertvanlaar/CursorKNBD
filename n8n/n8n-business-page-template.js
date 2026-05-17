@@ -1,8 +1,8 @@
 /**
  * n8n "Code"-node template: twee talen per zaak → business/{slug}.html & business/{slug}-el.html
+ * - Magazine detail layout (Rodia POC): sheet chrome, contact card, review/maps, photo lightbox via app.js
  * - Domein: overal https://www.kalanera.gr
- * - OG + Twitter meta
- * - JSON-LD: BreadcrumbList + LocalBusiness-variant op basis van Category
+ * - OG + Twitter meta, JSON-LD BreadcrumbList + category-specific LocalBusiness
  *
  * Kopieer de volledige inhoud naar je n8n workflow (geen import van dit bestand).
  */
@@ -34,7 +34,6 @@ const t = (text, isGreek) => {
   return dict[text] ?? text;
 };
 
-/** Meer specifiek @type (alle subtype van LocalBusiness) */
 const categoryToSchemaType = (categoryRaw) => {
   const c = String(categoryRaw ?? '').trim();
   const m = {
@@ -50,6 +49,26 @@ const categoryToSchemaType = (categoryRaw) => {
   return m[c] || 'LocalBusiness';
 };
 
+const categorySectionSlug = (cat) =>
+  String(cat || 'other')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '') || 'other';
+
+const categoryFaSolid = (categoryRaw) => {
+  const m = {
+    Eat: 'fa-utensils',
+    Drink: 'fa-glass-cheers',
+    Sleep: 'fa-bed',
+    Shop: 'fa-shopping-cart',
+    Rent: 'fa-car',
+    Travel: 'fa-route',
+    Camp: 'fa-campground',
+    Other: 'fa-tag',
+  };
+  return m[String(categoryRaw ?? '').trim()] || 'fa-tag';
+};
+
 const escapeHtml = (s) =>
   String(s ?? '')
     .replace(/&/g, '&amp;')
@@ -58,11 +77,8 @@ const escapeHtml = (s) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 
-/** Veilig voor <script type="application/ld+json"> */
-const jsonLdEmbed = (obj) =>
-  JSON.stringify(obj).replace(/</g, '\\u003c');
+const jsonLdEmbed = (obj) => JSON.stringify(obj).replace(/</g, '\\u003c');
 
-/** Relatieve of kale bestandsnamen → absolute onder SITE_ORIGIN; externe http(s) elders ongewijzigd; kalanera(.gr) → SITE_ORIGIN */
 const absoluteAssetUrl = (photoField) => {
   const fallback = `${SITE_ORIGIN}/pix/nophoto.jpg`;
   const raw = String(photoField ?? '').trim();
@@ -89,6 +105,21 @@ const telForLd = (p) => {
   return s;
 };
 
+const telHref = (p) => telForLd(p).replace(/\s+/g, '');
+
+const websiteHost = (url) => {
+  try {
+    const href = url.startsWith('http') ? url : `https://${url}`;
+    return new URL(href).hostname.replace(/^www\./i, '');
+  } catch {
+    return String(url ?? '').trim();
+  }
+};
+
+const stripHtml = (s) => String(s ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const gtagSafeName = (name) => String(name ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
 for (const item of $input.all()) {
   const biz = item.json;
   const slug = biz.Name.toLowerCase()
@@ -97,12 +128,11 @@ for (const item of $input.all()) {
 
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
-    const backText = isGreek ? '← Πίσω στην επισκόπηση' : '← Back to overview';
-    const visitBtn = isGreek ? 'Επισκεφθείτε την ιστοσελίδα' : 'Visit Website';
-    /** Zelfde GA4-webstream als homepage (zie Admin → Web stream → Measurement ID). */
     const gtagId = 'G-12LDX13JG6';
+    const appVersion = '3.1.0';
 
-    const summary = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
+    const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
+    const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
 
     const footerAboutText = isGreek
       ? 'Βοηθάμε τους επισκέπτες να ανακαλύψουν τα καλύτερα σημεία—από αυθεντικές ταβέρνες μέχρι όμορφες διαμονές—στα Καλά Νερά και το ευρύτερο Πήλιο.'
@@ -126,72 +156,80 @@ for (const item of $input.all()) {
       ? 'Με την υποστήριξη KanteKlik — επικοινωνία μέσω email'
       : 'Powered by KanteKlik — email contact';
 
-    const cat = t(biz.Category, isGreek);
+    const catEn = String(biz.Category ?? 'Other').trim() || 'Other';
+    const cat = t(catEn, isGreek);
     const loc = t(biz.Location, isGreek);
     const locEn = t(biz.Location, false);
+    const catSlug = categorySectionSlug(catEn);
+    const catIcon = categoryFaSolid(catEn);
 
     const tabHome = isGreek ? 'Αρχική' : 'Home';
     const tabFav = isGreek ? 'Αγαπημένα' : 'Favorites';
     const tabGuide = isGreek ? 'Οδηγός' : 'Guide';
     const tabMore = isGreek ? 'Περισσότερα' : 'More';
-
-    const moreTravelTitle = isGreek ? 'Οδηγός Πηλίου' : 'Pelion guide';
-    const moreTravelHub = isGreek ? 'Επισκόπηση' : 'Overview';
-    const moreTravelFlights = isGreek ? 'Πτήσεις (αεροδρόμιο Βόλου - VOL)' : 'Flights (Volos airport - VOL)';
-    const moreTravelEvents = isGreek ? 'Τοπικές εκδηλώσεις' : 'Regional events';
-    const moreTravelWalking = isGreek ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)';
-    const moreTravelExternal = isGreek ? 'Εξωτερικός ιστότοπος' : 'External site';
+    const tabBus = isGreek ? 'Λεωφορείο' : 'Bus';
     const moreTravelNumbers = isGreek ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers';
-    const moreTravelNumbersSub = isGreek ? 'Τοπικοί & έκτακτοι' : 'Local & emergency';
 
-    const moreInstallTitle = isGreek ? 'Εγκατάσταση εφαρμογής' : 'Install App';
-    const moreInstallBtn = isGreek ? 'Εγκατάσταση' : 'Install';
-    const moreAbout = isGreek ? 'Σχετικά με εμάς' : 'About us';
-    const moreFollow = isGreek ? 'Ακολουθήστε μας' : 'Follow us';
-    const moreContact = isGreek ? 'Επικοινωνία' : 'Contact';
-    const poweredBy = isGreek ? 'Με την υποστήριξη' : 'Powered by';
+    const lblDirectory = isGreek ? 'Κατάλογος' : 'Directory';
+    const lblCategory = isGreek ? 'Κατηγορία' : 'Category';
+    const lblPelion = isGreek ? 'Πήλιο' : 'Pelion';
+    const lblPhone = isGreek ? 'Τηλέφωνο' : 'Phone';
+    const lblEmail = 'Email';
+    const lblWebsite = isGreek ? 'Ιστοσελίδα' : 'Website';
+    const lblViewPhoto = isGreek ? 'Προβολή πλήρους φωτογραφίας' : 'View full photo';
+    const lblQuickActions = isGreek ? 'Γρήγορες ενέργειες' : 'Quick actions';
+    const lblReviews = isGreek ? 'Κριτικές' : 'Reviews';
+    const lblReviewsAria = isGreek ? 'Κριτικές στο Google' : 'Reviews on Google';
+    const lblLocation = isGreek ? 'Τοποθεσία' : 'Location';
+    const lblMapsAria = isGreek ? 'Άνοιγμα στο Google Maps' : 'Open in Google Maps';
+    const bottomNavAria = isGreek ? 'Κύρια πλοήγηση' : 'Primary';
 
-    const appVersion = '2.1.177';
-
-    const formattedCopyright = (() => {
-      const raw = footerCopyright || '';
-      const withoutLeading = raw.replace(/^\s*©+\s*/g, '').trim();
-      return escapeHtml(withoutLeading).replace(/\sE-Project\b/g, '<br>E-Project');
-    })();
-
-    const safeWebsite = (biz.Website || '').trim();
-    const websiteHref =
-      safeWebsite && !safeWebsite.startsWith('http') ? `https://${safeWebsite}` : safeWebsite;
-
-    const imgSrc = absoluteAssetUrl(
-      biz.PhotoURL && String(biz.PhotoURL).trim() !== ''
-        ? String(biz.PhotoURL).trim()
-        : '../pix/nophoto.jpg',
-    );
-
-    const ix = `${isGreek ? 'index-el' : 'index'}.html`;
-    const bizAltPath = isGreek ? `../business/${slug}.html` : `../business/${slug}-el.html`;
+    const ix = isGreek ? 'index-el.html' : 'index.html';
+    const langAltPath = isGreek ? `${slug}.html` : `${slug}-el.html`;
     const langAltLabel = isGreek ? 'English' : 'Ελληνικά';
     const langFlagFile = isGreek ? 'gb' : 'gr';
+    const backHref = `../${ix}?cat=${catSlug}`;
 
     const pageUrl = `${SITE_ORIGIN}/business/${slug}${isGreek ? '-el' : ''}.html`;
     const alternateEn = `${SITE_ORIGIN}/business/${slug}.html`;
     const alternateEl = `${SITE_ORIGIN}/business/${slug}-el.html`;
-    const xDefault = alternateEn;
 
-    const metaDescPlain = `${isGreek ? 'Ανακαλύψτε το ' + name : 'Discover ' + name} - ${cat} in ${loc}.`;
+    const metaDescPlain =
+      summary
+        ? stripHtml(summary).slice(0, 160)
+        : `${isGreek ? 'Ανακαλύψτε το ' + name : 'Discover ' + name} - ${cat} in ${loc}.`;
     const ogTitle = `${name} — Kala Nera Guide`;
+    const pageTitle = `${name} | Kala Nera Guide`;
 
     const otherNameRaw = isGreek
-      ? (biz.Name && String(biz.Name).trim() && String(biz.Name).trim() !== String(name).trim()
-          ? String(biz.Name).trim()
-          : '')
-      : (biz.Name_EL && String(biz.Name_EL).trim() && String(biz.Name_EL).trim() !== String(name).trim()
-          ? String(biz.Name_EL).trim()
-          : '');
+      ? biz.Name && String(biz.Name).trim() && String(biz.Name).trim() !== String(name).trim()
+        ? String(biz.Name).trim()
+        : ''
+      : biz.Name_EL && String(biz.Name_EL).trim() && String(biz.Name_EL).trim() !== String(name).trim()
+        ? String(biz.Name_EL).trim()
+        : '';
 
-    const schemaType = categoryToSchemaType(biz.Category);
+    const schemaType = categoryToSchemaType(catEn);
     const tel = telForLd(biz.Phone);
+    const email = String(biz.Email ?? '').trim();
+    const hasEmail = email && email !== '-';
+
+    const safeWebsite = (biz.Website || '').trim();
+    const websiteHref =
+      safeWebsite && safeWebsite !== '-' && !safeWebsite.startsWith('http')
+        ? `https://${safeWebsite}`
+        : safeWebsite && safeWebsite !== '-'
+          ? safeWebsite
+          : '';
+
+    const imgSrc = absoluteAssetUrl(biz.PhotoURL);
+    const imgAlt = isGreek ? `${name} στα ${loc}` : `${name} in ${loc}`;
+
+    const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' Kala Nera reviews')}`;
+    const mapsUrl =
+      (biz.GoogleMapsLink && String(biz.GoogleMapsLink).trim()) ||
+      `https://www.google.com/maps/search/${encodeURIComponent(biz.Name + ' Kala Nera')}`;
+    const gtagBiz = gtagSafeName(biz.Name);
 
     const breadcrumbLd = {
       '@type': 'BreadcrumbList',
@@ -203,12 +241,7 @@ for (const item of $input.all()) {
           name: isGreek ? 'Αρχική' : 'Home',
           item: `${SITE_ORIGIN}/${ix}`,
         },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name,
-          item: pageUrl,
-        },
+        { '@type': 'ListItem', position: 2, name, item: pageUrl },
       ],
     };
 
@@ -231,34 +264,53 @@ for (const item of $input.all()) {
       ...(websiteHref ? { sameAs: websiteHref } : {}),
     };
 
-    /** Eén script: graph met twee nodes */
-    const ldGraph = {
-      '@context': 'https://schema.org',
-      '@graph': [breadcrumbLd, businessLd],
-    };
+    const ldGraph = { '@context': 'https://schema.org', '@graph': [breadcrumbLd, businessLd] };
+
+    const contactRows = [];
+    if (tel) {
+      contactRows.push(
+        '          <div class="biz-detail-contact-row">\n' +
+          `            <span class="biz-detail-contact-label"><i class="fa-solid fa-phone" aria-hidden="true"></i> ${lblPhone}</span>\n` +
+          `            <a href="tel:${escapeHtml(telHref(tel))}">${escapeHtml(tel)}</a>\n` +
+          '          </div>',
+      );
+    }
+    if (hasEmail) {
+      contactRows.push(
+        '          <div class="biz-detail-contact-row">\n' +
+          `            <span class="biz-detail-contact-label"><i class="fa-solid fa-envelope" aria-hidden="true"></i> ${lblEmail}</span>\n` +
+          `            <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>\n` +
+          '          </div>',
+      );
+    }
+    if (websiteHref) {
+      contactRows.push(
+        '          <div class="biz-detail-contact-row">\n' +
+          `            <span class="biz-detail-contact-label"><i class="fa-solid fa-globe" aria-hidden="true"></i> ${lblWebsite}</span>\n` +
+          `            <a href="${escapeHtml(websiteHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(websiteHost(websiteHref))}</a>\n` +
+          '          </div>',
+      );
+    }
+    const contactCardHtml = contactRows.length
+      ? `        <div class="biz-detail-contact flights-card">\n${contactRows.join('\n')}\n        </div>`
+      : '';
+    const descriptionHtml = summary ? `        <p class="biz-detail-description">${escapeHtml(summary)}</p>\n` : '';
+    const siteLangScript = isGreek ? "  <script>window.SITE_LANGUAGE = 'el';</script>\n" : '';
 
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+${siteLangScript}  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#4a6c4a">
   <script async src="https://www.googletagmanager.com/gtag/js?id=${gtagId}"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${gtagId}');
-  </script>
-
-  <title>${escapeHtml(name)} - ${escapeHtml(loc)} | Kala Nera Guide</title>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gtagId}');</script>
+  <title>${escapeHtml(pageTitle)}</title>
   <meta name="description" content="${escapeHtml(metaDescPlain)}">
-
   <link rel="canonical" href="${pageUrl}">
   <link rel="alternate" hreflang="en" href="${alternateEn}" />
   <link rel="alternate" hreflang="el" href="${alternateEl}" />
-  <link rel="alternate" hreflang="x-default" href="${xDefault}" />
-
+  <link rel="alternate" hreflang="x-default" href="${alternateEn}" />
   <meta property="og:title" content="${escapeHtml(ogTitle)}">
   <meta property="og:description" content="${escapeHtml(metaDescPlain)}">
   <meta property="og:image" content="${escapeHtml(imgSrc)}">
@@ -267,301 +319,64 @@ for (const item of $input.all()) {
   <meta property="og:site_name" content="Kala Nera Guide">
   <meta property="og:locale" content="${isGreek ? 'el_GR' : 'en_GB'}">
   <meta property="og:locale:alternate" content="${isGreek ? 'en_GB' : 'el_GR'}">
-
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(ogTitle)}">
   <meta name="twitter:description" content="${escapeHtml(metaDescPlain)}">
   <meta name="twitter:image" content="${escapeHtml(imgSrc)}">
-
   <script type="application/ld+json">${jsonLdEmbed(ldGraph)}</script>
-
   <link rel="icon" type="image/png" href="../favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="../style.css?v=${appVersion}">
   <link rel="manifest" href="/manifest.json">
 </head>
-
-<body class="detail-body">
-
-  <header class="site-header">
-    <nav class="main-nav">
-      <div class="nav-container nav-container--detail-lite">
-        <a href="../${escapeHtml(ix)}" class="logo logo--with-tag" aria-label="${isGreek ? 'Οδηγός Καλών Νερών — αρχική' : 'Kala Nera Guide — home'}">
-        <span class="logo-main">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span>
-        <span class="logo-tag" aria-hidden="true">Guide</span>
-      </a>
-
-        <a href="${escapeHtml(bizAltPath)}" class="lang-link-mobile" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}">
-          <img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}">
-        </a>
-
-        <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556"
-            target="_blank"
-            rel="noopener"
-            style="text-decoration: none; color: inherit;">
-        <div class="weather-icon-container">
-            <span id="weather-icon"></span>
-            <span id="weather-temp">--°C</span>
-        </div>
-        </a>
-
-        <a href="${escapeHtml(bizAltPath)}" class="lang-link lang-link--detail-bar-desktop" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}">
-          <img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}" style="width: 20px; vertical-align: middle;">
-        </a>
-      </div>
-    </nav>
-  </header>
-
-  <div class="detail-container">
-    <nav class="back-nav">
-      <a href="../${escapeHtml(ix)}" class="back-button-glossy">${escapeHtml(backText)}</a>
-    </nav>
-
-    <main class="biz-card-detail">
-      <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(name)}" class="detail-header-image">
-      <div class="detail-content">
-        <div class="detail-meta-container">
-          <span class="detail-pill"><i class="fa fa-tag"></i> ${escapeHtml(cat)}</span>
-          <span class="detail-pill" style="background:rgba(139,69,19,0.1); color:#8b4513;"><i class="fa fa-map-marker-alt"></i> ${escapeHtml(loc)}</span>
-        </div>
-
-        <h1 class="detail-title">${escapeHtml(name)}</h1>
-
-        ${
-          summary && summary.trim() !== '' && summary !== '-'
-            ? `<div class="detail-description" style="margin-bottom: 20px; line-height: 1.6; color: #555; font-size: 1.05rem;">${summary}</div>`
-            : ''
-        }
-
-        <div class="detail-contact-box">
-          ${
-            biz.Phone && String(biz.Phone).trim() !== '' && biz.Phone !== '-'
-              ? `<p><i class="fa fa-phone"></i> <a href="tel:${escapeHtml(String(biz.Phone).trim())}">${escapeHtml(String(biz.Phone).trim())}</a></p>`
-              : ''
-          }
-          ${
-            biz.Email && String(biz.Email).trim() !== '' && biz.Email !== '-'
-              ? `<p><i class="fa fa-envelope"></i> <a href="mailto:${escapeHtml(String(biz.Email).trim())}">${escapeHtml(String(biz.Email).trim())}</a></p>`
-              : ''
-          }
-        </div>
-
-        ${
-          websiteHref
-            ? `<a href="${escapeHtml(websiteHref)}" target="_blank" rel="noopener" class="btn-visit-glossy">
-                 <i class="fa fa-external-link-alt"></i> ${escapeHtml(visitBtn)}
-               </a>`
-            : ''
-        }
-      </div>
-    </main>
-  </div>
-
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-column footer-column--brand">
-        ${
-          isGreek
-            ? `<a href="../index-el.html" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml('Καλά Νερά')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">Καλά <span>Νερά</span></span></a>`
-            : `<a href="../index.html" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml('Kala Nera')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">Kala <span>Nera</span></span></a>`
-        }
-        <p class="footer-tagline">${escapeHtml(footerTagline)}</p>
-        <p class="footer-lead">${escapeHtml(footerAboutText)}</p>
-      </div>
-
-      <div class="footer-column footer-column--site">
-        <div class="footer-nav-section">
-          <h3>${escapeHtml(footerSiteTitle)}</h3>
-          <ul>
+<body class="biz-detail-page">
+  <header class="site-header"><nav class="main-nav"><div class="nav-container nav-container--detail-lite">
+        <a href="../${escapeHtml(ix)}" class="logo logo--with-tag" aria-label="${isGreek ? 'Οδηγός Καλών Νερών — αρχική' : 'Kala Nera Guide — home'}"><span class="logo-main">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span><span class="logo-tag" aria-hidden="true">Guide</span></a>
+        <a href="${escapeHtml(langAltPath)}" class="lang-link-mobile" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}"><img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}"></a>
+        <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="weather-icon-container"><span id="weather-icon"></span><span id="weather-temp">--°C</span></div></a>
+        <a href="${escapeHtml(langAltPath)}" class="lang-link lang-link--detail-bar-desktop" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}"><img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}" style="width:20px;vertical-align:middle"></a>
+      </div></nav></header>
+  <main class="sheet-data-page biz-detail-page flights-page" id="top">
+    <p class="biz-detail-back"><a href="${escapeHtml(backHref)}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ${escapeHtml(lblDirectory)}</a></p>
+    <header class="flights-page-head"><div class="flights-page-head-main"><h1 class="flights-page-title">${escapeHtml(name)}</h1><p class="flights-iata-badge"><abbr title="${escapeHtml(lblCategory)}">${escapeHtml(cat)}</abbr></p></div>
+      <p class="flights-page-kicker">${escapeHtml(loc)} <span class="flights-kicker-sep" aria-hidden="true">·</span> ${escapeHtml(lblPelion)}</p></header>
+    <article class="biz-detail-card">
+      <button type="button" class="biz-detail-card__image-btn" aria-label="${escapeHtml(lblViewPhoto)}"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(imgAlt)}" class="biz-detail-card__image" width="800" height="500" loading="eager"></button>
+      <div class="biz-detail-card__body">
+        <p class="biz-detail-meta"><span><i class="fa-solid ${catIcon}" aria-hidden="true"></i> ${escapeHtml(cat)}</span><span class="biz-detail-meta-sep" aria-hidden="true">·</span><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${escapeHtml(loc)}</span></p>
+${descriptionHtml}        <div class="biz-detail-contact-wrap">
+${contactCardHtml}
+        <div class="biz-detail-actions" aria-label="${escapeHtml(lblQuickActions)}">
+          <a href="${escapeHtml(reviewUrl)}" target="_blank" rel="noopener noreferrer" class="btn-icon review-btn" title="${escapeHtml(lblReviews)}" aria-label="${escapeHtml(lblReviewsAria)}" onclick="gtag('event', 'click_reviews', {'biz_name': '${gtagBiz}'})"><i class="fa-solid fa-star" aria-hidden="true"></i></a>
+          <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer" class="btn-icon nav-btn-action" title="${escapeHtml(lblLocation)}" aria-label="${escapeHtml(lblMapsAria)}" onclick="gtag('event', 'open_maps', {'biz_name': '${gtagBiz}'})"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></a>
+        </div></div></div></article>
+  </main>
+  <footer class="site-footer"><div class="footer-container"><div class="footer-column footer-column--brand">
+        <a href="../${escapeHtml(ix)}" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml(isGreek ? 'Καλά Νερά' : 'Kala Nera')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span></a>
+        <p class="footer-tagline">${escapeHtml(footerTagline)}</p><p class="footer-lead">${escapeHtml(footerAboutText)}</p></div>
+      <div class="footer-column footer-column--site"><div class="footer-nav-section"><h3>${escapeHtml(footerSiteTitle)}</h3><ul>
             <li><a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> ${escapeHtml(footerBusLabel)}</a></li>
             <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
             <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
             <li><a href="../info${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> ${escapeHtml(footerTravelLabel)}</a></li>
             <li><a href="../useful-numbers${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-phone" aria-hidden="true"></i> ${escapeHtml(moreTravelNumbers)}</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-column footer-column--social">
-        <h3>${escapeHtml(footerSocialTitle)}</h3>
-        <div class="social-icons">
-          <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook">
-            <i class="fab fa-facebook-f" aria-hidden="true"></i>
-          </a>
-        </div>
-        <div class="footer-nav-section footer-nav-section--under-social">
-          <h3>${escapeHtml(footerInfoTitle)}</h3>
-          <ul>
+          </ul></div></div>
+      <div class="footer-column footer-column--social"><h3>${escapeHtml(footerSocialTitle)}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div>
+        <div class="footer-nav-section footer-nav-section--under-social"><h3>${escapeHtml(footerInfoTitle)}</h3><ul>
             <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
             <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <div class="footer-powered">
-        <a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="${escapeHtml(footerPoweredAria)}">
-          <span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
-          <span class="footer-powered-label">${escapeHtml(footerPoweredLabel)}</span>
-          <span class="footer-powered-name">KanteKlik</span>
-        </a>
-      </div>
-      <div class="footer-bottom-row">
-      <p>${escapeHtml(footerCopyright)}</p>
-      <div class="app-version-tag"><i class="fa fa-th-large" aria-hidden="true"></i> ${escapeHtml(footerMobileApp)}</div>
-      </div>
-    </div>
+          </ul></div></div></div>
+    <div class="footer-bottom"><div class="footer-powered"><a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="${escapeHtml(footerPoweredAria)}"><span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span class="footer-powered-label">${escapeHtml(footerPoweredLabel)}</span><span class="footer-powered-name">KanteKlik</span></a></div>
+      <div class="footer-bottom-row"><p>${escapeHtml(footerCopyright)}</p><div class="app-version-tag"><i class="fa fa-th-large" aria-hidden="true"></i> ${escapeHtml(footerMobileApp)}</div></div></div>
   </footer>
-
-  <nav class="bottom-nav" aria-label="Primary">
-    <div class="bottom-nav-inner">
+  <nav class="bottom-nav" aria-label="${escapeHtml(bottomNavAria)}"><div class="bottom-nav-inner">
       <a href="../${escapeHtml(ix)}"><i class="fa-solid fa-house"></i><span>${escapeHtml(tabHome)}</span></a>
-      <a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus"></i><span>${escapeHtml(isGreek ? 'Λεωφορείο' : 'Bus')}</span></a>
+      <a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus"></i><span>${escapeHtml(tabBus)}</span></a>
       <a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart"></i><span>${escapeHtml(tabFav)}</span></a>
       <a href="../info${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-compass"></i><span>${escapeHtml(tabGuide)}</span></a>
       <a href="#" data-more><i class="fa-solid fa-ellipsis"></i><span>${escapeHtml(tabMore)}</span></a>
-    </div>
-  </nav>
-
-  <script>
-    (function(){
-      const moreBtn = document.querySelector('.bottom-nav a[data-more]');
-      if (!moreBtn) return;
-
-      const html = \`
-        <section class="more-section">
-          <h3>${escapeHtml(moreTravelTitle)}</h3>
-          <div class="more-links">
-            <a href="../info${isGreek ? '-el' : ''}.html">
-              <span class="more-link-leading"><i class="fa-solid fa-compass"></i><span class="more-link-label">${escapeHtml(moreTravelHub)}</span></span>
-              <small>kalanera.gr</small>
-            </a>
-            <a href="../flights${isGreek ? '-el' : ''}.html">
-              <span class="more-link-leading"><i class="fa-solid fa-plane-departure"></i><span class="more-link-label">${escapeHtml(moreTravelFlights)}</span></span>
-            </a>
-            <a href="../events${isGreek ? '-el' : ''}.html">
-              <span class="more-link-leading"><i class="fa-solid fa-calendar-days"></i><span class="more-link-label">${escapeHtml(moreTravelEvents)}</span></span>
-            </a>
-            <a href="https://walking-pelion.blogspot.com/" target="_blank" rel="noopener noreferrer">
-              <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">${escapeHtml(moreTravelWalking)}</span></span>
-              <small>${escapeHtml(moreTravelExternal)}</small>
-            </a>
-            <a href="../useful-numbers${isGreek ? '-el' : ''}.html">
-              <span class="more-link-leading"><i class="fa-solid fa-phone"></i><span class="more-link-label">${escapeHtml(moreTravelNumbers)}</span></span>
-              <small>${escapeHtml(moreTravelNumbersSub)}</small>
-            </a>
-          </div>
-        </section>
-
-        <section class="more-section">
-          <h3>${escapeHtml(moreInstallTitle)}</h3>
-          <div class="more-links">
-            <a href="../${escapeHtml(ix)}">
-              <span class="more-link-leading"><i class="fa fa-download"></i><span class="more-link-label">${escapeHtml(moreInstallBtn)}</span></span>
-              <small>PWA</small>
-            </a>
-          </div>
-        </section>
-
-        <section class="more-section more-about">
-          <h3>${escapeHtml(moreAbout)}</h3>
-          <p>${escapeHtml(footerAboutText)}</p>
-          <div class="more-links" style="margin-top:10px;">
-            <a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener">
-              <span class="more-link-leading"><i class="fab fa-facebook-f"></i><span class="more-link-label">${escapeHtml(moreFollow)}</span></span>
-              <small>Facebook</small>
-            </a>
-            <a href="mailto:info@spiti.tech?">
-              <span class="more-link-leading"><i class="fa-solid fa-envelope"></i><span class="more-link-label">${escapeHtml(moreContact)}</span></span>
-              <small>info@spiti.tech</small>
-            </a>
-            <a href="../privacy${isGreek ? '-el' : ''}.html">
-              <span class="more-link-leading"><i class="fa-solid fa-user-shield"></i><span class="more-link-label">${escapeHtml(footerPrivacyLabel)}</span></span>
-              <small>kalanera.gr</small>
-            </a>
-          </div>
-
-          <div class="more-links" style="margin-top:10px;">
-            <div class="more-card is-meta">
-              <div class="meta-row">
-                <span class="more-link-label">${escapeHtml(poweredBy)}: KanteKlik</span>
-                <div class="meta-right">
-                  <div class="meta-version"><code>v${escapeHtml(appVersion)}</code></div>
-                </div>
-              </div>
-              <div class="copyright-row">
-                <span class="copyright-text">© ${formattedCopyright}</span>
-                <img class="meta-logo" src="../logo-72x72.png" alt="Kalanera InPhoto" width="28" height="28" loading="lazy">
-              </div>
-            </div>
-          </div>
-        </section>
-      \`;
-
-      function ensure() {
-        let backdrop = document.getElementById('more-sheet-backdrop');
-        let sheet = document.getElementById('more-sheet');
-
-        if (!backdrop) {
-          backdrop = document.createElement('div');
-          backdrop.id = 'more-sheet-backdrop';
-          backdrop.className = 'more-sheet-backdrop';
-          backdrop.hidden = true;
-          document.body.appendChild(backdrop);
-        }
-
-        if (!sheet) {
-          sheet = document.createElement('section');
-          sheet.id = 'more-sheet';
-          sheet.className = 'more-sheet';
-          sheet.hidden = true;
-          sheet.setAttribute('role','dialog');
-          sheet.setAttribute('aria-modal','true');
-          sheet.innerHTML = \`
-            <div class="more-sheet-handle" aria-hidden="true"></div>
-            <header class="more-sheet-header">
-              <div class="more-sheet-title"><i class="fa-solid fa-ellipsis"></i> ${escapeHtml(tabMore)}</div>
-              <button type="button" class="more-sheet-close" id="more-sheet-close" aria-label="Close">✕</button>
-            </header>
-            <div class="more-sheet-content" id="more-sheet-content"></div>
-          \`;
-          document.body.appendChild(sheet);
-        }
-
-        return {backdrop, sheet};
-      }
-
-      function open() {
-        if (window.innerWidth >= 992) return;
-        const {backdrop, sheet} = ensure();
-        const content = document.getElementById('more-sheet-content');
-        if (content) content.innerHTML = html;
-
-        backdrop.hidden = false;
-        sheet.hidden = false;
-
-        const close = () => {
-          backdrop.hidden = true;
-          sheet.hidden = true;
-        };
-        backdrop.onclick = close;
-        const btn = document.getElementById('more-sheet-close');
-        if (btn) btn.onclick = close;
-
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') close();
-        }, { once:true });
-      }
-
-      moreBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        open();
-      });
-    })();
-  </script>
-
+    </div></nav>
   <script src="../app.js?v=${appVersion}"></script>
 </body>
 </html>`;

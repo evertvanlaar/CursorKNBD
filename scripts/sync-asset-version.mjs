@@ -143,6 +143,7 @@ if (fs.existsSync(businessDir)) {
     if (!/href="\.\.\/style\.css\?v=[^"]*"/.test(html)) continue;
     const next = html
       .replace(/href="\.\.\/style\.css\?v=[^"]*"/g, `href="../style.css?v=${v}"`)
+      .replace(/<script src="\.\.\/app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="../app.js?v=${v}"></script>`)
       // Legacy inline More menu meta card shows a hardcoded version.
       .replace(/<div class="meta-version"><code>v[^<]*<\/code><\/div>/g, `<div class="meta-version"><code>v${v}</code></div>`);
     writeIfChanged(fp, next);
