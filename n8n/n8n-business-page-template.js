@@ -206,7 +206,6 @@ for (const item of $input.all()) {
     const cat = t(catEn, isGreek);
     const loc = t(biz.Location, isGreek);
     const locEn = t(biz.Location, false);
-    const catSlug = categorySectionSlug(catEn);
     const catIcon = categoryFaSolid(catEn);
 
     const tabHome = isGreek ? 'Αρχική' : 'Home';
@@ -214,9 +213,10 @@ for (const item of $input.all()) {
     const tabGuide = isGreek ? 'Οδηγός' : 'Guide';
     const tabMore = isGreek ? 'Περισσότερα' : 'More';
     const tabBus = isGreek ? 'Λεωφορείο' : 'Bus';
+    const navInstall = isGreek ? 'Εγκατάσταση Εφαρμογής' : 'Install App';
+    const navMenuAria = isGreek ? 'Άνοιγμα μενού' : 'Open menu';
     const moreTravelNumbers = isGreek ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers';
 
-    const lblDirectory = isGreek ? 'Κατάλογος' : 'Directory';
     const lblCategory = isGreek ? 'Κατηγορία' : 'Category';
     const lblPelion = isGreek ? 'Πήλιο' : 'Pelion';
     const lblPhone = isGreek ? 'Τηλέφωνο' : 'Phone';
@@ -234,8 +234,6 @@ for (const item of $input.all()) {
     const langAltPath = isGreek ? `${slug}.html` : `${slug}-el.html`;
     const langAltLabel = isGreek ? 'English' : 'Ελληνικά';
     const langFlagFile = isGreek ? 'gb' : 'gr';
-    const backHref = `../${ix}?cat=${catSlug}`;
-
     const pageUrl = `${SITE_ORIGIN}/business/${slug}${isGreek ? '-el' : ''}.html`;
     const alternateEn = `${SITE_ORIGIN}/business/${slug}.html`;
     const alternateEl = `${SITE_ORIGIN}/business/${slug}-el.html`;
@@ -377,14 +375,22 @@ ${siteLangScript}  <meta charset="UTF-8">
   <link rel="manifest" href="/manifest.json">
 </head>
 <body class="biz-detail-page">
-  <header class="site-header"><nav class="main-nav"><div class="nav-container nav-container--detail-lite">
+  <header class="site-header"><nav class="main-nav"><div class="nav-container">
         <a href="../${escapeHtml(ix)}" class="logo logo--with-tag" aria-label="${isGreek ? 'Οδηγός Καλών Νερών — αρχική' : 'Kala Nera Guide — home'}"><span class="logo-main">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span><span class="logo-tag" aria-hidden="true">Guide</span></a>
         <a href="${escapeHtml(langAltPath)}" class="lang-link-mobile" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}"><img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}"></a>
         <a href="https://www.meteoblue.com/en/weather/forecast/week/kal%c3%a1-ner%c3%a1_greece_261556" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="weather-icon-container"><span id="weather-icon"></span><span id="weather-temp">--°C</span></div></a>
-        <a href="${escapeHtml(langAltPath)}" class="lang-link lang-link--detail-bar-desktop" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}"><img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}" style="width:20px;vertical-align:middle"></a>
+        <button class="menu-toggle" id="mobile-menu" type="button" aria-label="${escapeHtml(navMenuAria)}" title="${escapeHtml(navMenuAria)}"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></button>
+        <ul class="nav-links" id="nav-list">
+          <li><a href="../${escapeHtml(ix)}"><i class="fa-solid fa-house" aria-hidden="true"></i> ${escapeHtml(tabHome)}</a></li>
+          <li><a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> ${escapeHtml(footerBusLabel)}</a></li>
+          <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart menu-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
+          <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
+          <li><a href="../info${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> ${escapeHtml(footerTravelLabel)}</a></li>
+          <li id="menu-install-item" class="mobile-only-item"><a href="#" onclick="triggerManualInstall(event)"><i class="fa fa-download" style="color:var(--install-color)!important"></i> ${escapeHtml(navInstall)}</a></li>
+          <li><a href="${escapeHtml(langAltPath)}" class="lang-link" title="${escapeHtml(langAltLabel)}" aria-label="${escapeHtml(langAltLabel)}"><img src="../pix/flags/${escapeHtml(langFlagFile)}.svg" alt="${escapeHtml(langAltLabel)}" style="width:20px;vertical-align:middle;margin-right:5px"></a></li>
+        </ul>
       </div></nav></header>
   <main class="sheet-data-page biz-detail-page flights-page" id="top">
-    <p class="biz-detail-back"><a href="${escapeHtml(backHref)}"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> ${escapeHtml(lblDirectory)}</a></p>
     <header class="flights-page-head"><div class="flights-page-head-main"><h1 class="flights-page-title">${escapeHtml(name)}</h1><p class="flights-iata-badge"><abbr title="${escapeHtml(lblCategory)}">${escapeHtml(cat)}</abbr></p></div>
       <p class="flights-page-kicker">${escapeHtml(loc)} <span class="flights-kicker-sep" aria-hidden="true">·</span> ${escapeHtml(lblPelion)}</p></header>
     <article class="biz-detail-card">
