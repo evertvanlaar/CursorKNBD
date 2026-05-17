@@ -107,12 +107,58 @@ const telForLd = (p) => {
 
 const telHref = (p) => telForLd(p).replace(/\s+/g, '');
 
-const websiteHost = (url) => {
+/** Link text for Website row: "Facebook" instead of long profile.php URLs; own domains stay as hostname. */
+const websiteDisplayLabel = (url) => {
+  const raw = String(url ?? '').trim();
+  if (!raw || raw === '-') return '';
+
+  const labelFromHost = (host, path) => {
+    const h = host.replace(/^(www|m|mobile)\./i, '').toLowerCase();
+    const p = (path || '').toLowerCase();
+    const known = [
+      ['facebook.com', 'Facebook'],
+      ['fb.com', 'Facebook'],
+      ['instagram.com', 'Instagram'],
+      ['tiktok.com', 'TikTok'],
+      ['twitter.com', 'X'],
+      ['x.com', 'X'],
+      ['youtube.com', 'YouTube'],
+      ['youtu.be', 'YouTube'],
+      ['linkedin.com', 'LinkedIn'],
+      ['pinterest.com', 'Pinterest'],
+      ['tripadvisor.com', 'TripAdvisor'],
+      ['tripadvisor.gr', 'TripAdvisor'],
+      ['wa.me', 'WhatsApp'],
+      ['api.whatsapp.com', 'WhatsApp'],
+      ['whatsapp.com', 'WhatsApp'],
+      ['t.me', 'Telegram'],
+      ['telegram.me', 'Telegram'],
+      ['linktr.ee', 'Linktree'],
+      ['bit.ly', 'Link'],
+    ];
+    for (const [suffix, label] of known) {
+      if (h === suffix || h.endsWith('.' + suffix)) return label;
+    }
+    if (h.includes('booking.com')) return 'Booking.com';
+    if (h.includes('airbnb.')) return 'Airbnb';
+    if (h === 'google.com' || h.endsWith('.google.com')) {
+      return p.includes('/maps') ? 'Google Maps' : 'Google';
+    }
+    if (h === 'goo.gl' || h === 'maps.app.goo.gl') return 'Google Maps';
+    return h;
+  };
+
   try {
-    const href = url.startsWith('http') ? url : `https://${url}`;
-    return new URL(href).hostname.replace(/^www\./i, '');
+    const href = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    const u = new URL(href);
+    return labelFromHost(u.hostname, u.pathname);
   } catch {
-    return String(url ?? '').trim();
+    const lower = raw.toLowerCase();
+    if (lower.includes('facebook.com') || lower.includes('fb.com')) return 'Facebook';
+    if (lower.includes('instagram.com')) return 'Instagram';
+    if (lower.includes('tripadvisor')) return 'TripAdvisor';
+    if (raw.length > 36) return raw.slice(0, 33) + '…';
+    return raw;
   }
 };
 
@@ -287,7 +333,7 @@ for (const item of $input.all()) {
       contactRows.push(
         '          <div class="biz-detail-contact-row">\n' +
           `            <span class="biz-detail-contact-label"><i class="fa-solid fa-globe" aria-hidden="true"></i> ${lblWebsite}</span>\n` +
-          `            <a href="${escapeHtml(websiteHref)}" target="_blank" rel="noopener noreferrer">${escapeHtml(websiteHost(websiteHref))}</a>\n` +
+          `            <a href="${escapeHtml(websiteHref)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(websiteHref)}">${escapeHtml(websiteDisplayLabel(websiteHref))}</a>\n` +
           '          </div>',
       );
     }
