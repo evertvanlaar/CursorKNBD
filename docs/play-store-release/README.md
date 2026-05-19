@@ -20,6 +20,7 @@ Bij invullen van het Google **production access**-formulier: alleen claimen wat 
 |---------|----------------|
 | [A1-keywords-aso.md](./A1-keywords-aso.md) | Keyword-onderzoek EN/EL |
 | [A2-play-store-copy.md](./A2-play-store-copy.md) | Listing-teksten Play Console |
+| [A3-release-notes-3.1.1.md](./A3-release-notes-3.1.1.md) | What's new EN/EL (3.1.0 / 3.1.1) |
 | [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
 
 ## Onboarding
