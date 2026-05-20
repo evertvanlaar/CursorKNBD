@@ -1,1 +1,14 @@
+# Signing (never commit secrets)
 keystore.properties
+*.jks
+*.keystore
+
+# Gradle
+.gradle/
+build/tmp/
+local.properties
+
+# IDE
+*.iml
+.idea/
+.cxx/
