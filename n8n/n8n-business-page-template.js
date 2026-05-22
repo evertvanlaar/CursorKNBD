@@ -175,7 +175,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.5';
+    const appVersion = '3.1.7';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -394,7 +394,7 @@ ${siteLangScript}  <meta charset="UTF-8">
     <header class="flights-page-head"><div class="flights-page-head-main"><h1 class="flights-page-title">${escapeHtml(name)}</h1><p class="flights-iata-badge"><abbr title="${escapeHtml(lblCategory)}">${escapeHtml(cat)}</abbr></p></div>
       <p class="flights-page-kicker">${escapeHtml(loc)} <span class="flights-kicker-sep" aria-hidden="true">·</span> ${escapeHtml(lblPelion)}</p></header>
     <article class="biz-detail-card">
-      <button type="button" class="biz-detail-card__image-btn" aria-label="${escapeHtml(lblViewPhoto)}"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(imgAlt)}" class="biz-detail-card__image" width="800" height="500" loading="eager"></button>
+      <button type="button" class="biz-detail-card__image-btn" aria-label="${escapeHtml(lblViewPhoto)}"><img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(imgAlt)}" class="biz-detail-card__image" width="800" height="500" loading="eager" onerror="this.onerror=null;this.src='../pix/nophoto.jpg'"></button>
       <div class="biz-detail-card__body">
         <p class="biz-detail-meta"><span><i class="fa-solid ${catIcon}" aria-hidden="true"></i> ${escapeHtml(cat)}</span><span class="biz-detail-meta-sep" aria-hidden="true">·</span><span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${escapeHtml(loc)}</span></p>
 ${descriptionHtml}        <div class="biz-detail-contact-wrap">
