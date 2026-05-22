@@ -67,16 +67,16 @@ function readVersion() {
   return raw;
 }
 
-const WWW_REDIRECT_SNIPPET =
-  "  <script>(function(){if(location.hostname!=='kalanera.gr')return;var s=matchMedia('(display-mode:standalone)').matches||navigator.standalone||(document.referrer&&document.referrer.indexOf('android-app://')>-1);if(!s)location.replace('https://www.kalanera.gr'+location.pathname+location.search+location.hash);})();</script>\n";
+/** Client-side apex→www redirect veroorzaakte redirect-loops (zwart scherm). Verwijder uit alle HTML. */
+const WWW_REDIRECT_PATTERNS = [
+  /  <script>if\(location\.hostname==='kalanera\.gr'\)\{location\.replace\('https:\/\/www\.kalanera\.gr'\+location\.pathname\+location\.search\+location\.hash\);\}<\/script>\r?\n?/,
+  /  <script>\(function\(\)\{if\(location\.hostname!=='kalanera\.gr'\)return;[^<]*<\/script>\r?\n?/,
+];
 
-const WWW_REDIRECT_OLD =
-  /  <script>if\(location\.hostname==='kalanera\.gr'\)\{location\.replace\('https:\/\/www\.kalanera\.gr'\+location\.pathname\+location\.search\+location\.hash\);\}<\/script>\r?\n?/;
-
-function ensureWwwRedirect(html) {
-  if (WWW_REDIRECT_OLD.test(html)) return html.replace(WWW_REDIRECT_OLD, WWW_REDIRECT_SNIPPET);
-  if (html.includes("location.hostname!=='kalanera.gr'")) return html;
-  return html.replace(/<head>\r?\n/i, `<head>\n${WWW_REDIRECT_SNIPPET}`);
+function stripWwwRedirect(html) {
+  let out = html;
+  for (const re of WWW_REDIRECT_PATTERNS) out = out.replace(re, '');
+  return out;
 }
 
 function writeIfChanged(file, content) {
@@ -145,7 +145,7 @@ for (const name of ROOT_HTML_FILES) {
     .replace(/href="style\.css\?v=[^"]*"/g, `href="style.css?v=${v}"`)
     .replace(/<script src="app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="app.js?v=${v}"></script>`)
     .replace(/<script src="events-page\.js\?v=[^"]*"/g, `<script src="events-page.js?v=${v}"`);
-  next = ensureWwwRedirect(next);
+  next = stripWwwRedirect(next);
   writeIfChanged(fp, next);
 }
 
@@ -159,7 +159,7 @@ if (fs.existsSync(businessDir)) {
       .replace(/<script src="\.\.\/app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="../app.js?v=${v}"></script>`)
       // Legacy inline More menu meta card shows a hardcoded version.
       .replace(/<div class="meta-version"><code>v[^<]*<\/code><\/div>/g, `<div class="meta-version"><code>v${v}</code></div>`);
-    next = ensureWwwRedirect(next);
+    next = stripWwwRedirect(next);
     writeIfChanged(fp, next);
   }
 }
