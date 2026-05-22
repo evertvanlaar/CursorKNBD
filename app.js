@@ -231,7 +231,7 @@ const iconMap = {
 };
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.7'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.8'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -3648,15 +3648,6 @@ async function initBusSchedule() {
 
 /** Smart crop (trial): saliency-based object-position for cover crops */
 const SMART_CROP_ENABLED = true;
-
-/** Phones/PWA: skip SmartCrop (canvas + object-position on 118px strips breaks visible photos on iOS/Android). */
-function shouldRunSmartCrop() {
-    if (!SMART_CROP_ENABLED) return false;
-    if (typeof window === 'undefined' || !window.matchMedia) return true;
-    if (window.matchMedia('(max-width: 991px)').matches) return false;
-    if (window.matchMedia('(display-mode: standalone)').matches) return false;
-    return true;
-}
 /** Console logs crop result on these pages/cards (trial). */
 const SMART_CROP_DEBUG_SLUGS = new Set(['pasta-la-vista', 'sikia-taverna']);
 const SMART_CROP_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/smartcrop@2.0.5/smartcrop.min.js';
@@ -3891,7 +3882,7 @@ function loadImageForSmartCropAnalysis(domImg) {
 }
 
 function applySmartCropObjectPosition(img) {
-    if (!shouldRunSmartCrop() || !img || img.dataset.smartcropApplied === '1') return Promise.resolve();
+    if (!SMART_CROP_ENABLED || !img || img.dataset.smartcropApplied === '1') return Promise.resolve();
     if (shouldSkipSmartCrop(img)) return Promise.resolve();
 
     return loadSmartCropLibrary()
@@ -3933,14 +3924,14 @@ function applySmartCropObjectPosition(img) {
 }
 
 function queueSmartCropForImage(img) {
-    if (!shouldRunSmartCrop() || !img || img.dataset.smartcropApplied === '1' || shouldSkipSmartCrop(img)) {
+    if (!SMART_CROP_ENABLED || !img || img.dataset.smartcropApplied === '1' || shouldSkipSmartCrop(img)) {
         return;
     }
     smartCropTaskChain = smartCropTaskChain.then(() => applySmartCropObjectPosition(img));
 }
 
 function scheduleSmartCropForListing(container) {
-    if (!shouldRunSmartCrop() || !container) return;
+    if (!SMART_CROP_ENABLED || !container) return;
     const run = () => {
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -3977,7 +3968,7 @@ function initSmartCropForBizDetail() {
     if (!document.body.classList.contains('biz-detail-page')) return;
     document.querySelectorAll('.biz-detail-card__image').forEach((img) => {
         ensureBizDetailPhotoFallback(img);
-        if (shouldRunSmartCrop()) queueSmartCropForImage(img);
+        if (SMART_CROP_ENABLED) queueSmartCropForImage(img);
     });
 }
 
