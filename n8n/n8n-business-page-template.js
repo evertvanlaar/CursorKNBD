@@ -79,24 +79,31 @@ const escapeHtml = (s) =>
 
 const jsonLdEmbed = (obj) => JSON.stringify(obj).replace(/</g, '\\u003c');
 
-const absoluteAssetUrl = (photoField) => {
-  const fallback = `${SITE_ORIGIN}/pix/nophoto.jpg`;
+/** Relative ../pix/ for business/*.html — same origin on kalanera.gr and www (no cross-site img). */
+const businessPixSrc = (photoField) => {
+  const fallback = '../pix/nophoto.jpg';
   const raw = String(photoField ?? '').trim();
   if (!raw) return fallback;
-
   if (/^https?:\/\//i.test(raw)) {
-    if (/^https?:\/\/(www\.)?kalanera\.gr\b/i.test(raw)) {
-      return raw.replace(/^https?:\/\/(www\.)?kalanera\.gr\b/i, SITE_ORIGIN);
-    }
+    const m = raw.match(/\/pix\/[^?#'"\s]+/i);
+    if (m && /kalanera\.gr\b/i.test(raw)) return '..' + m[0];
+    if (/kalanera\.gr\b/i.test(raw)) return fallback;
     return raw;
   }
-
   let path = raw.replace(/^(\.\.\/)+/, '').replace(/^\/+/, '');
   if (!path.startsWith('pix/')) {
     path = path.replace(/^pix\/?/, '');
     path = 'pix/' + path;
   }
-  return `${SITE_ORIGIN}/${path}`;
+  return '../' + path;
+};
+
+/** Absolute URL for OG/Twitter/JSON-LD only. */
+const absoluteAssetUrl = (photoField) => {
+  const rel = businessPixSrc(photoField);
+  if (/^https?:\/\//i.test(rel)) return rel;
+  const pix = rel.replace(/^\.\./, '');
+  return `${SITE_ORIGIN}${pix.startsWith('/') ? pix : '/' + pix}`;
 };
 
 const telForLd = (p) => {
@@ -175,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.12';
+    const appVersion = '3.1.13';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -266,7 +273,8 @@ for (const item of $input.all()) {
           ? safeWebsite
           : '';
 
-    const imgSrc = absoluteAssetUrl(biz.PhotoURL);
+    const imgSrc = businessPixSrc(biz.PhotoURL);
+    const imgSrcAbsolute = absoluteAssetUrl(biz.PhotoURL);
     const imgAlt = isGreek ? `${name} στα ${loc}` : `${name} in ${loc}`;
 
     const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' Kala Nera reviews')}`;
@@ -294,7 +302,7 @@ for (const item of $input.all()) {
       '@id': `${pageUrl}#business`,
       name,
       ...(otherNameRaw ? { alternateName: otherNameRaw } : {}),
-      image: imgSrc,
+      image: imgSrcAbsolute,
       url: pageUrl,
       description: metaDescPlain,
       address: {
@@ -357,7 +365,7 @@ ${siteLangScript}  <meta charset="UTF-8">
   <link rel="alternate" hreflang="x-default" href="${alternateEn}" />
   <meta property="og:title" content="${escapeHtml(ogTitle)}">
   <meta property="og:description" content="${escapeHtml(metaDescPlain)}">
-  <meta property="og:image" content="${escapeHtml(imgSrc)}">
+  <meta property="og:image" content="${escapeHtml(imgSrcAbsolute)}">
   <meta property="og:url" content="${pageUrl}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Kala Nera Guide">
@@ -366,7 +374,7 @@ ${siteLangScript}  <meta charset="UTF-8">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${escapeHtml(ogTitle)}">
   <meta name="twitter:description" content="${escapeHtml(metaDescPlain)}">
-  <meta name="twitter:image" content="${escapeHtml(imgSrc)}">
+  <meta name="twitter:image" content="${escapeHtml(imgSrcAbsolute)}">
   <script type="application/ld+json">${jsonLdEmbed(ldGraph)}</script>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
