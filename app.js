@@ -2,8 +2,13 @@
  * app.js - De "hersenen" van de Kala Nera Guide
  */
 
-/** Play Store TWA opens https://kalanera.gr (apex); site + photos live on www — zelfde origin als browser-PWA. */
-if (location.hostname === 'kalanera.gr') {
+/** Apex→www alleen in de gewone browser. TWA/PWA op apex blijft op apex (anders URL-balk in Play Store-app). */
+function isStandaloneApp() {
+    return window.matchMedia('(display-mode: standalone)').matches
+        || !!window.navigator.standalone
+        || (document.referrer && document.referrer.includes('android-app://'));
+}
+if (location.hostname === 'kalanera.gr' && !isStandaloneApp()) {
     location.replace(`https://www.kalanera.gr${location.pathname}${location.search}${location.hash}`);
 }
 
@@ -235,7 +240,7 @@ const iconMap = {
     'Rent': 'fa-car', 'Travel': 'fa-route'
 };
 
-const SITE_ORIGIN = 'https://www.kalanera.gr';
+const SITE_ORIGIN = location.origin;
 
 /** Zelfde logica als n8n-business-page-template: consistente absolute /pix/ URLs in listings. */
 function absolutePhotoUrl(photoField) {
@@ -257,7 +262,7 @@ function absolutePhotoUrl(photoField) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.10'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.11'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {

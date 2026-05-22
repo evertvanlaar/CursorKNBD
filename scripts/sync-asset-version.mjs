@@ -68,10 +68,14 @@ function readVersion() {
 }
 
 const WWW_REDIRECT_SNIPPET =
-  "  <script>if(location.hostname==='kalanera.gr'){location.replace('https://www.kalanera.gr'+location.pathname+location.search+location.hash);}</script>\n";
+  "  <script>(function(){if(location.hostname!=='kalanera.gr')return;var s=matchMedia('(display-mode:standalone)').matches||navigator.standalone||(document.referrer&&document.referrer.indexOf('android-app://')>-1);if(!s)location.replace('https://www.kalanera.gr'+location.pathname+location.search+location.hash);})();</script>\n";
+
+const WWW_REDIRECT_OLD =
+  /  <script>if\(location\.hostname==='kalanera\.gr'\)\{location\.replace\('https:\/\/www\.kalanera\.gr'\+location\.pathname\+location\.search\+location\.hash\);\}<\/script>\r?\n?/;
 
 function ensureWwwRedirect(html) {
-  if (html.includes("location.hostname==='kalanera.gr'")) return html;
+  if (WWW_REDIRECT_OLD.test(html)) return html.replace(WWW_REDIRECT_OLD, WWW_REDIRECT_SNIPPET);
+  if (html.includes("location.hostname!=='kalanera.gr'")) return html;
   return html.replace(/<head>\r?\n/i, `<head>\n${WWW_REDIRECT_SNIPPET}`);
 }
 
