@@ -67,6 +67,14 @@ function readVersion() {
   return raw;
 }
 
+const WWW_REDIRECT_SNIPPET =
+  "  <script>if(location.hostname==='kalanera.gr'){location.replace('https://www.kalanera.gr'+location.pathname+location.search+location.hash);}</script>\n";
+
+function ensureWwwRedirect(html) {
+  if (html.includes("location.hostname==='kalanera.gr'")) return html;
+  return html.replace(/<head>\r?\n/i, `<head>\n${WWW_REDIRECT_SNIPPET}`);
+}
+
 function writeIfChanged(file, content) {
   const prev = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
   if (prev !== content) {
@@ -129,10 +137,11 @@ for (const name of ROOT_HTML_FILES) {
   if (!/<script src="app\.js(\?v=[^"]*)?"><\/script>/.test(html)) {
     throw new Error(`${name}: expected <script src="app.js"></script> or with ?v=`);
   }
-  const next = html
+  let next = html
     .replace(/href="style\.css\?v=[^"]*"/g, `href="style.css?v=${v}"`)
     .replace(/<script src="app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="app.js?v=${v}"></script>`)
     .replace(/<script src="events-page\.js\?v=[^"]*"/g, `<script src="events-page.js?v=${v}"`);
+  next = ensureWwwRedirect(next);
   writeIfChanged(fp, next);
 }
 
@@ -141,11 +150,12 @@ if (fs.existsSync(businessDir)) {
   for (const fp of walkHtmlFiles(businessDir)) {
     let html = fs.readFileSync(fp, 'utf8');
     if (!/href="\.\.\/style\.css\?v=[^"]*"/.test(html)) continue;
-    const next = html
+    let next = html
       .replace(/href="\.\.\/style\.css\?v=[^"]*"/g, `href="../style.css?v=${v}"`)
       .replace(/<script src="\.\.\/app\.js(\?v=[^"]*)?"><\/script>/g, `<script src="../app.js?v=${v}"></script>`)
       // Legacy inline More menu meta card shows a hardcoded version.
       .replace(/<div class="meta-version"><code>v[^<]*<\/code><\/div>/g, `<div class="meta-version"><code>v${v}</code></div>`);
+    next = ensureWwwRedirect(next);
     writeIfChanged(fp, next);
   }
 }

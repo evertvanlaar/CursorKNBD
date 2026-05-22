@@ -2,6 +2,11 @@
  * app.js - De "hersenen" van de Kala Nera Guide
  */
 
+/** Play Store TWA opens https://kalanera.gr (apex); site + photos live on www — zelfde origin als browser-PWA. */
+if (location.hostname === 'kalanera.gr') {
+    location.replace(`https://www.kalanera.gr${location.pathname}${location.search}${location.hash}`);
+}
+
 const N8N_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/local-businesses';
 // Bus timetable (n8n path bus-schedule-next). Query: from, dir, remaining=0|1, dayOffset=0..6 (Athens calendar).
 // Legacy webhook /webhook/bus-schedule blijft in n8n actief voor oudere app.js die nog niet via service worker is bijgewerkt.
@@ -252,7 +257,7 @@ function absolutePhotoUrl(photoField) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.9'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.10'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {

@@ -175,7 +175,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.9';
+    const appVersion = '3.1.10';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -344,6 +344,7 @@ for (const item of $input.all()) {
     return `<!DOCTYPE html>
 <html lang="${lang}">
 <head>
+  <script>if(location.hostname==='kalanera.gr'){location.replace('https://www.kalanera.gr'+location.pathname+location.search+location.hash);}</script>
 ${siteLangScript}  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#4a6c4a">
