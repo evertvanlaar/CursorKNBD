@@ -50,6 +50,8 @@ const ROOT_HTML_FILES = [
   'events-el.html',
   'useful-numbers.html',
   'useful-numbers-el.html',
+  'install.html',
+  'install-el.html',
 ];
 
 function readVersion() {

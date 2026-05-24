@@ -16,6 +16,16 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://www.kalanera.gr/install.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.kalanera.gr/install-el.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.kalanera.gr/wishlist-el.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

@@ -182,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.13';
+    const appVersion = '3.1.22';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -412,23 +412,28 @@ ${contactCardHtml}
           <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer" class="btn-icon nav-btn-action" title="${escapeHtml(lblLocation)}" aria-label="${escapeHtml(lblMapsAria)}" onclick="gtag('event', 'open_maps', {'biz_name': '${gtagBiz}'})"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></a>
         </div></div></div></article>
   </main>
-  <footer class="site-footer"><div class="footer-container"><div class="footer-column footer-column--brand">
+  <footer class="site-footer"><div class="footer-container footer-container--hub"><div class="footer-column footer-column--brand">
         <a href="../${escapeHtml(ix)}" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml(isGreek ? 'Καλά Νερά' : 'Kala Nera')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span></a>
-        <p class="footer-tagline">${escapeHtml(footerTagline)}</p><p class="footer-lead">${escapeHtml(footerAboutText)}</p></div>
-      <div class="footer-column footer-column--site"><div class="footer-nav-section"><h3>${escapeHtml(footerSiteTitle)}</h3><ul>
+        <p class="footer-tagline">${escapeHtml(footerTagline)}</p><p class="footer-lead">${escapeHtml(footerAboutText)}</p>
+        <div class="footer-install-strip">
+          <a href="../${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer" aria-label="${escapeHtml(isGreek ? 'Εγκατάσταση Καλά Νερά Guide στο κινητό' : 'Install Kala Nera Guide on your phone')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="install-badge__text"><span class="install-badge__title">${escapeHtml(isGreek ? 'Εγκατάσταση στο κινητό' : 'Install on your phone')}</span><span class="install-badge__note">${escapeHtml(isGreek ? 'Δωρεάν · Μέσω browser · Όχι App Store ή Google Play' : 'Free · Browser install · Not in App Store or Google Play')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
+          <div class="footer-install-qr"><img src="../${isGreek ? 'pix/install-qr-el.png' : 'pix/install-qr-en.png'}" width="72" height="72" alt="${escapeHtml(isGreek ? 'QR εγκατάστασης: kalanera.gr/install-el.html' : 'QR: install Kala Nera Guide at kalanera.gr/install.html')}" loading="lazy"><span class="footer-install-qr__label">${escapeHtml(isGreek ? 'Σάρωση' : 'Scan')}</span></div>
+        </div></div>
+      <div class="footer-aside"><div class="footer-aside-cols">
+        <div class="footer-column footer-column--site"><div class="footer-nav-section"><h3>${escapeHtml(footerSiteTitle)}</h3><ul>
             <li><a href="../bus${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-bus" aria-hidden="true"></i> ${escapeHtml(footerBusLabel)}</a></li>
             <li><a href="../wishlist${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-heart" aria-hidden="true"></i> ${escapeHtml(footerFavoritesLabel)}</a></li>
             <li><a href="../t-form${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> ${escapeHtml(footerAddBizLabel)}</a></li>
             <li><a href="../info${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-compass" aria-hidden="true"></i> ${escapeHtml(footerTravelLabel)}</a></li>
             <li><a href="../useful-numbers${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-phone" aria-hidden="true"></i> ${escapeHtml(moreTravelNumbers)}</a></li>
           </ul></div></div>
-      <div class="footer-column footer-column--social"><h3>${escapeHtml(footerSocialTitle)}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div>
-        <div class="footer-nav-section footer-nav-section--under-social"><h3>${escapeHtml(footerInfoTitle)}</h3><ul>
+        <div class="footer-column footer-column--social"><h3>${escapeHtml(footerSocialTitle)}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div>
+          <div class="footer-nav-section footer-nav-section--under-social"><h3>${escapeHtml(footerInfoTitle)}</h3><ul>
             <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
             <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
           </ul></div></div></div>
-    <div class="footer-bottom"><div class="footer-powered"><a href="mailto:info@spiti.tech" class="footer-powered-badge" aria-label="${escapeHtml(footerPoweredAria)}"><span class="footer-powered-icon" aria-hidden="true"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span class="footer-powered-label">${escapeHtml(footerPoweredLabel)}</span><span class="footer-powered-name">KanteKlik</span></a></div>
-      <div class="footer-bottom-row"><p>${escapeHtml(footerCopyright)}</p><div class="app-version-tag"><i class="fa fa-th-large" aria-hidden="true"></i> ${escapeHtml(footerMobileApp)}</div></div></div>
+        <p class="footer-legal">${escapeHtml(footerCopyright)} · <span class="footer-powered-inline">${escapeHtml(footerPoweredLabel)} <a href="mailto:info@spiti.tech">KanteKlik</a></span></p>
+      </div></div>
   </footer>
   <nav class="bottom-nav" aria-label="${escapeHtml(bottomNavAria)}"><div class="bottom-nav-inner">
       <a href="../${escapeHtml(ix)}"><i class="fa-solid fa-house"></i><span>${escapeHtml(tabHome)}</span></a>
