@@ -75,8 +75,8 @@ android {
         applicationId "com.kalanera.app"
         minSdkVersion 23
         targetSdkVersion 35
-        versionCode 5
-        versionName "3.1.10"
+        versionCode 6
+        versionName "3.1.36"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
