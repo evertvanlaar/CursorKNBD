@@ -113,7 +113,6 @@ index.html / index-el.html (Home)
 flowchart LR
   Browser[Browser / PWA] -->|GET| BizAPI[n8n: /webhook/local-businesses]
   Browser -->|GET| BusAPI[n8n: /webhook/bus-schedule]
-  Browser -->|POST| StatsAPI[n8n: /webhook/app-stats]
 
   BusAPI -->|read| SheetsBus[Google Sheets: Bus_Schedule]
   BizAPI -->|read| SheetsBiz[Google Sheets / business source]
@@ -128,7 +127,6 @@ If Mermaid diagrams do not render in your editor preview, use this ASCII version
 Browser/PWA
   ├─ GET  n8n /webhook/local-businesses  ──► Google Sheets (business source)
   ├─ GET  n8n /webhook/bus-schedule      ──► Google Sheets (Bus_Schedule)
-  └─ POST n8n /webhook/app-stats         ──► (stats workflow)
 
 Caching
   ├─ service-worker.js  (assets, same-origin)
@@ -145,10 +143,8 @@ From `app.js`:
 - **GET** `https://n8n.vanlaar.cloud/webhook/bus-schedule`
   - Bus schedule data (filtered by direction, time, day)
   - Source: Google Sheets tab `Bus_Schedule`
-
-- **POST** `https://n8n.vanlaar.cloud/webhook/app-stats`
-  - Telemetry / usage stats
-  - Important: a public endpoint can be spammed without protections
+ 
+Note: `POST /webhook/app-stats` was used for telemetry (deprecated; replaced by Google Analytics).
 
 ### Bus schedule contract (recommended stable output)
 
