@@ -82,15 +82,15 @@ const N8N_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/local-businesses';
 
 /**
  * Bedrijven-databron (zie docs/static-business-json-rollout.md).
- * - 'webhook' — huidige productie (alle bezoekers zonder override).
- * - 'json'    — same-origin /data/local-businesses.json, webhook als fallback.
- * - 'auto'    — json eerst, daarna webhook (bedoeld voor productie-cutover).
+ * - 'auto'    — productiestandaard: /data/local-businesses.json, webhook als fallback.
+ * - 'json'    — altijd statische JSON (zelfde pad), webhook als fallback.
+ * - 'webhook' — alleen n8n-webhook (debug of als JSON ontbreekt).
  *
- * Test zonder impact op andere bezoekers:
- *   ?bizData=json  of  ?bizData=webhook  (zet ook localStorage kalanera_biz_data_source)
+ * Override voor testen (zet ook localStorage kalanera_biz_data_source):
+ *   ?bizData=json | ?bizData=webhook
  *   ?bizData=reset — verwijdert override, terug naar BUSINESS_DATA_SOURCE_DEFAULT
  */
-const BUSINESS_DATA_SOURCE_DEFAULT = 'webhook';
+const BUSINESS_DATA_SOURCE_DEFAULT = 'auto';
 const BUSINESS_JSON_RELATIVE_PATH = 'data/local-businesses.json';
 const BUSINESS_JSON_STAGING_RELATIVE_PATH = 'data/local-businesses.staging.json';
 
