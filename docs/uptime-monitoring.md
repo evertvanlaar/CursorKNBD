@@ -186,6 +186,30 @@ Realtime check: Reports → Realtime → event `web_vitals` na een bezoek aan ww
 
 ---
 
+## n8n monitoring-workflows (optioneel)
+
+Naast UptimeRobot kun je in n8n importeren (zie `monitoring/README.md`):
+
+| # | Workflow | Bestand | Gedrag |
+|---|----------|---------|--------|
+| 3 | JSON ↔ webhook | `n8n/monitor-json-webhook-compare-weekly.example.json` | Zo 09:00, **e-mail alleen bij probleem** |
+| 4 | Bus sanity | `n8n/monitor-bus-sanity-daily.example.json` | Dagelijks 08:00, **e-mail alleen bij probleem** |
+| 5 | Weekoverzicht | `n8n/monitor-weekly-overview.example.json` | Ma 09:00, **altijd e-mail** (OK + FAIL samenvatting) |
+
+**Setup (alle drie):**
+
+1. n8n → Import from file  
+2. E-mail versturen:
+   - **Resend (weekoverzicht):** HTTP node → `html: {{ $json.bodyHtml }}` en `text: {{ $json.body }}` — zet plain `body` **niet** in het html-veld
+   - **SMTP:** `emailFormat: html`, veld `html` = `{{ $json.bodyHtml }}`
+3. Credentials + `REPLACE_TO_EMAIL` invullen  
+4. *Manual — test run* → controleer inbox (regels + kleuren OK/FAIL)  
+5. Workflow **Active** zetten (timezone: Europe/Athens)
+
+Workflow #5 bevat dezelfde URL-checks als `monitoring/monitors.json` plus JSON/webhook-vergelijking in één rapport.
+
+---
+
 ## Gerelateerd
 
 - [`docs/static-business-json-rollout.md`](static-business-json-rollout.md) — JSON-architectuur

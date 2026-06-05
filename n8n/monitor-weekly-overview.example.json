@@ -1,0 +1,125 @@
+{
+  "name": "kalanera-monitor-weekly-overview (example)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "m5-manual-001",
+      "name": "Manual — test run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-640, -40]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [1],
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "m5-schedule-002",
+      "name": "Schedule — Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-640, 160],
+      "notes": "Maandag 09:00 — wekelijks overzichts-mail."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const MONITORS = [\n  { id: 'homepage-en', name: 'Homepage EN', url: 'https://www.kalanera.gr/', needles: ['business-list'] },\n  { id: 'homepage-el', name: 'Homepage EL', url: 'https://www.kalanera.gr/index-el.html', needles: ['business-list'] },\n  { id: 'business-json', name: 'Bedrijven JSON', url: 'https://www.kalanera.gr/data/local-businesses.json', jsonMinActive: 50 },\n  { id: 'pwa-manifest', name: 'PWA manifest', url: 'https://www.kalanera.gr/manifest.json', needles: ['standalone'] },\n  { id: 'n8n-business', name: 'n8n bedrijven webhook', url: 'https://n8n.vanlaar.cloud/webhook/local-businesses', jsonMinActive: 50 },\n  { id: 'n8n-bus', name: 'n8n bus', url: 'https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0', busMinItems: 0 },\n];\n\nconst JSON_URL = 'https://www.kalanera.gr/data/local-businesses.json';\nconst WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/local-businesses';\n\nfunction escHtml(s) {\n  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}\nfunction toBodyHtml(lines) {\n  const htmlLines = lines.map((line) => {\n    if (!line) return '<br>';\n    if (line.startsWith('===')) {\n      const title = line.replace(/^=+\\s*|\\s*=+$/g, '');\n      return `<h3 style=\"margin:16px 0 6px;font-size:15px\">${escHtml(title)}</h3>`;\n    }\n    let color = '#1a1a1a';\n    if (/^OK\\b/.test(line) || /^Status: OK/.test(line)) color = '#0d7a3e';\n    if (/^FAIL\\b/.test(line) || /PROBLEEM|aandachtspunten/i.test(line)) color = '#b42318';\n    if (/^WARN\\b/.test(line)) color = '#b54708';\n    return `<p style=\"margin:3px 0;color:${color}\">${escHtml(line)}</p>`;\n  }).join('\\n');\n  return `<!DOCTYPE html><html><body style=\"font-family:system-ui,Segoe UI,Roboto,sans-serif;font-size:14px;line-height:1.45;color:#1a1a1a;max-width:42em;padding:8px 4px\">${htmlLines}</body></html>`;\n}\n\nfunction sheetStatus(row) {\n  return String(row?.Status ?? row?.status ?? row?.STATUS ?? '').trim().toLowerCase();\n}\nfunction normalizeRows(payload) {\n  if (Array.isArray(payload)) return payload;\n  if (payload && Array.isArray(payload.rows)) return payload.rows;\n  if (payload && Array.isArray(payload.data)) return payload.data;\n  return [];\n}\nfunction countActive(payload) {\n  return normalizeRows(payload).filter((r) => sheetStatus(r) === 'active').length;\n}\n\nasync function httpGetJson(url) {\n  const started = Date.now();\n  try {\n    const data = await this.helpers.httpRequest({ method: 'GET', url, json: true, timeout: 30000 });\n    return { ok: true, ms: Date.now() - started, data };\n  } catch (e) {\n    return { ok: false, ms: Date.now() - started, error: e?.message || String(e) };\n  }\n}\n\nasync function httpGetText(url) {\n  const started = Date.now();\n  try {\n    const raw = await this.helpers.httpRequest({ method: 'GET', url, timeout: 30000 });\n    const text = typeof raw === 'string' ? raw : JSON.stringify(raw);\n    return { ok: true, ms: Date.now() - started, text };\n  } catch (e) {\n    return { ok: false, ms: Date.now() - started, error: e?.message || String(e) };\n  }\n}\n\nconst lines = [\n  'Kalanera — wekelijks monitoringoverzicht',\n  `Gegenereerd (UTC): ${new Date().toISOString()}`,\n  '',\n  '=== URL-checks (zoals UptimeRobot / check-site-availability.mjs) ===',\n];\n\nlet urlFails = 0;\nfor (const m of MONITORS) {\n  if (m.jsonMinActive != null || m.busMinItems != null) {\n    const res = await httpGetJson.call(this, m.url);\n    if (!res.ok) {\n      urlFails += 1;\n      lines.push(`FAIL  ${m.name} — ${res.error}`);\n      continue;\n    }\n    if (m.jsonMinActive != null) {\n      const n = countActive(res.data);\n      const ga = res.data?.generatedAt || null;\n      const status = n >= m.jsonMinActive ? 'OK' : 'FAIL';\n      if (status === 'FAIL') urlFails += 1;\n      lines.push(`${status}  ${m.name} — ${n} Active${ga ? `, generatedAt ${ga}` : ''} (${res.ms}ms)`);\n    } else {\n      const items = Array.isArray(res.data?.items) ? res.data.items.length : 0;\n      const tz = res.data?.meta?.tz || '?';\n      const status = tz === 'Europe/Athens' ? 'OK' : 'FAIL';\n      if (status === 'FAIL') urlFails += 1;\n      lines.push(`${status}  ${m.name} — tz=${tz}, items=${items} (${res.ms}ms)`);\n    }\n  } else {\n    const res = await httpGetText.call(this, m.url);\n    if (!res.ok) {\n      urlFails += 1;\n      lines.push(`FAIL  ${m.name} — ${res.error}`);\n      continue;\n    }\n    const missing = (m.needles || []).filter((n) => !res.text.includes(n));\n    const status = missing.length ? 'FAIL' : 'OK';\n    if (status === 'FAIL') urlFails += 1;\n    lines.push(`${status}  ${m.name} — HTTP OK${missing.length ? `, mist: ${missing.join(', ')}` : ''} (${res.ms}ms)`);\n  }\n}\n\nlines.push('');\nlines.push('=== JSON vs webhook (Active-rijen) ===');\nconst jsonRes = await httpGetJson.call(this, JSON_URL);\nconst whRes = await httpGetJson.call(this, WEBHOOK_URL);\nlet jsonActive = 0;\nlet webhookActive = 0;\nlet syncOk = false;\nif (!jsonRes.ok || !whRes.ok) {\n  lines.push(`FAIL  vergelijking — JSON: ${jsonRes.ok ? 'OK' : jsonRes.error}, webhook: ${whRes.ok ? 'OK' : whRes.error}`);\n} else {\n  jsonActive = countActive(jsonRes.data);\n  webhookActive = countActive(whRes.data);\n  const diff = Math.abs(jsonActive - webhookActive);\n  syncOk = diff <= 2 && jsonActive >= 50;\n  lines.push(`${syncOk ? 'OK' : 'WARN'}  JSON ${jsonActive} Active, webhook ${webhookActive} Active, verschil ${diff}`);\n}\n\nconst overallOk = urlFails === 0 && syncOk;\nlines.push('');\nlines.push('=== Samenvatting ===');\nlines.push(overallOk ? 'Alles groen — geen actie nodig deze week.' : 'Er zijn aandachtspunten — zie FAIL/WARN hierboven.');\nlines.push('');\nlines.push('UptimeRobot: apart dashboard voor uptime% en incident-historie.');\nlines.push('GA4 web_vitals: Explore/Events voor performance-trends.');\nlines.push('Lokaal: node scripts/check-site-availability.mjs');\n\nconst subject = overallOk\n  ? '[kalanera] Weekoverzicht — alles OK'\n  : '[kalanera] Weekoverzicht — aandachtspunten';\nconst body = lines.join('\\n');\n\nreturn [{\n  json: {\n    overallOk,\n    urlFails,\n    jsonActive,\n    webhookActive,\n    subject,\n    body,\n    bodyHtml: toBodyHtml(lines),\n  },\n}];"
+      },
+      "id": "m5-report-003",
+      "name": "Build weekly report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-320, 60]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: 'Kala Nera Guide <info@kalanera.gr>', to: ['REPLACE_TO_EMAIL'], subject: $json.subject, html: $json.bodyHtml, text: $json.body } }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "m5-resend-004",
+      "name": "Send via Resend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [40, 60],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_RESEND_HTTP_HEADER_CREDENTIAL_ID",
+          "name": "Resend API (Authorization: Bearer re_...)"
+        }
+      },
+      "notes": "Resend: Header Auth → Name: Authorization, Value: Bearer re_xxxxx. html = bodyHtml (niet plain body)."
+    },
+    {
+      "parameters": {
+        "fromEmail": "REPLACE_FROM_EMAIL",
+        "toEmail": "REPLACE_TO_EMAIL",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.bodyHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "m5-email-smtp-005",
+      "name": "Send via SMTP (optional)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [40, 220],
+      "disabled": true,
+      "credentials": {
+        "smtp": {
+          "id": "REPLACE_WITH_YOUR_SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Weekoverzicht (#5)\n\n**Resend (aanbevolen):** node *Send via Resend* — veld `html` = `{{ $json.bodyHtml }}`.\n\nZet **niet** alleen `body` in het html-veld; Gmail toont dan één lange regel.\n\n**SMTP alternatief:** enable *Send via SMTP*, disable Resend, `emailFormat: html`.\n\n**PWA manifest:** JSON-responses worden nu als tekst gelezen (fix false FAIL).",
+        "height": 300,
+        "width": 420
+      },
+      "id": "m5-sticky-005",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-660, -300]
+    }
+  ],
+  "connections": {
+    "Manual — test run": {
+      "main": [[{ "node": "Build weekly report", "type": "main", "index": 0 }]]
+    },
+    "Schedule — Monday 09:00": {
+      "main": [[{ "node": "Build weekly report", "type": "main", "index": 0 }]]
+    },
+    "Build weekly report": {
+      "main": [[{ "node": "Send via Resend", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Athens"
+  }
+}

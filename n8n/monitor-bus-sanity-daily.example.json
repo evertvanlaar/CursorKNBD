@@ -1,0 +1,132 @@
+{
+  "name": "kalanera-monitor-bus-sanity-daily (example)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "m4-manual-001",
+      "name": "Manual — test run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-640, -40]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "m4-schedule-002",
+      "name": "Schedule — daily 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-640, 160],
+      "notes": "Dagelijks 08:00 Europe/Athens. Workflow INACTIVE tot email is gekoppeld."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const BUS_URL = 'https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0';\nconst MIN_ITEMS = 1;\n\nlet payload = null;\nlet fetchError = null;\n\ntry {\n  payload = await this.helpers.httpRequest({\n    method: 'GET',\n    url: BUS_URL,\n    json: true,\n    timeout: 30000,\n  });\n} catch (e) {\n  fetchError = e?.message || String(e);\n}\n\nconst meta = payload?.meta || {};\nconst items = Array.isArray(payload?.items) ? payload.items : [];\nconst tz = meta.tz || null;\nconst generatedAt = meta.generatedAt || null;\nconst query = meta.query || {};\nconst ymd = meta.now?.ymd || null;\n\nconst issues = [];\nif (fetchError) issues.push(`Bus webhook fetch mislukt: ${fetchError}`);\nif (!fetchError && tz !== 'Europe/Athens') issues.push(`meta.tz verwacht Europe/Athens, ontving: ${tz}`);\nif (!fetchError && items.length < MIN_ITEMS) {\n  issues.push(`Geen bus-items voor vandaag (dir=volos, dayOffset=0): ${items.length} rijen`);\n}\nif (!fetchError && !meta.now) issues.push('meta.now ontbreekt in bus-response');\n\nconst ok = issues.length === 0;\nconst subject = ok\n  ? '[kalanera] Bus sanity OK'\n  : '[kalanera] ALERT: bus-schedule-next probleem';\n\nconst sampleTimes = items.slice(0, 5).map((r) => r.Time_KalaNera || r.time || '?').join(', ');\n\nconst lines = [\n  'Kalanera — dagelijkse bus sanity check',\n  `Tijd (UTC): ${new Date().toISOString()}`,\n  `URL: ${BUS_URL}`,\n  '',\n  `Athens datum (meta.now.ymd): ${ymd || '(onbekend)'}`,\n  `meta.tz: ${tz || '(onbekend)'}`,\n  `Items vandaag (volos): ${items.length}`,\n  generatedAt ? `generatedAt: ${generatedAt}` : '',\n  sampleTimes ? `Eerste tijden: ${sampleTimes}` : '',\n  '',\n];\n\nif (ok) {\n  lines.push('Status: OK — bus-widget heeft data voor vandaag.');\n} else {\n  lines.push('Status: PROBLEEM');\n  lines.push('');\n  issues.forEach((msg) => lines.push(`- ${msg}`));\n  lines.push('');\n  lines.push('Actie: controleer Bus_Schedule Sheet, bus-schedule-next workflow en n8n executions.');\n}\n\nfunction escHtml(s) {\n  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}\nfunction toBodyHtml(lines) {\n  return `<!DOCTYPE html><html><body style=\"font-family:system-ui,sans-serif;font-size:14px;line-height:1.45;max-width:42em\"><pre style=\"white-space:pre-wrap;margin:0\">${escHtml(lines.filter(Boolean).join('\\n'))}</pre></body></html>`;\n}\nconst body = lines.filter(Boolean).join('\\n');\n\nreturn [{\n  json: {\n    ok,\n    alert: !ok,\n    itemCount: items.length,\n    tz,\n    ymd,\n    generatedAt,\n    query,\n    issues,\n    subject,\n    body,\n    bodyHtml: toBodyHtml(lines),\n  },\n}];"
+      },
+      "id": "m4-check-003",
+      "name": "Check bus-schedule-next",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-320, 60]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "m4-alert-if",
+              "leftValue": "={{ String($json.alert) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "m4-if-004",
+      "name": "Alert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [-40, 60]
+    },
+    {
+      "parameters": {
+        "fromEmail": "REPLACE_FROM_EMAIL",
+        "toEmail": "REPLACE_TO_EMAIL",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.bodyHtml }}",
+        "options": {}
+      },
+      "id": "m4-email-005",
+      "name": "Send alert email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [240, -20],
+      "credentials": {
+        "smtp": {
+          "id": "REPLACE_WITH_YOUR_SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Bus sanity (dagelijks)\n\n**Doel:** meer dan UptimeRobot-keyword — controleert of bus-schedule-next **echte ritten** teruggeeft voor vandaag (volos).\n\n**Triggers:** Manual + dagelijks 08:00.\n\n**Alert:** alleen bij fetch-fout, verkeerde tz, of 0 items.\n\n**Let op:** op rustdagen kan 0 items normaal zijn — pas MIN_ITEMS aan in Code-node indien nodig.",
+        "height": 280,
+        "width": 400
+      },
+      "id": "m4-sticky-006",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-660, -300]
+    }
+  ],
+  "connections": {
+    "Manual — test run": {
+      "main": [[{ "node": "Check bus-schedule-next", "type": "main", "index": 0 }]]
+    },
+    "Schedule — daily 08:00": {
+      "main": [[{ "node": "Check bus-schedule-next", "type": "main", "index": 0 }]]
+    },
+    "Check bus-schedule-next": {
+      "main": [[{ "node": "Alert?", "type": "main", "index": 0 }]]
+    },
+    "Alert?": {
+      "main": [
+        [{ "node": "Send alert email", "type": "main", "index": 0 }],
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Athens"
+  }
+}
