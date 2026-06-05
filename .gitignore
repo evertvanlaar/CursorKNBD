@@ -26,6 +26,13 @@ data/local-businesses.json
 data/local-businesses.staging.json
 data/local-businesses.meta.json
 
-# Android TWA (Gradle cache — not source)
+# Android TWA (Gradle cache & build outputs — not source)
 kalanera-twa/.gradle/
 kalanera-twa/local.properties
+kalanera-twa/app/build/
+kalanera-twa/*.aab
+kalanera-twa/*.apk
+
+# Python
+__pycache__/
+*.pyc
