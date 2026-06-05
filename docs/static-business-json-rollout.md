@@ -199,6 +199,7 @@ Geen rate limit nodig op statisch JSON; wel `gzip` aan voor grote payloads.
 
 ## Gerelateerd
 
+- `docs/uptime-monitoring.md` — externe beschikbaarheid (UptimeRobot + `scripts/check-site-availability.mjs`)
 - `docs/offline-first-roadmap.md` — Laag 2
 - `ARCHITECTURE_AND_WEBHOOK_HARDENING.md` — `/webhook/local-businesses`
 - `n8n/local-businesses-cached-workflow.example.json` — huidige webhook

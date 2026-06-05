@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "site": "kalanera.gr",
+  "description": "Canonical uptime targets for kalanera.gr — used by scripts/check-site-availability.mjs and docs/uptime-monitoring.md",
+  "recommendedService": {
+    "name": "UptimeRobot",
+    "url": "https://uptimerobot.com/",
+    "freeTier": "50 monitors, 5-minute interval, e-mail alerts",
+    "alternatives": [
+      { "name": "HetrixTools", "url": "https://hetrixtools.com/" },
+      { "name": "Uptime Kuma", "url": "https://github.com/louislam/uptime-kuma", "note": "Self-hosted op VPS" }
+    ]
+  },
+  "defaults": {
+    "intervalMinutes": 5,
+    "timeoutSeconds": 30,
+    "retriesBeforeDown": 2
+  },
+  "monitors": [
+    {
+      "id": "homepage-en",
+      "name": "Homepage EN",
+      "url": "https://www.kalanera.gr/",
+      "category": "site",
+      "priority": "critical",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 8000,
+        "bodyContains": ["id=\"business-list\"", "Kala Nera Guide"]
+      },
+      "uptimeRobot": {
+        "monitorType": "Keyword",
+        "keyword": "business-list",
+        "alertWhen": "keywordNotExists",
+        "note": "UP zolang keyword in pagina staat; incident als het ontbreekt"
+      }
+    },
+    {
+      "id": "homepage-el",
+      "name": "Homepage EL",
+      "url": "https://www.kalanera.gr/index-el.html",
+      "category": "site",
+      "priority": "high",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 8000,
+        "bodyContains": ["id=\"business-list\"", "Kala Nera Guide"]
+      },
+      "uptimeRobot": {
+        "monitorType": "Keyword",
+        "keyword": "business-list",
+        "alertWhen": "keywordNotExists"
+      }
+    },
+    {
+      "id": "business-json",
+      "name": "Bedrijven JSON (primair)",
+      "url": "https://www.kalanera.gr/data/local-businesses.json",
+      "category": "data",
+      "priority": "critical",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 5000,
+        "contentTypeIncludes": "json",
+        "json": {
+          "minRowCount": 50,
+          "maxAgeHours": 72
+        }
+      },
+      "uptimeRobot": {
+        "monitorType": "Keyword",
+        "keyword": "rowCount",
+        "alertWhen": "keywordNotExists"
+      }
+    },
+    {
+      "id": "pwa-manifest",
+      "name": "PWA manifest",
+      "url": "https://www.kalanera.gr/manifest.json",
+      "category": "pwa",
+      "priority": "medium",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 5000,
+        "bodyContains": ["\"display\"", "\"standalone\""]
+      },
+      "uptimeRobot": {
+        "monitorType": "HTTP(s)",
+        "note": "Statisch bestand; HEAD werkt. Keyword optioneel."
+      }
+    },
+    {
+      "id": "n8n-business-fallback",
+      "name": "n8n bedrijven webhook (fallback)",
+      "url": "https://n8n.vanlaar.cloud/webhook/local-businesses",
+      "category": "n8n",
+      "priority": "high",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 15000,
+        "json": {
+          "minRowCount": 50
+        }
+      },
+      "uptimeRobot": {
+        "monitorType": "Keyword",
+        "keyword": "Name",
+        "alertWhen": "keywordNotExists",
+        "note": "Geen HTTP(s)-monitor: n8n webhooks geven 404 op HEAD (gratis plan). Keyword gebruikt GET."
+      }
+    },
+    {
+      "id": "n8n-bus-schedule",
+      "name": "n8n bus-schedule-next",
+      "url": "https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0",
+      "category": "n8n",
+      "priority": "high",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 15000,
+        "bodyContains": ["Europe/Athens", "\"meta\""]
+      },
+      "uptimeRobot": {
+        "monitorType": "Keyword",
+        "keyword": "Europe/Athens",
+        "alertWhen": "keywordNotExists",
+        "note": "Geen HTTP(s)-monitor: n8n webhooks geven 404 op HEAD."
+      }
+    }
+  ]
+}
