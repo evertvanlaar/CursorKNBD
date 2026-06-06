@@ -12,7 +12,7 @@
 | Geregistreerde bedrijven (actief) | **73** | **28** individuele pagina's |
 | Overlap (eenduidige match) | **20** | **20** |
 | Alleen op kalanera.gr | **52** | — |
-| Alleen op visitkalanera.gr | — | **8** |
+| Alleen op visitkalanera.gr (URL's) | — | **9** (→ **6** echte missers) |
 | Gedeeltelijke overlap | **1** kalanera-registratie(s) | **1** gecombineerde visit-pagina |
 
 **Dekking:** visitkalanera.gr publiceert momenteel **27%** van de actieve kalanera-gr bedrijven als eigen WordPress-pagina (20/73).
@@ -142,18 +142,27 @@ Actief in de gids/PWA, geen eigen pagina op visitkalanera.gr.
 
 - **Stoumpovikos Tours Pelion** (Στουμποβίκος Εκδρομές Πηλίου) — Kala Nera
 
-## Alleen op visitkalanera.gr (8)
+## Alleen op visitkalanera.gr (9 URL's → 6 echte missers)
 
-Pagina's op visitkalanera.gr zonder overeenkomstig actief bedrijf op kalanera.gr.
+De n8n-mail telt **9** sitemap-URL's; daarvan zijn **3 valse positieven** (dubbele Grieks/Latijn-slugs + Edem staat al op kalanera). **6 bedrijven** ontbreken echt in de kalanera-gids.
+
+→ **Volledige analyse met contactgegevens en EN/EL-omschrijvingen:** [visitkalanera-only-external-businesses.md](./visitkalanera-only-external-businesses.md)
+
+### Dubbele slugs (geen kalanera-actie)
+
+| Bedrijf | Reden |
+|---------|-------|
+| [Εδέμ ταβέρνα](https://visitkalanera.gr/%ce%b5%ce%b4%ce%ad%ce%bc-%cf%84%ce%b1%ce%b2%ce%ad%cf%81%ce%bd%ce%b1/) | Tweede pagina van **Edem** (al op kalanera) |
+| [Market Κένταυρος](https://visitkalanera.gr/market-%ce%ba%ce%ad%ce%bd%cf%84%ce%b1%cf%85%cf%81%ce%bf%cf%82/) + [Market Café Kentauros](https://visitkalanera.gr/market-cafe-kentauros/) | Zelfde bedrijf, twee slugs |
+
+### Echte missers (6)
 
 - [Eirini Filippou Apartments](https://visitkalanera.gr/eirini-filippou-apartments/)
-- [Market Κένταυρος](https://visitkalanera.gr/market-%ce%ba%ce%ad%ce%bd%cf%84%ce%b1%cf%85%cf%81%ce%bf%cf%82/)
-- [Pelion Esties](https://visitkalanera.gr/pelion-esties/)
-- [Platanofylla Studios and Apartments](https://visitkalanera.gr/platanofylla-studios-and-apartments/)
-- [Ενοικιαζομενα δωματια Ηλιαχτίδες](https://visitkalanera.gr/enikoiazomena-dwmatia-hliaxtides/)
-- [Μαρκετ- Καφέ Κενταυρος](https://visitkalanera.gr/market-cafe-kentauros/)
-- [Ξενοδοχείο Δημουλα](https://visitkalanera.gr/xenodoxeio-dimoula/)
-- [Φούρνος](https://visitkalanera.gr/%cf%86%ce%bf%cf%8d%cf%81%ce%bd%ce%bf%cf%82/)
+- [Ηλιαχτίδες rooms](https://visitkalanera.gr/enikoiazomena-dwmatia-hliaxtides/)
+- [Pelion Esties / Avgi by the Sea](https://visitkalanera.gr/pelion-esties/)
+- [Platanofylla Studios](https://visitkalanera.gr/platanofylla-studios-and-apartments/)
+- [Ξενοδοχείο Δημουλά](https://visitkalanera.gr/xenodoxeio-dimoula/)
+- [Φούρνος](https://visitkalanera.gr/%cf%86%ce%bf%cf%8d%cf%81%ce%bd%ce%bf%cf%82/) *(pagina vrijwel leeg)*
 
 ## Categorie-hubs op visitkalanera.gr
 

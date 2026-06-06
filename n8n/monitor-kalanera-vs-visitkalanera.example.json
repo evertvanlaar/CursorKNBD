@@ -8,7 +8,7 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -720,
+        -920,
         -40
       ]
     },
@@ -32,24 +32,167 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -720,
+        -920,
         160
       ],
-      "notes": "Standaard: wekelijks maandag 09:00 (workflow timezone Europe/Athens). Pas interval aan: weeks | days | months | hours. Voor dagelijks: field \"days\", triggerAtHour 8, triggerAtMinute 0."
+      "notes": "Standaard: wekelijks maandag 09:00 (workflow timezone Europe/Athens)."
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// === CONFIG ===\n// n8n raakt visitkalanera.gr NIET aan — alleen eigen JSON op kalanera.gr (snapshot via GitHub Actions).\nconst CONFIG = {\n  kalaneraJsonUrl: 'https://kalanera.gr/data/local-businesses.json',\n  visitSnapshotUrl: 'https://kalanera.gr/data/visitkalanera-sitemap.json',\n  snapshotMaxAgeDays: 10,\n  minKalaneraActive: 50,\n  matchThreshold: 0.55,\n  alertCoverageBelowPct: 25,\n  reportDocPath: 'docs/kalanera-vs-visitkalanera-businesses.md',\n  httpHeaders: {\n    Accept: 'application/json',\n  },\n};\n\nconst ALIASES = {\n  edem: 'edem', 'edem-tavern': 'edem', 'εδεμ': 'edem', '1900': '1900', ainareti: 'ainareti',\n  'hotel-agelis': 'agelis', 'hotel-rodia': 'rodia', 'hotel-pigasus': 'pegasus', irida: 'irida',\n  'irida-house': 'irida', 'kala-nera-panorama': 'panorama', 'la-luna': 'la luna', 'la-luna-hotel': 'la luna',\n  levantes: 'levantes', naftilos: 'naftilos', 'naftilos-coffee-bar': 'naftilos',\n  'oceanis-water-sports-rentals': 'oceanis rentals pelion',\n  'orange-garden': 'orange garden', pagaseon: 'pagaseon', 'pagaseon-studios': 'pagaseon',\n  pandora: 'pandora', 'pandora-studios': 'pandora', serenity: 'serenity', 'serenity-studios': 'serenity',\n  vasileiou: 'vasileiou', 'vasileiou-apartments': 'vasileiou',\n  apostolis: 'apostolis barber', 'apostolis-fovos': 'apostolis barber',\n  vardakeios: 'vardakis market', 'βαρδακειος': 'vardakis market', 'four-ways': 'four ways travel',\n  kentavros: 'kentavros', kentauros: 'kentavros', 'market-cafe-kentauros': 'kentavros',\n  'market-kentauros': 'kentavros', dimoula: 'dimoula', 'xenodoxeio-dimoula': 'dimoula',\n  iliachtides: 'iliachtides', hliaxtides: 'iliachtides', platanofylla: 'platanofylla',\n  'pelion-esties': 'pelion esties', 'eirini-filippou': 'eirini filippou', fournos: 'fournos',\n};\n\nfunction norm(s) {\n  return String(s || '')\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .toLowerCase()\n    .replace(/[^a-z0-9\\u0370-\\u03ff\\s]/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction decodeSlug(slug) {\n  try { return decodeURIComponent(slug); } catch { return slug; }\n}\n\nfunction aliasKey(text) {\n  const textL = String(text || '').toLowerCase();\n  const n = norm(decodeSlug(textL));\n  for (const [k, v] of Object.entries(ALIASES)) {\n    if (textL.includes(k) || n.includes(k)) return v;\n  }\n  return n;\n}\n\nfunction scorePair(a, b) {\n  if (!a || !b) return 0;\n  if (a === b) return 1;\n  if (a.includes(b) || b.includes(a)) return Math.min(a.length, b.length) / Math.max(a.length, b.length);\n  const ta = new Set(a.split(' '));\n  const tb = new Set(b.split(' '));\n  if (!ta.size || !tb.size) return 0;\n  let inter = 0;\n  for (const t of ta) if (tb.has(t)) inter += 1;\n  return inter / Math.max(ta.size, tb.size);\n}\n\nfunction sheetStatus(row) {\n  return String(row?.Status ?? row?.status ?? row?.STATUS ?? '').trim().toLowerCase();\n}\n\nfunction normalizeRows(payload) {\n  if (Array.isArray(payload)) return payload;\n  if (payload?.rows) return payload.rows;\n  if (payload?.data) return payload.data;\n  return [];\n}\n\nasync function httpGetJson(url) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url,\n      headers: CONFIG.httpHeaders,\n      json: true,\n      timeout: 45000,\n    });\n    return { ok: true, data };\n  } catch (e) {\n    return { ok: false, error: e?.message || String(e) };\n  }\n}\n\nfunction bestMatches(visitList, kalaneraList, threshold) {\n  const pairs = [];\n  for (let vi = 0; vi < visitList.length; vi++) {\n    const v = visitList[vi];\n    const vkeys = [aliasKey(v.slug), aliasKey(v.title), v.normTitle || norm(v.title)];\n    for (let ki = 0; ki < kalaneraList.length; ki++) {\n      const k = kalaneraList[ki];\n      if (k.norm.includes('oceanis water sports') && v.slug.includes('oceanis')) continue;\n      const kkeys = [k.norm, k.normEl, aliasKey(k.name)];\n      let best = 0;\n      for (const a of vkeys) for (const b of kkeys) best = Math.max(best, scorePair(a, b));\n      if (best >= threshold) pairs.push({ sc: best, vi, ki, v, k });\n    }\n  }\n  pairs.sort((a, b) => b.sc - a.sc);\n  const usedV = new Set();\n  const usedK = new Set();\n  const matched = [];\n  for (const p of pairs) {\n    if (usedV.has(p.vi) || usedK.has(p.ki)) continue;\n    matched.push({ ...p, how: p.sc >= 0.95 ? 'exact' : 'fuzzy' });\n    usedV.add(p.vi);\n    usedK.add(p.ki);\n  }\n  return { matched, usedV, usedK };\n}\n\nfunction escHtml(s) {\n  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}\n\nfunction toBodyHtml(lines) {\n  const htmlLines = lines.map((line) => {\n    if (!line) return '<br>';\n    if (line.startsWith('===')) {\n      const title = line.replace(/^=+\\s*|\\s*=+$/g, '');\n      return `<h3 style=\"margin:16px 0 6px;font-size:15px\">${escHtml(title)}</h3>`;\n    }\n    let color = '#1a1a1a';\n    if (/^OK\\b/.test(line) || /Status: OK/i.test(line)) color = '#0d7a3e';\n    if (/^FAIL\\b/.test(line) || /FETCH ERROR|ALERT/i.test(line)) color = '#b42318';\n    if (/^WARN\\b/.test(line)) color = '#b54708';\n    return `<p style=\"margin:3px 0;color:${color}\">${escHtml(line)}</p>`;\n  }).join('\\n');\n  return `<!DOCTYPE html><html><body style=\"font-family:system-ui,Segoe UI,Roboto,sans-serif;font-size:14px;line-height:1.45;color:#1a1a1a;max-width:48em;padding:8px 4px\">${htmlLines}</body></html>`;\n}\n\nconst issues = [];\nconst kRes = await httpGetJson.call(this, CONFIG.kalaneraJsonUrl);\nconst vRes = await httpGetJson.call(this, CONFIG.visitSnapshotUrl);\n\nif (!kRes.ok) issues.push(`kalanera JSON fetch mislukt: ${kRes.error}`);\n\nlet visitFetchFailed = false;\nlet visitDeduped = [];\nlet snapshotGeneratedAt = null;\nlet sitemapLastmod = null;\n\nif (!vRes.ok) {\n  visitFetchFailed = true;\n  issues.push(`FAIL  visit-snapshot niet beschikbaar op kalanera.gr: ${vRes.error}`);\n  issues.push('WARN  Deploy data/visitkalanera-sitemap.json of wacht op GitHub Actions (maandag 06:00 UTC)');\n} else {\n  snapshotGeneratedAt = vRes.data?.generatedAt || null;\n  sitemapLastmod = vRes.data?.sitemapLastmod || null;\n  visitDeduped = Array.isArray(vRes.data?.pages) ? vRes.data.pages : [];\n  if (!visitDeduped.length) {\n    visitFetchFailed = true;\n    issues.push('FAIL  visit-snapshot bevat geen pagina\\'s');\n  } else if (snapshotGeneratedAt) {\n    const ageDays = (Date.now() - Date.parse(snapshotGeneratedAt)) / 86400000;\n    if (ageDays > CONFIG.snapshotMaxAgeDays) {\n      issues.push(`WARN  Snapshot ${Math.round(ageDays)} dagen oud (max ${CONFIG.snapshotMaxAgeDays})`);\n    }\n  }\n}\n\nconst kalanera = [];\nif (kRes.ok) {\n  for (const r of normalizeRows(kRes.data)) {\n    const st = sheetStatus(r);\n    if (st && st !== 'active') continue;\n    kalanera.push({\n      name: String(r.Name || '').trim(),\n      nameEl: String(r.Name_EL || '').trim(),\n      category: String(r.Category || '').trim(),\n      location: String(r.Location || '').trim(),\n      norm: norm(r.Name),\n      normEl: norm(r.Name_EL),\n    });\n  }\n}\n\nlet matched = [];\nlet onlyKalanera = kalanera;\nlet onlyVisit = visitDeduped;\nlet partial = [];\n\nif (kRes.ok && !visitFetchFailed) {\n  const bm = bestMatches(visitDeduped, kalanera, CONFIG.matchThreshold);\n  matched = bm.matched;\n  onlyVisit = visitDeduped.filter((_, i) => !bm.usedV.has(i));\n  onlyKalanera = kalanera.filter((_, i) => !bm.usedK.has(i));\n  const matchedNorms = new Set(matched.map((m) => m.k.norm));\n  for (const k of kalanera) {\n    if (k.norm.includes('oceanis water sports') && !matchedNorms.has(k.norm)) {\n      const v = visitDeduped.find((x) => x.slug.includes('oceanis'));\n      if (v) partial.push({ k, v });\n    }\n  }\n  onlyKalanera = onlyKalanera.filter((k) => !partial.some((p) => p.k.norm === k.norm));\n}\n\nif (kalanera.length < CONFIG.minKalaneraActive) {\n  issues.push(`kalanera Active te laag: ${kalanera.length} (min ${CONFIG.minKalaneraActive})`);\n}\n\nconst coveragePct = kalanera.length ? Math.round((matched.length / kalanera.length) * 100) : 0;\nif (!visitFetchFailed && coveragePct < CONFIG.alertCoverageBelowPct) {\n  issues.push(`Dekking externe site ${coveragePct}% (drempel ${CONFIG.alertCoverageBelowPct}%)`);\n}\n\nconst ok = issues.length === 0;\nconst generatedAt = kRes.ok && kRes.data && !Array.isArray(kRes.data) ? (kRes.data.generatedAt || null) : null;\n\nconst lines = [\n  'Bedrijvenvergelijking — kalanera.gids vs externe directory',\n  `Gegenereerd (UTC): ${new Date().toISOString()}`,\n  generatedAt ? `kalanera JSON generatedAt: ${generatedAt}` : '',\n  snapshotGeneratedAt ? `visit snapshot generatedAt: ${snapshotGeneratedAt}` : '',\n  sitemapLastmod ? `visit sitemap lastmod: ${sitemapLastmod}` : '',\n  'visit bron: kalanera.gr snapshot (geen directe fetch naar externe site)',\n  '',\n  '=== Samenvatting ===',\n  `kalanera.gr actief: ${kalanera.length}`,\n  `externe directory URL's: ${visitDeduped.length}`,\n  `Overlap (match): ${matched.length}`,\n  `Alleen kalanera.gr: ${onlyKalanera.length}`,\n  `Alleen externe directory: ${onlyVisit.length}`,\n  partial.length ? `Gedeeltelijke overlap (Oceanis): ${partial.length}` : '',\n  visitFetchFailed ? 'Dekking: n.v.t. (snapshot ontbreekt)' : `Dekking: ${coveragePct}%`,\n  '',\n  visitFetchFailed ? 'Status: FETCH ERROR' : (ok ? 'Status: OK' : 'Status: AANDACHTSPUNTEN'),\n];\n\nif (issues.length) {\n  lines.push('');\n  issues.forEach((msg) => lines.push(msg.startsWith('FAIL') || msg.startsWith('WARN') ? msg : `WARN  ${msg}`));\n}\n\nif (!visitFetchFailed) {\n  lines.push('');\n  lines.push(`=== Overlap (${matched.length}) ===`);\n  for (const m of matched.sort((a, b) => a.k.category.localeCompare(b.k.category) || a.k.name.localeCompare(b.k.name))) {\n    lines.push(`OK    ${m.k.name} (${m.k.category}) ↔ ${m.v.title}`);\n  }\n\n  if (partial.length) {\n    lines.push('');\n    lines.push('=== Gedeeltelijke overlap ===');\n    const oceanisMatch = matched.find((m) => m.k.norm.includes('oceanis rentals'));\n    if (oceanisMatch) lines.push(`OK    ${oceanisMatch.k.name} ↔ ${oceanisMatch.v.title}`);\n    for (const p of partial) lines.push(`WARN  ${p.k.name} — geen aparte externe pagina`);\n  }\n\n  lines.push('');\n  lines.push(`=== Alleen op kalanera.gr (${onlyKalanera.length}) ===`);\n  let prevCat = null;\n  for (const k of onlyKalanera.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))) {\n    if (k.category !== prevCat) {\n      lines.push(`— ${k.category} —`);\n      prevCat = k.category;\n    }\n    const el = k.nameEl ? ` (${k.nameEl})` : '';\n    lines.push(`  ${k.name}${el} — ${k.location}`);\n  }\n\n  lines.push('');\n  lines.push(`=== Alleen op externe directory (${onlyVisit.length}) ===`);\n  for (const v of onlyVisit.sort((a, b) => a.title.localeCompare(b.title))) {\n    lines.push(`  ${v.title}`);\n  }\n}\n\nlines.push('');\nlines.push(`Repo-doc: ${CONFIG.reportDocPath}`);\n\nlet subject;\nif (visitFetchFailed) {\n  subject = '[kalanera] Directory-vergelijking — snapshot ontbreekt';\n} else if (!ok) {\n  subject = `[kalanera] Directory-vergelijking — ${matched.length}/${kalanera.length} (${coveragePct}%)`;\n} else {\n  subject = `[kalanera] Directory-vergelijking — ${matched.length}/${kalanera.length} overlap (${coveragePct}%)`;\n}\n\nconst body = lines.filter(Boolean).join('\\n');\n\nreturn [{\n  json: {\n    ok,\n    alert: !ok,\n    fetchFailed: visitFetchFailed,\n    visitSource: 'kalanera-snapshot',\n    kalaneraActive: kalanera.length,\n    visitPages: visitDeduped.length,\n    matched: matched.length,\n    onlyKalanera: onlyKalanera.length,\n    onlyVisit: onlyVisit.length,\n    coveragePct: visitFetchFailed ? null : coveragePct,\n    snapshotGeneratedAt,\n    sitemapLastmod,\n    generatedAt,\n    issues,\n    subject,\n    body,\n    bodyHtml: toBodyHtml(lines.filter(Boolean)),\n  },\n}];\n"
+        "jsCode": "return [{ json: { _workflowStart: true } }];"
+      },
+      "id": "vk-init-011",
+      "name": "Init workflow",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -780,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1EPTu-cz2NYKJxlC6Ki14cyfQYiMFxg_i5gSgjw0IUvI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "options": {
+          "returnAllMatches": true
+        }
+      },
+      "id": "vk-shadow-read-007",
+      "name": "Read shadow Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -640,
+        60
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      },
+      "notes": "Schaduw-sheet: 1EPTu-cz2NYKJxlC6Ki14cyfQYiMFxg_i5gSgjw0IUvI (gid=0). Operation: Read Rows (default)."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// n8n Code node — Compare kalanera vs visitkalanera + shadow sheet candidates\n// n8n raakt visitkalanera.gr NIET aan — alleen eigen JSON op kalanera.gr (snapshot via GitHub Actions).\n\nconst CONFIG = {\n  kalaneraJsonUrl: 'https://kalanera.gr/data/local-businesses.json',\n  visitSnapshotUrl: 'https://kalanera.gr/data/visitkalanera-sitemap.json',\n  shadowSheetDocumentId: '1EPTu-cz2NYKJxlC6Ki14cyfQYiMFxg_i5gSgjw0IUvI',\n  snapshotMaxAgeDays: 10,\n  minKalaneraActive: 50,\n  matchThreshold: 0.55,\n  alertCoverageBelowPct: 25,\n  reportDocPath: 'docs/kalanera-vs-visitkalanera-businesses.md',\n  httpHeaders: { Accept: 'application/json' },\n};\n\nconst ALIASES = {\n  edem: 'edem', 'edem-tavern': 'edem', 'εδεμ': 'edem', 'εδεμ ταβερνα': 'edem',\n  '1900': '1900', ainareti: 'ainareti',\n  'hotel-agelis': 'agelis', 'hotel-rodia': 'rodia', 'hotel-pigasus': 'pegasus', irida: 'irida',\n  'irida-house': 'irida', 'kala-nera-panorama': 'panorama', 'la-luna': 'la luna', 'la-luna-hotel': 'la luna',\n  levantes: 'levantes', naftilos: 'naftilos', 'naftilos-coffee-bar': 'naftilos',\n  'oceanis-water-sports-rentals': 'oceanis rentals pelion',\n  'orange-garden': 'orange garden', pagaseon: 'pagaseon', 'pagaseon-studios': 'pagaseon',\n  pandora: 'pandora', 'pandora-studios': 'pandora', serenity: 'serenity', 'serenity-studios': 'serenity',\n  vasileiou: 'vasileiou', 'vasileiou-apartments': 'vasileiou',\n  apostolis: 'apostolis barber', 'apostolis-fovos': 'apostolis barber',\n  vardakeios: 'vardakis market', 'βαρδακειος': 'vardakis market', 'four-ways': 'four ways travel',\n  kentavros: 'kentavros', kentauros: 'kentavros', 'market-cafe-kentauros': 'kentavros',\n  'market-kentauros': 'kentavros', 'market κενταυρος': 'kentavros',\n  dimoula: 'dimoula', 'xenodoxeio-dimoula': 'dimoula',\n  iliachtides: 'iliachtides', hliaxtides: 'iliachtides', 'enikoiazomena-dwmatia-hliaxtides': 'iliachtides',\n  platanofylla: 'platanofylla', 'platanofylla-studios-and-apartments': 'platanofylla',\n  'pelion-esties': 'pelion esties', 'eirini-filippou': 'eirini filippou',\n  'eirini-filippou-apartments': 'eirini filippou', fournos: 'fournos', 'φουρνος': 'fournos',\n  'avgi-by-the-sea': 'pelion esties', 'avgibythesea': 'pelion esties',\n};\n\n// Bekende profielen voor externe missers (Kala Nera)\nconst MISSER_PROFILES = {\n  'eirini filippou': {\n    Name: 'Eirini Filippou Apartments',\n    Name_EL: 'Επιπλωμένα διαμερίσματα Ειρήνης Φιλίππου',\n    Website: 'https://visitkalanera.gr/eirini-filippou-apartments/',\n    Phone: '',\n    Location: 'Kala Nera',\n    Category: 'Sleep',\n    Email: '',\n    Summary_en_imp: 'Furnished apartments in the village centre, 60 metres from the beach, restaurants and shops. All units have equipped kitchen, TV, A/C, heating and balcony.',\n    Summary_el_imp: 'Επιπλωμένα διαμερίσματα στο κέντρο του χωριού, 60 μέτρα από την παραλία. Όλα τα δωμάτια έχουν εξοπλισμένη κουζίνα, τηλεόραση, κλιματιστικό, καλοριφέρ και μπαλκόνι.',\n  },\n  iliachtides: {\n    Name: 'Iliachtides Rooms',\n    Name_EL: 'Ενοικιαζόμενα δωμάτια Ηλιαχτίδες',\n    Website: 'https://visitkalanera.gr/enikoiazomena-dwmatia-hliaxtides/',\n    Phone: '+30 24230 22164',\n    Location: 'Kala Nera',\n    Category: 'Sleep',\n    Email: 'blana.hotels@gmail.com',\n    Summary_en_imp: \"Summer rooms on Pelion's main road, 500 m from Kala Nera beach. Double, triple and family rooms with kitchenette, private bathroom, A/C, WiFi and garden-view balcony. Parking, BBQ and small playground; pets welcome.\",\n    Summary_el_imp: 'Ενοικιαζόμενα δωμάτια στην κεντρική οδό του Πηλίου, 500 μ. από την παραλία των Καλών Νερών. Δίκλινα, τρίκλινα και οικογενειακά δωμάτια με κουζίνα, μπάνιο, A/C, WiFi και μπαλκόνι.',\n  },\n  'pelion esties': {\n    Name: 'Avgi by the Sea',\n    Name_EL: 'Αύγη by the Sea',\n    Website: 'https://pelion-villas.com/en/villas/avgi-by-the-sea/',\n    Phone: '+30 24230 23147',\n    Location: 'Kala Nera',\n    Category: 'Sleep',\n    Email: 'info@pelion-villas.com',\n    Summary_en_imp: 'Sea-front Pelion beach house on the water in Kala Nera. Fully equipped apartment with private terrace for couples or families; steps from tavernas, cafés and shops. Managed by Pelion Esties.',\n    Summary_el_imp: 'Παραθαλάσσιο διαμέρισμα ακριβώς πάνω στο κύμα στα Καλά Νερά. Πλήρως εξοπλισμένο κατάλυμα με ιδιωτική βεράντα, ιδανικό για ζευγάρια ή οικογένειες.',\n  },\n  platanofylla: {\n    Name: 'Platanofylla Studios',\n    Name_EL: 'Platanofylla Studios & Apartments',\n    Website: 'https://platanofylla.gr/',\n    Phone: '+30 24230 22622',\n    Location: 'Kala Nera',\n    Category: 'Sleep',\n    Email: 'info@platanofylla.gr',\n    Summary_en_imp: \"Guesthouse shaded by plane trees beside the sea at the end of Kala Nera's coastal road. Two-storey complex with 4–5 person apartments and 2–3 person studios.\",\n    Summary_el_imp: 'Ξενώνας με πλατάνια δίπλα στη θάλασσα στο τέρμα της παραλιακής οδού. Δίχωρα διαμερίσματα και στούντιο με κουζίνα, μπάνιο και μπαλκόνι.',\n  },\n  dimoula: {\n    Name: 'Hotel Dimoula',\n    Name_EL: 'Ξενοδοχείο Δημουλά',\n    Website: 'https://visitkalanera.gr/xenodoxeio-dimoula/',\n    Phone: '+30 24230 22245',\n    Location: 'Kala Nera',\n    Category: 'Sleep',\n    Email: 'hdimoula@otenet.gr',\n    Summary_en_imp: 'Family-run hotel, recently fully renovated. Quiet location near the beach and village centre; flower-filled courtyard offers shade on hot summer days.',\n    Summary_el_imp: 'Οικογενειακό ξενοδοχείο, πρόσφατα ανακαινισμένο. Ήσυχη τοποθεσία κοντά στην παραλία και το κέντρο.',\n  },\n  kentavros: {\n    Name: 'Market Kentauros',\n    Name_EL: 'Μαρκετ – Καφέ Κένταυρος',\n    Website: 'https://visitkalanera.gr/market-cafe-kentauros/',\n    Phone: '+30 24230 22763',\n    Location: 'Kala Nera',\n    Category: 'Shop',\n    Email: '',\n    Summary_en_imp: 'Beach-side mini-market and café in Kala Nera, offering groceries and refreshments for locals and visitors.',\n    Summary_el_imp: 'Μίνι-μάρκετ και καφέ στην παραλία των Καλών Νερών, με είδη παντοπωλείου και αναψυκτικά.',\n  },\n  fournos: {\n    Name: 'Fouornos',\n    Name_EL: 'Φούρνος',\n    Website: 'https://visitkalanera.gr/%cf%86%ce%bf%cf%8d%cf%81%ce%bd%ce%bf%cf%82/',\n    Phone: '',\n    Location: 'Kala Nera',\n    Category: 'Shop',\n    Email: '',\n    Summary_en_imp: 'Bakery listed on the external directory; contact details not published on visitkalanera.gr.',\n    Summary_el_imp: 'Αρτοποιείο στον εξωτερικό κατάλογο· χωρίς στοιχεία επικοινωνίας στο visitkalanera.gr.',\n  },\n};\n\nfunction norm(s) {\n  return String(s || '')\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .toLowerCase()\n    .replace(/[^a-z0-9\\u0370-\\u03ff\\s]/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction decodeSlug(slug) {\n  try { return decodeURIComponent(slug); } catch { return slug; }\n}\n\nfunction aliasKey(text) {\n  const textL = String(text || '').toLowerCase();\n  const n = norm(decodeSlug(textL));\n  for (const [k, v] of Object.entries(ALIASES)) {\n    if (textL.includes(k) || n.includes(k)) return v;\n  }\n  return n;\n}\n\nfunction scorePair(a, b) {\n  if (!a || !b) return 0;\n  if (a === b) return 1;\n  if (a.includes(b) || b.includes(a)) return Math.min(a.length, b.length) / Math.max(a.length, b.length);\n  const ta = new Set(a.split(' '));\n  const tb = new Set(b.split(' '));\n  if (!ta.size || !tb.size) return 0;\n  let inter = 0;\n  for (const t of ta) if (tb.has(t)) inter += 1;\n  return inter / Math.max(ta.size, tb.size);\n}\n\nfunction sheetStatus(row) {\n  return String(row?.Status ?? row?.status ?? row?.STATUS ?? '').trim().toLowerCase();\n}\n\nfunction normalizeRows(payload) {\n  if (Array.isArray(payload)) return payload;\n  if (payload?.rows) return payload.rows;\n  if (payload?.data) return payload.data;\n  return [];\n}\n\nfunction getShadowRows() {\n  try {\n    return $('Read shadow Google Sheet').all().map((item) => item.json);\n  } catch {\n    return [];\n  }\n}\n\nfunction dedupeVisitPages(pages) {\n  const seen = new Map();\n  const out = [];\n  for (const p of pages) {\n    const key = aliasKey(p.slug) || aliasKey(p.title) || p.normTitle || norm(p.title);\n    if (!key) {\n      out.push(p);\n      continue;\n    }\n    if (!seen.has(key)) {\n      seen.set(key, p);\n      out.push(p);\n    }\n  }\n  return out;\n}\n\nfunction knownRowKeys(rows) {\n  const keys = new Set();\n  for (const r of rows) {\n    for (const part of [r.Name, r.Name_EL, r.Website]) {\n      const k = aliasKey(part);\n      if (k) keys.add(k);\n      const n = norm(part);\n      if (n) keys.add(n);\n    }\n  }\n  return keys;\n}\n\nfunction isKnownBusiness(profile, knownKeys, kalaneraList) {\n  const candidates = [profile.Name, profile.Name_EL].filter(Boolean);\n  for (const c of candidates) {\n    const ak = aliasKey(c);\n    if (knownKeys.has(ak) || knownKeys.has(norm(c))) return true;\n    for (const k of kalaneraList) {\n      if (scorePair(ak, k.norm) >= 0.8 || scorePair(ak, k.normEl) >= 0.8) return true;\n      if (scorePair(norm(c), k.norm) >= 0.8) return true;\n    }\n  }\n  return false;\n}\n\nfunction formatDatum() {\n  const parts = new Intl.DateTimeFormat('nl-NL', {\n    timeZone: 'Europe/Athens',\n    day: '2-digit', month: '2-digit', year: 'numeric',\n    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,\n  }).formatToParts(new Date());\n  const get = (t) => parts.find((p) => p.type === t)?.value || '';\n  return `${get('day')}-${get('month')}-${get('year')} ${get('hour')}:${get('minute')}:${get('second')}`;\n}\n\nfunction profileForVisitPage(v) {\n  const key = aliasKey(v.slug) || aliasKey(v.title);\n  if (MISSER_PROFILES[key]) return { ...MISSER_PROFILES[key] };\n  return {\n    Name: v.title,\n    Name_EL: '',\n    Website: v.url || '',\n    Phone: '',\n    Location: 'Kala Nera',\n    Category: 'Other',\n    Email: '',\n    Summary_en_imp: `Discovered via external directory page: ${v.title}`,\n    Summary_el_imp: `Εντοπίστηκε μέσω εξωτερικού καταλόγου: ${v.title}`,\n  };\n}\n\nasync function httpGetJson(url) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET', url, headers: CONFIG.httpHeaders, json: true, timeout: 45000,\n    });\n    return { ok: true, data };\n  } catch (e) {\n    return { ok: false, error: e?.message || String(e) };\n  }\n}\n\nfunction bestMatches(visitList, kalaneraList, threshold) {\n  const pairs = [];\n  for (let vi = 0; vi < visitList.length; vi++) {\n    const v = visitList[vi];\n    const vkeys = [aliasKey(v.slug), aliasKey(v.title), v.normTitle || norm(v.title)];\n    for (let ki = 0; ki < kalaneraList.length; ki++) {\n      const k = kalaneraList[ki];\n      if (k.norm.includes('oceanis water sports') && v.slug.includes('oceanis')) continue;\n      const kkeys = [k.norm, k.normEl, aliasKey(k.name)];\n      let best = 0;\n      for (const a of vkeys) for (const b of kkeys) best = Math.max(best, scorePair(a, b));\n      if (best >= threshold) pairs.push({ sc: best, vi, ki, v, k });\n    }\n  }\n  pairs.sort((a, b) => b.sc - a.sc);\n  const usedV = new Set();\n  const usedK = new Set();\n  const matched = [];\n  for (const p of pairs) {\n    if (usedV.has(p.vi) || usedK.has(p.ki)) continue;\n    matched.push({ ...p, how: p.sc >= 0.95 ? 'exact' : 'fuzzy' });\n    usedV.add(p.vi);\n    usedK.add(p.ki);\n  }\n  return { matched, usedV, usedK };\n}\n\nfunction escHtml(s) {\n  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}\n\nfunction toBodyHtml(lines) {\n  const htmlLines = lines.map((line) => {\n    if (!line) return '<br>';\n    if (line.startsWith('===')) {\n      const title = line.replace(/^=+\\s*|\\s*=+$/g, '');\n      return `<h3 style=\"margin:16px 0 6px;font-size:15px\">${escHtml(title)}</h3>`;\n    }\n    let color = '#1a1a1a';\n    if (/^OK\\b/.test(line) || /Status: OK/i.test(line)) color = '#0d7a3e';\n    if (/^FAIL\\b/.test(line) || /FETCH ERROR|ALERT/i.test(line)) color = '#b42318';\n    if (/^WARN\\b/.test(line)) color = '#b54708';\n    return `<p style=\"margin:3px 0;color:${color}\">${escHtml(line)}</p>`;\n  }).join('\\n');\n  return `<!DOCTYPE html><html><body style=\"font-family:system-ui,Segoe UI,Roboto,sans-serif;font-size:14px;line-height:1.45;color:#1a1a1a;max-width:48em;padding:8px 4px\">${htmlLines}</body></html>`;\n}\n\nconst shadowRows = getShadowRows();\nconst shadowKnownKeys = knownRowKeys(shadowRows);\n\nconst issues = [];\nconst kRes = await httpGetJson.call(this, CONFIG.kalaneraJsonUrl);\nconst vRes = await httpGetJson.call(this, CONFIG.visitSnapshotUrl);\n\nif (!kRes.ok) issues.push(`kalanera JSON fetch mislukt: ${kRes.error}`);\n\nlet visitFetchFailed = false;\nlet visitDeduped = [];\nlet snapshotGeneratedAt = null;\nlet sitemapLastmod = null;\n\nif (!vRes.ok) {\n  visitFetchFailed = true;\n  issues.push(`FAIL  visit-snapshot niet beschikbaar op kalanera.gr: ${vRes.error}`);\n  issues.push('WARN  Deploy data/visitkalanera-sitemap.json of wacht op GitHub Actions (maandag 06:00 UTC)');\n} else {\n  snapshotGeneratedAt = vRes.data?.generatedAt || null;\n  sitemapLastmod = vRes.data?.sitemapLastmod || null;\n  visitDeduped = Array.isArray(vRes.data?.pages) ? vRes.data.pages : [];\n  if (!visitDeduped.length) {\n    visitFetchFailed = true;\n    issues.push('FAIL  visit-snapshot bevat geen pagina\\'s');\n  } else if (snapshotGeneratedAt) {\n    const ageDays = (Date.now() - Date.parse(snapshotGeneratedAt)) / 86400000;\n    if (ageDays > CONFIG.snapshotMaxAgeDays) {\n      issues.push(`WARN  Snapshot ${Math.round(ageDays)} dagen oud (max ${CONFIG.snapshotMaxAgeDays})`);\n    }\n  }\n}\n\nconst kalanera = [];\nif (kRes.ok) {\n  for (const r of normalizeRows(kRes.data)) {\n    const st = sheetStatus(r);\n    if (st && st !== 'active') continue;\n    kalanera.push({\n      name: String(r.Name || '').trim(),\n      nameEl: String(r.Name_EL || '').trim(),\n      category: String(r.Category || '').trim(),\n      location: String(r.Location || '').trim(),\n      norm: norm(r.Name),\n      normEl: norm(r.Name_EL),\n    });\n  }\n}\n\nconst kalaneraKnownKeys = knownRowKeys(kalanera.map((k) => ({ Name: k.name, Name_EL: k.nameEl })));\nconst allKnownKeys = new Set([...shadowKnownKeys, ...kalaneraKnownKeys]);\n\nlet matched = [];\nlet onlyKalanera = kalanera;\nlet onlyVisit = visitDeduped;\nlet partial = [];\n\nif (kRes.ok && !visitFetchFailed) {\n  const bm = bestMatches(visitDeduped, kalanera, CONFIG.matchThreshold);\n  matched = bm.matched;\n  onlyVisit = dedupeVisitPages(visitDeduped.filter((_, i) => !bm.usedV.has(i)));\n  onlyKalanera = kalanera.filter((_, i) => !bm.usedK.has(i));\n  const matchedNorms = new Set(matched.map((m) => m.k.norm));\n  for (const k of kalanera) {\n    if (k.norm.includes('oceanis water sports') && !matchedNorms.has(k.norm)) {\n      const v = visitDeduped.find((x) => x.slug.includes('oceanis'));\n      if (v) partial.push({ k, v });\n    }\n  }\n  onlyKalanera = onlyKalanera.filter((k) => !partial.some((p) => p.k.norm === k.norm));\n}\n\nconst sheetCandidates = [];\nconst sheetSkipped = [];\n\nif (!visitFetchFailed) {\n  for (const v of onlyVisit) {\n    const profile = profileForVisitPage(v);\n    if (isKnownBusiness(profile, allKnownKeys, kalanera)) {\n      sheetSkipped.push(profile.Name);\n      continue;\n    }\n    const rowKey = aliasKey(profile.Name);\n    if (sheetCandidates.some((c) => aliasKey(c.Name) === rowKey)) continue;\n\n    sheetCandidates.push({\n      Name: profile.Name,\n      Name_EL: profile.Name_EL || '',\n      Website: profile.Website || v.url || '',\n      Phone: profile.Phone || '',\n      Location: profile.Location || 'Kala Nera',\n      Category: profile.Category || 'Other',\n      Email: profile.Email || '',\n      Status: 'Shadow',\n      PhotoURL: '',\n      Datum: formatDatum(),\n      siteOK: '',\n      Lastcheck: '',\n      Summary_en_imp: profile.Summary_en_imp || '',\n      Summary_el_imp: profile.Summary_el_imp || '',\n      _source: 'visitkalanera-compare',\n      _visitSlug: v.slug,\n    });\n    allKnownKeys.add(rowKey);\n    allKnownKeys.add(norm(profile.Name));\n  }\n}\n\nif (kalanera.length < CONFIG.minKalaneraActive) {\n  issues.push(`kalanera Active te laag: ${kalanera.length} (min ${CONFIG.minKalaneraActive})`);\n}\n\nconst coveragePct = kalanera.length ? Math.round((matched.length / kalanera.length) * 100) : 0;\nif (!visitFetchFailed && coveragePct < CONFIG.alertCoverageBelowPct) {\n  issues.push(`Dekking externe site ${coveragePct}% (drempel ${CONFIG.alertCoverageBelowPct}%)`);\n}\n\nconst ok = issues.length === 0;\nconst generatedAt = kRes.ok && kRes.data && !Array.isArray(kRes.data) ? (kRes.data.generatedAt || null) : null;\n\nconst lines = [\n  'Bedrijvenvergelijking — kalanera.gids vs externe directory',\n  `Gegenereerd (UTC): ${new Date().toISOString()}`,\n  generatedAt ? `kalanera JSON generatedAt: ${generatedAt}` : '',\n  snapshotGeneratedAt ? `visit snapshot generatedAt: ${snapshotGeneratedAt}` : '',\n  sitemapLastmod ? `visit sitemap lastmod: ${sitemapLastmod}` : '',\n  'visit bron: kalanera.gr snapshot (geen directe fetch naar externe site)',\n  '',\n  '=== Samenvatting ===',\n  `kalanera.gr actief: ${kalanera.length}`,\n  `externe directory URL's: ${visitDeduped.length}`,\n  `Overlap (match): ${matched.length}`,\n  `Alleen kalanera.gr: ${onlyKalanera.length}`,\n  `Alleen externe directory (uniek): ${onlyVisit.length}`,\n  partial.length ? `Gedeeltelijke overlap (Oceanis): ${partial.length}` : '',\n  visitFetchFailed ? 'Dekking: n.v.t. (snapshot ontbreekt)' : `Dekking: ${coveragePct}%`,\n  '',\n  visitFetchFailed ? 'Status: FETCH ERROR' : (ok ? 'Status: OK' : 'Status: AANDACHTSPUNTEN'),\n];\n\nif (!visitFetchFailed) {\n  lines.push('');\n  lines.push('=== Shadow Google Sheet ===');\n  lines.push(`Nieuw toe te voegen: ${sheetCandidates.length}`);\n  if (sheetCandidates.length) {\n    for (const c of sheetCandidates) lines.push(`  + ${c.Name} (${c.Category})`);\n  }\n  if (sheetSkipped.length) {\n    lines.push(`Overgeslagen (al in sheet/kalanera): ${sheetSkipped.length}`);\n    for (const s of sheetSkipped) lines.push(`  = ${s}`);\n  }\n}\n\nif (issues.length) {\n  lines.push('');\n  issues.forEach((msg) => lines.push(msg.startsWith('FAIL') || msg.startsWith('WARN') ? msg : `WARN  ${msg}`));\n}\n\nif (!visitFetchFailed) {\n  lines.push('');\n  lines.push(`=== Overlap (${matched.length}) ===`);\n  for (const m of matched.sort((a, b) => a.k.category.localeCompare(b.k.category) || a.k.name.localeCompare(b.k.name))) {\n    lines.push(`OK    ${m.k.name} (${m.k.category}) ↔ ${m.v.title}`);\n  }\n\n  if (partial.length) {\n    lines.push('');\n    lines.push('=== Gedeeltelijke overlap ===');\n    const oceanisMatch = matched.find((m) => m.k.norm.includes('oceanis rentals'));\n    if (oceanisMatch) lines.push(`OK    ${oceanisMatch.k.name} ↔ ${oceanisMatch.v.title}`);\n    for (const p of partial) lines.push(`WARN  ${p.k.name} — geen aparte externe pagina`);\n  }\n\n  lines.push('');\n  lines.push(`=== Alleen op kalanera.gr (${onlyKalanera.length}) ===`);\n  let prevCat = null;\n  for (const k of onlyKalanera.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))) {\n    if (k.category !== prevCat) {\n      lines.push(`— ${k.category} —`);\n      prevCat = k.category;\n    }\n    const el = k.nameEl ? ` (${k.nameEl})` : '';\n    lines.push(`  ${k.name}${el} — ${k.location}`);\n  }\n\n  lines.push('');\n  lines.push(`=== Alleen op externe directory (${onlyVisit.length}) ===`);\n  for (const v of onlyVisit.sort((a, b) => a.title.localeCompare(b.title))) {\n    lines.push(`  ${v.title}`);\n  }\n}\n\nlines.push('');\nlines.push(`Repo-doc: ${CONFIG.reportDocPath}`);\n\nlet subject;\nif (visitFetchFailed) {\n  subject = '[kalanera] Directory-vergelijking — snapshot ontbreekt';\n} else if (sheetCandidates.length > 0) {\n  subject = `[kalanera] Directory-vergelijking — ${sheetCandidates.length} nieuw in shadow sheet`;\n} else if (!ok) {\n  subject = `[kalanera] Directory-vergelijking — ${matched.length}/${kalanera.length} (${coveragePct}%)`;\n} else {\n  subject = `[kalanera] Directory-vergelijking — ${matched.length}/${kalanera.length} overlap (${coveragePct}%)`;\n}\n\nconst body = lines.filter(Boolean).join('\\n');\n\nreturn [{\n  json: {\n    ok,\n    alert: !ok || sheetCandidates.length > 0,\n    fetchFailed: visitFetchFailed,\n    visitSource: 'kalanera-snapshot',\n    kalaneraActive: kalanera.length,\n    visitPages: visitDeduped.length,\n    matched: matched.length,\n    onlyKalanera: onlyKalanera.length,\n    onlyVisit: onlyVisit.length,\n    coveragePct: visitFetchFailed ? null : coveragePct,\n    snapshotGeneratedAt,\n    sitemapLastmod,\n    generatedAt,\n    issues,\n    sheetCandidates,\n    sheetSkipped,\n    sheetCandidatesCount: sheetCandidates.length,\n    shadowSheetDocumentId: CONFIG.shadowSheetDocumentId,\n    subject,\n    body,\n    bodyHtml: toBodyHtml(lines.filter(Boolean)),\n  },\n}];\n"
       },
       "id": "vk-compare-003",
       "name": "Compare kalanera vs visitkalanera",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -400,
+        -360,
         60
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "vk-if-sheet-001",
+              "leftValue": "={{ $json.sheetCandidatesCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "vk-if-sheet-008",
+      "name": "IF — new shadow rows?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.first().json.sheetCandidates || [];\nreturn rows.map((row) => ({ json: row }));"
+      },
+      "id": "vk-explode-009",
+      "name": "Explode sheet candidates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1EPTu-cz2NYKJxlC6Ki14cyfQYiMFxg_i5gSgjw0IUvI",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.Name }}",
+            "Name_EL": "={{ $json.Name_EL }}",
+            "Website": "={{ $json.Website }}",
+            "Phone": "={{ $json.Phone }}",
+            "Location": "={{ $json.Location }}",
+            "Category": "={{ $json.Category }}",
+            "Email": "={{ $json.Email }}",
+            "Status": "={{ $json.Status }}",
+            "PhotoURL": "={{ $json.PhotoURL }}",
+            "Datum": "={{ $json.Datum }}",
+            "siteOK": "={{ $json.siteOK }}",
+            "Lastcheck": "={{ $json.Lastcheck }}",
+            "Summary_en_imp": "={{ $json.Summary_en_imp }}",
+            "Summary_el_imp": "={{ $json.Summary_el_imp }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "vk-shadow-append-010",
+      "name": "Append to shadow Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        -80
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      },
+      "notes": "Voegt alleen nieuwe missers toe (Status=Shadow). Duplicaten worden in Compare-node gefilterd."
     },
     {
       "parameters": {
@@ -70,7 +213,7 @@
       "typeVersion": 4.2,
       "position": [
         -80,
-        60
+        200
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -97,7 +240,7 @@
       "typeVersion": 2.1,
       "position": [
         -80,
-        220
+        360
       ],
       "disabled": true,
       "credentials": {
@@ -109,17 +252,17 @@
     },
     {
       "parameters": {
-        "content": "## Directory-vergelijking (incognito)\n\n**n8n raakt visitkalanera.gr NIET aan.**\n\n1. GitHub Actions (neutraal IP) haalt wekelijks `page-sitemap.xml` op\n2. Schrijft `data/visitkalanera-sitemap.json` → deploy naar kalanera.gr\n3. n8n leest alleen `kalanera.gr/data/*.json`\n\nGeen vanlaar-hostname, geen directe request naar visitkalanera.\n\n**Eerste keer:** push snapshot + activeer workflow `refresh-visitkalanera-sitemap`.\n\n**Handmatig verversen:** `node scripts/refresh-visitkalanera-sitemap.mjs` + deploy.",
-        "height": 420,
-        "width": 460
+        "content": "## Directory-vergelijking (incognito)\n\n**n8n raakt visitkalanera.gr NIET aan.**\n\n1. GitHub Actions haalt wekelijks `page-sitemap.xml` op\n2. Schrijft `data/visitkalanera-sitemap.json` → deploy kalanera.gr\n3. n8n leest `kalanera.gr/data/*.json` + **schaduw Google Sheet**\n4. Nieuwe externe missers → append naar shadow sheet (Status=Shadow)\n\nShadow sheet: `1EPTu-cz2NYKJxlC6Ki14cyfQYiMFxg_i5gSgjw0IUvI`\n\nKoppel **Google Sheets OAuth2** op Read + Append nodes.",
+        "height": 440,
+        "width": 480
       },
       "id": "vk-sticky-006",
       "name": "Sticky Note",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -740,
-        -360
+        -940,
+        -400
       ]
     }
   ],
@@ -128,7 +271,7 @@
       "main": [
         [
           {
-            "node": "Compare kalanera vs visitkalanera",
+            "node": "Read shadow Google Sheet",
             "type": "main",
             "index": 0
           }
@@ -136,6 +279,17 @@
       ]
     },
     "Schedule — Monday 09:00": {
+      "main": [
+        [
+          {
+            "node": "Read shadow Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read shadow Google Sheet": {
       "main": [
         [
           {
@@ -150,7 +304,35 @@
       "main": [
         [
           {
+            "node": "IF — new shadow rows?",
+            "type": "main",
+            "index": 0
+          },
+          {
             "node": "Send via Resend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — new shadow rows?": {
+      "main": [
+        [
+          {
+            "node": "Explode sheet candidates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Explode sheet candidates": {
+      "main": [
+        [
+          {
+            "node": "Append to shadow Google Sheet",
             "type": "main",
             "index": 0
           }
