@@ -1,0 +1,169 @@
+{
+  "name": "kalanera-monitor-kalanera-vs-visitkalanera (example)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "vk-manual-001",
+      "name": "Manual — test run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "vk-schedule-002",
+      "name": "Schedule — Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -720,
+        160
+      ],
+      "notes": "Standaard: wekelijks maandag 09:00 (workflow timezone Europe/Athens). Pas interval aan: weeks | days | months | hours. Voor dagelijks: field \"days\", triggerAtHour 8, triggerAtMinute 0."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// === CONFIG ===\n// n8n raakt visitkalanera.gr NIET aan — alleen eigen JSON op kalanera.gr (snapshot via GitHub Actions).\nconst CONFIG = {\n  kalaneraJsonUrl: 'https://kalanera.gr/data/local-businesses.json',\n  visitSnapshotUrl: 'https://kalanera.gr/data/visitkalanera-sitemap.json',\n  snapshotMaxAgeDays: 10,\n  minKalaneraActive: 50,\n  matchThreshold: 0.55,\n  alertCoverageBelowPct: 25,\n  reportDocPath: 'docs/kalanera-vs-visitkalanera-businesses.md',\n  httpHeaders: {\n    Accept: 'application/json',\n  },\n};\n\nconst ALIASES = {\n  edem: 'edem', 'edem-tavern': 'edem', 'εδεμ': 'edem', '1900': '1900', ainareti: 'ainareti',\n  'hotel-agelis': 'agelis', 'hotel-rodia': 'rodia', 'hotel-pigasus': 'pegasus', irida: 'irida',\n  'irida-house': 'irida', 'kala-nera-panorama': 'panorama', 'la-luna': 'la luna', 'la-luna-hotel': 'la luna',\n  levantes: 'levantes', naftilos: 'naftilos', 'naftilos-coffee-bar': 'naftilos',\n  'oceanis-water-sports-rentals': 'oceanis rentals pelion',\n  'orange-garden': 'orange garden', pagaseon: 'pagaseon', 'pagaseon-studios': 'pagaseon',\n  pandora: 'pandora', 'pandora-studios': 'pandora', serenity: 'serenity', 'serenity-studios': 'serenity',\n  vasileiou: 'vasileiou', 'vasileiou-apartments': 'vasileiou',\n  apostolis: 'apostolis barber', 'apostolis-fovos': 'apostolis barber',\n  vardakeios: 'vardakis market', 'βαρδακειος': 'vardakis market', 'four-ways': 'four ways travel',\n  kentavros: 'kentavros', kentauros: 'kentavros', 'market-cafe-kentauros': 'kentavros',\n  'market-kentauros': 'kentavros', dimoula: 'dimoula', 'xenodoxeio-dimoula': 'dimoula',\n  iliachtides: 'iliachtides', hliaxtides: 'iliachtides', platanofylla: 'platanofylla',\n  'pelion-esties': 'pelion esties', 'eirini-filippou': 'eirini filippou', fournos: 'fournos',\n};\n\nfunction norm(s) {\n  return String(s || '')\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '')\n    .toLowerCase()\n    .replace(/[^a-z0-9\\u0370-\\u03ff\\s]/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction decodeSlug(slug) {\n  try { return decodeURIComponent(slug); } catch { return slug; }\n}\n\nfunction aliasKey(text) {\n  const textL = String(text || '').toLowerCase();\n  const n = norm(decodeSlug(textL));\n  for (const [k, v] of Object.entries(ALIASES)) {\n    if (textL.includes(k) || n.includes(k)) return v;\n  }\n  return n;\n}\n\nfunction scorePair(a, b) {\n  if (!a || !b) return 0;\n  if (a === b) return 1;\n  if (a.includes(b) || b.includes(a)) return Math.min(a.length, b.length) / Math.max(a.length, b.length);\n  const ta = new Set(a.split(' '));\n  const tb = new Set(b.split(' '));\n  if (!ta.size || !tb.size) return 0;\n  let inter = 0;\n  for (const t of ta) if (tb.has(t)) inter += 1;\n  return inter / Math.max(ta.size, tb.size);\n}\n\nfunction sheetStatus(row) {\n  return String(row?.Status ?? row?.status ?? row?.STATUS ?? '').trim().toLowerCase();\n}\n\nfunction normalizeRows(payload) {\n  if (Array.isArray(payload)) return payload;\n  if (payload?.rows) return payload.rows;\n  if (payload?.data) return payload.data;\n  return [];\n}\n\nasync function httpGetJson(url) {\n  try {\n    const data = await this.helpers.httpRequest({\n      method: 'GET',\n      url,\n      headers: CONFIG.httpHeaders,\n      json: true,\n      timeout: 45000,\n    });\n    return { ok: true, data };\n  } catch (e) {\n    return { ok: false, error: e?.message || String(e) };\n  }\n}\n\nfunction bestMatches(visitList, kalaneraList, threshold) {\n  const pairs = [];\n  for (let vi = 0; vi < visitList.length; vi++) {\n    const v = visitList[vi];\n    const vkeys = [aliasKey(v.slug), aliasKey(v.title), v.normTitle || norm(v.title)];\n    for (let ki = 0; ki < kalaneraList.length; ki++) {\n      const k = kalaneraList[ki];\n      if (k.norm.includes('oceanis water sports') && v.slug.includes('oceanis')) continue;\n      const kkeys = [k.norm, k.normEl, aliasKey(k.name)];\n      let best = 0;\n      for (const a of vkeys) for (const b of kkeys) best = Math.max(best, scorePair(a, b));\n      if (best >= threshold) pairs.push({ sc: best, vi, ki, v, k });\n    }\n  }\n  pairs.sort((a, b) => b.sc - a.sc);\n  const usedV = new Set();\n  const usedK = new Set();\n  const matched = [];\n  for (const p of pairs) {\n    if (usedV.has(p.vi) || usedK.has(p.ki)) continue;\n    matched.push({ ...p, how: p.sc >= 0.95 ? 'exact' : 'fuzzy' });\n    usedV.add(p.vi);\n    usedK.add(p.ki);\n  }\n  return { matched, usedV, usedK };\n}\n\nfunction escHtml(s) {\n  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}\n\nfunction toBodyHtml(lines) {\n  const htmlLines = lines.map((line) => {\n    if (!line) return '<br>';\n    if (line.startsWith('===')) {\n      const title = line.replace(/^=+\\s*|\\s*=+$/g, '');\n      return `<h3 style=\"margin:16px 0 6px;font-size:15px\">${escHtml(title)}</h3>`;\n    }\n    let color = '#1a1a1a';\n    if (/^OK\\b/.test(line) || /Status: OK/i.test(line)) color = '#0d7a3e';\n    if (/^FAIL\\b/.test(line) || /FETCH ERROR|ALERT/i.test(line)) color = '#b42318';\n    if (/^WARN\\b/.test(line)) color = '#b54708';\n    return `<p style=\"margin:3px 0;color:${color}\">${escHtml(line)}</p>`;\n  }).join('\\n');\n  return `<!DOCTYPE html><html><body style=\"font-family:system-ui,Segoe UI,Roboto,sans-serif;font-size:14px;line-height:1.45;color:#1a1a1a;max-width:48em;padding:8px 4px\">${htmlLines}</body></html>`;\n}\n\nconst issues = [];\nconst kRes = await httpGetJson.call(this, CONFIG.kalaneraJsonUrl);\nconst vRes = await httpGetJson.call(this, CONFIG.visitSnapshotUrl);\n\nif (!kRes.ok) issues.push(`kalanera JSON fetch mislukt: ${kRes.error}`);\n\nlet visitFetchFailed = false;\nlet visitDeduped = [];\nlet snapshotGeneratedAt = null;\nlet sitemapLastmod = null;\n\nif (!vRes.ok) {\n  visitFetchFailed = true;\n  issues.push(`FAIL  visit-snapshot niet beschikbaar op kalanera.gr: ${vRes.error}`);\n  issues.push('WARN  Deploy data/visitkalanera-sitemap.json of wacht op GitHub Actions (maandag 06:00 UTC)');\n} else {\n  snapshotGeneratedAt = vRes.data?.generatedAt || null;\n  sitemapLastmod = vRes.data?.sitemapLastmod || null;\n  visitDeduped = Array.isArray(vRes.data?.pages) ? vRes.data.pages : [];\n  if (!visitDeduped.length) {\n    visitFetchFailed = true;\n    issues.push('FAIL  visit-snapshot bevat geen pagina\\'s');\n  } else if (snapshotGeneratedAt) {\n    const ageDays = (Date.now() - Date.parse(snapshotGeneratedAt)) / 86400000;\n    if (ageDays > CONFIG.snapshotMaxAgeDays) {\n      issues.push(`WARN  Snapshot ${Math.round(ageDays)} dagen oud (max ${CONFIG.snapshotMaxAgeDays})`);\n    }\n  }\n}\n\nconst kalanera = [];\nif (kRes.ok) {\n  for (const r of normalizeRows(kRes.data)) {\n    const st = sheetStatus(r);\n    if (st && st !== 'active') continue;\n    kalanera.push({\n      name: String(r.Name || '').trim(),\n      nameEl: String(r.Name_EL || '').trim(),\n      category: String(r.Category || '').trim(),\n      location: String(r.Location || '').trim(),\n      norm: norm(r.Name),\n      normEl: norm(r.Name_EL),\n    });\n  }\n}\n\nlet matched = [];\nlet onlyKalanera = kalanera;\nlet onlyVisit = visitDeduped;\nlet partial = [];\n\nif (kRes.ok && !visitFetchFailed) {\n  const bm = bestMatches(visitDeduped, kalanera, CONFIG.matchThreshold);\n  matched = bm.matched;\n  onlyVisit = visitDeduped.filter((_, i) => !bm.usedV.has(i));\n  onlyKalanera = kalanera.filter((_, i) => !bm.usedK.has(i));\n  const matchedNorms = new Set(matched.map((m) => m.k.norm));\n  for (const k of kalanera) {\n    if (k.norm.includes('oceanis water sports') && !matchedNorms.has(k.norm)) {\n      const v = visitDeduped.find((x) => x.slug.includes('oceanis'));\n      if (v) partial.push({ k, v });\n    }\n  }\n  onlyKalanera = onlyKalanera.filter((k) => !partial.some((p) => p.k.norm === k.norm));\n}\n\nif (kalanera.length < CONFIG.minKalaneraActive) {\n  issues.push(`kalanera Active te laag: ${kalanera.length} (min ${CONFIG.minKalaneraActive})`);\n}\n\nconst coveragePct = kalanera.length ? Math.round((matched.length / kalanera.length) * 100) : 0;\nif (!visitFetchFailed && coveragePct < CONFIG.alertCoverageBelowPct) {\n  issues.push(`Dekking externe site ${coveragePct}% (drempel ${CONFIG.alertCoverageBelowPct}%)`);\n}\n\nconst ok = issues.length === 0;\nconst generatedAt = kRes.ok && kRes.data && !Array.isArray(kRes.data) ? (kRes.data.generatedAt || null) : null;\n\nconst lines = [\n  'Bedrijvenvergelijking — kalanera.gids vs externe directory',\n  `Gegenereerd (UTC): ${new Date().toISOString()}`,\n  generatedAt ? `kalanera JSON generatedAt: ${generatedAt}` : '',\n  snapshotGeneratedAt ? `visit snapshot generatedAt: ${snapshotGeneratedAt}` : '',\n  sitemapLastmod ? `visit sitemap lastmod: ${sitemapLastmod}` : '',\n  'visit bron: kalanera.gr snapshot (geen directe fetch naar externe site)',\n  '',\n  '=== Samenvatting ===',\n  `kalanera.gr actief: ${kalanera.length}`,\n  `externe directory URL's: ${visitDeduped.length}`,\n  `Overlap (match): ${matched.length}`,\n  `Alleen kalanera.gr: ${onlyKalanera.length}`,\n  `Alleen externe directory: ${onlyVisit.length}`,\n  partial.length ? `Gedeeltelijke overlap (Oceanis): ${partial.length}` : '',\n  visitFetchFailed ? 'Dekking: n.v.t. (snapshot ontbreekt)' : `Dekking: ${coveragePct}%`,\n  '',\n  visitFetchFailed ? 'Status: FETCH ERROR' : (ok ? 'Status: OK' : 'Status: AANDACHTSPUNTEN'),\n];\n\nif (issues.length) {\n  lines.push('');\n  issues.forEach((msg) => lines.push(msg.startsWith('FAIL') || msg.startsWith('WARN') ? msg : `WARN  ${msg}`));\n}\n\nif (!visitFetchFailed) {\n  lines.push('');\n  lines.push(`=== Overlap (${matched.length}) ===`);\n  for (const m of matched.sort((a, b) => a.k.category.localeCompare(b.k.category) || a.k.name.localeCompare(b.k.name))) {\n    lines.push(`OK    ${m.k.name} (${m.k.category}) ↔ ${m.v.title}`);\n  }\n\n  if (partial.length) {\n    lines.push('');\n    lines.push('=== Gedeeltelijke overlap ===');\n    const oceanisMatch = matched.find((m) => m.k.norm.includes('oceanis rentals'));\n    if (oceanisMatch) lines.push(`OK    ${oceanisMatch.k.name} ↔ ${oceanisMatch.v.title}`);\n    for (const p of partial) lines.push(`WARN  ${p.k.name} — geen aparte externe pagina`);\n  }\n\n  lines.push('');\n  lines.push(`=== Alleen op kalanera.gr (${onlyKalanera.length}) ===`);\n  let prevCat = null;\n  for (const k of onlyKalanera.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name))) {\n    if (k.category !== prevCat) {\n      lines.push(`— ${k.category} —`);\n      prevCat = k.category;\n    }\n    const el = k.nameEl ? ` (${k.nameEl})` : '';\n    lines.push(`  ${k.name}${el} — ${k.location}`);\n  }\n\n  lines.push('');\n  lines.push(`=== Alleen op externe directory (${onlyVisit.length}) ===`);\n  for (const v of onlyVisit.sort((a, b) => a.title.localeCompare(b.title))) {\n    lines.push(`  ${v.title}`);\n  }\n}\n\nlines.push('');\nlines.push(`Repo-doc: ${CONFIG.reportDocPath}`);\n\nlet subject;\nif (visitFetchFailed) {\n  subject = '[kalanera] Directory-vergelijking — snapshot ontbreekt';\n} else if (!ok) {\n  subject = `[kalanera] Directory-vergelijking — ${matched.length}/${kalanera.length} (${coveragePct}%)`;\n} else {\n  subject = `[kalanera] Directory-vergelijking — ${matched.length}/${kalanera.length} overlap (${coveragePct}%)`;\n}\n\nconst body = lines.filter(Boolean).join('\\n');\n\nreturn [{\n  json: {\n    ok,\n    alert: !ok,\n    fetchFailed: visitFetchFailed,\n    visitSource: 'kalanera-snapshot',\n    kalaneraActive: kalanera.length,\n    visitPages: visitDeduped.length,\n    matched: matched.length,\n    onlyKalanera: onlyKalanera.length,\n    onlyVisit: onlyVisit.length,\n    coveragePct: visitFetchFailed ? null : coveragePct,\n    snapshotGeneratedAt,\n    sitemapLastmod,\n    generatedAt,\n    issues,\n    subject,\n    body,\n    bodyHtml: toBodyHtml(lines.filter(Boolean)),\n  },\n}];\n"
+      },
+      "id": "vk-compare-003",
+      "name": "Compare kalanera vs visitkalanera",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: 'Kala Nera Guide <info@kalanera.gr>', to: ['REPLACE_TO_EMAIL'], subject: $json.subject, html: $json.bodyHtml, text: $json.body } }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "vk-resend-004",
+      "name": "Send via Resend",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -80,
+        60
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_RESEND_HTTP_HEADER_CREDENTIAL_ID",
+          "name": "Resend API (Authorization: Bearer re_...)"
+        }
+      },
+      "notes": "Resend: Header Auth → Authorization: Bearer re_xxxxx"
+    },
+    {
+      "parameters": {
+        "fromEmail": "REPLACE_FROM_EMAIL",
+        "toEmail": "REPLACE_TO_EMAIL",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.bodyHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "vk-smtp-005",
+      "name": "Send via SMTP (optional)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -80,
+        220
+      ],
+      "disabled": true,
+      "credentials": {
+        "smtp": {
+          "id": "REPLACE_WITH_YOUR_SMTP_CREDENTIAL_ID",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Directory-vergelijking (incognito)\n\n**n8n raakt visitkalanera.gr NIET aan.**\n\n1. GitHub Actions (neutraal IP) haalt wekelijks `page-sitemap.xml` op\n2. Schrijft `data/visitkalanera-sitemap.json` → deploy naar kalanera.gr\n3. n8n leest alleen `kalanera.gr/data/*.json`\n\nGeen vanlaar-hostname, geen directe request naar visitkalanera.\n\n**Eerste keer:** push snapshot + activeer workflow `refresh-visitkalanera-sitemap`.\n\n**Handmatig verversen:** `node scripts/refresh-visitkalanera-sitemap.mjs` + deploy.",
+        "height": 420,
+        "width": 460
+      },
+      "id": "vk-sticky-006",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        -360
+      ]
+    }
+  ],
+  "connections": {
+    "Manual — test run": {
+      "main": [
+        [
+          {
+            "node": "Compare kalanera vs visitkalanera",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule — Monday 09:00": {
+      "main": [
+        [
+          {
+            "node": "Compare kalanera vs visitkalanera",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare kalanera vs visitkalanera": {
+      "main": [
+        [
+          {
+            "node": "Send via Resend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Athens"
+  }
+}

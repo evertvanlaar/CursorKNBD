@@ -17,5 +17,6 @@ node scripts/check-site-availability.mjs
 | JSON vs webhook (wekelijks, alert bij sync-probleem) | `../n8n/monitor-json-webhook-compare-weekly.example.json` | Zo 09:00 |
 | Bus sanity (dagelijks, alert bij geen ritten) | `../n8n/monitor-bus-sanity-daily.example.json` | Dagelijks 08:00 |
 | Weekoverzicht (maandag, altijd e-mail) | `../n8n/monitor-weekly-overview.example.json` | Ma 09:00 |
+| kalanera.gr vs visitkalanera.gr (incognito) | `../n8n/monitor-kalanera-vs-visitkalanera.example.json` | Ma 09:00; snapshot via GHA → `data/visitkalanera-sitemap.json` |
 
-Import in n8n → **Workflows → Import from file** → koppel **SMTP** op e-mailnodes → vul `REPLACE_FROM_EMAIL` / `REPLACE_TO_EMAIL` → **Manual test run** → workflow **Active**.
+Import in n8n → **Workflows → Import from file** → koppel **Resend** of **SMTP** op e-mailnodes → vul `REPLACE_TO_EMAIL` → **Manual test run** → workflow **Active**.
