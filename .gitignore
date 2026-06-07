@@ -26,6 +26,11 @@ data/local-businesses.json
 data/local-businesses.staging.json
 data/local-businesses.meta.json
 
+# Lokale SEO/sitemap preview (nooit naar GitHub/site)
+index.seo-draft.html
+index-el.seo-draft.html
+sitemap.seo-draft.xml
+
 # Android TWA (Gradle cache & build outputs — not source)
 kalanera-twa/.gradle/
 kalanera-twa/local.properties

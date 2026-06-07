@@ -2,16 +2,21 @@
  * n8n Code node: "Generate index SEO blocks" (één output-item met alle blokken)
  *
  * Invoer: zelfde rijen als je business-generator (Google Sheet / Merge), velden o.a.:
- *   Name, Name_EL, Category, Location, Phone, PhotoURL
+ *   Name, Name_EL, Category, Location, Phone, PhotoURL, Status
  *
  * Uitvoer (json):
- *   schemaScript     — plakken tussen <!-- N8N_SCHEMA_START --> en <!-- N8N_SCHEMA_END --> in index.html / index-el.html (beide indexen delen dezelfde ItemList; één keer genereren)
+ *   schemaScript     — plakken tussen <!-- N8N_SCHEMA_START --> en <!-- N8N_SCHEMA_END -->
  *   htmlSectionEN    — plakken tussen <!-- N8N_SEO_START --> en <!-- N8N_SEO_END --> in index.html
  *   htmlSectionEL    — idem in index-el.html
  *
- * Aliassen voor Sheet-kolommen: schema_ready, seo_list_en, seo_list_el (identiek)
+ * Aliassen: schema_ready, seo_list_en, seo_list_el
  *
- * Kopieer de volledige inhoud naar je n8n workflow (geen import van dit bestand).
+ * VOORKOM zichtbare \n op de site — gebruik GEEN:
+ *   - '\\n' + voor schemaScript
+ *   - multiline `<li>\n ...` strings (één regel per <li>)
+ *   - .replace(/</g, '\\\\u003c') (dubbele backslash)
+ *
+ * Kopieer de volledige inhoud naar n8n (Generate SEO Blocks node).
  */
 
 const SITE_ORIGIN = 'https://www.kalanera.gr';
@@ -95,7 +100,22 @@ const telForLd = (p) => {
 const locEn = (locRaw) => String(locRaw ?? 'Kala Nera').trim() || 'Kala Nera';
 const locEl = (locRaw) => LOC_DICT[locEn(locRaw)] ?? locEn(locRaw);
 
-const rows = $input.all().map((i) => i.json).filter(Boolean);
+function sheetStatus(row) {
+  return String(row?.Status ?? row?.status ?? '').trim().toLowerCase();
+}
+
+/** Letterlijke backslash-n in HTML (veelvoorkomende copy/paste-fout). */
+function assertNoLiteralBackslashN(html, label) {
+  if (/\\n/.test(html)) {
+    throw new Error(`${label}: output bevat letterlijke \\\\n — controleer string-opbouw`);
+  }
+}
+
+const rows = $input
+  .all()
+  .map((i) => i.json)
+  .filter(Boolean)
+  .filter((r) => sheetStatus(r) === 'active');
 
 const itemListElement = [];
 
@@ -174,6 +194,10 @@ const schemaScript = `<script type="application/ld+json">${jsonLdEmbed(itemListL
 const htmlSectionEN = `<section id="seo-directory" style="display:none;" aria-hidden="true"><h2>Local Businesses in Kala Nera</h2><ul>${liFragmentsEN.join('')}</ul></section>`;
 
 const htmlSectionEL = `<section id="seo-directory" style="display:none;" aria-hidden="true"><h2>Επιχειρήσεις στα Καλά Νερά</h2><ul>${liFragmentsEL.join('')}</ul></section>`;
+
+assertNoLiteralBackslashN(schemaScript, 'schemaScript');
+assertNoLiteralBackslashN(htmlSectionEN, 'htmlSectionEN');
+assertNoLiteralBackslashN(htmlSectionEL, 'htmlSectionEL');
 
 return [
   {

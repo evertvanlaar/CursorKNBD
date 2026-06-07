@@ -1,0 +1,331 @@
+{
+  "name": "kalanera-publish-seo-sitemap (preview → go live)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-preview-001",
+      "name": "Manual — Preview (SEO + sitemap)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        -120
+      ],
+      "notes": "Stap 1a: draft in n8n. Daarna lokaal fetch-seo-draft-from-n8n.mjs"
+    },
+    {
+      "parameters": {},
+      "id": "manual-golive-002",
+      "name": "Manual — Go live (SEO + sitemap)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        200
+      ],
+      "notes": "Stap 3: index.html, index-el.html, sitemap.xml naar GitHub main."
+    },
+    {
+      "parameters": {
+        "content": "## Stap 1 — Preview + lokaal\n\n**1a — n8n Preview** (Manual trigger)\n→ draft in workflow-geheugen\n\n**1b — lokaal** (terminal):\n`node scripts/fetch-seo-draft-from-n8n.mjs`\n→ 3 bestanden in Verkenner\n→ open op **localhost:5501**\n\nWebhook export: `GET …/webhook/seo-draft-export`\n\n**Stap 2 — Go live** → GitHub live namen\n\nDraft in `.gitignore` — niet op kalanera.gr",
+        "height": 480,
+        "width": 580
+      },
+      "id": "sticky-seo-003",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        -520
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig",
+          "mode": "list",
+          "cachedResultName": "localbusinesses-kalanera",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "REPLACE_WITH_BUSINESS_TAB_GID",
+          "mode": "list",
+          "cachedResultName": "REPLACE_WITH_TAB_NAME"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "id": "sheets-seo-004",
+      "name": "Google Sheets — business",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -580,
+        -120
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "/**\r\n * n8n Code node: Preview — build + validatie, draft in n8n (geen GitHub).\r\n * Daarna lokaal: node scripts/fetch-seo-draft-from-n8n.mjs → bestanden in Verkenner.\r\n */\r\n/**\r\n * Gedeelde logica voor SEO + sitemap (n8n preview + go-live).\r\n * Wordt ingesloten door build-publish-seo-sitemap-workflow.mjs — niet direct in n8n plakken.\r\n */\r\nconst SITE_ORIGIN = 'https://www.kalanera.gr';\r\n\r\n/** Zelfde repo als GitHub Push1 — index-bron voor preview (niet live site). */\r\nconst GITHUB = {\r\n  owner: 'evertvanlaar',\r\n  repo: 'VisualStudioCode',\r\n  branch: 'main',\r\n};\r\n\r\n/** Live bestanden op GitHub Pages (alleen bij Go live). */\r\nconst LIVE_FILES = {\r\n  indexEn: 'index.html',\r\n  indexEl: 'index-el.html',\r\n  sitemap: 'sitemap.xml',\r\n};\r\n\r\n/** Preview/draft — repo-root, andere naam dan live; test-URL’s werken met zelfde CSS/JS-paden. */\r\nconst DRAFT_FILES = {\r\n  indexEn: 'index.seo-draft.html',\r\n  indexEl: 'index-el.seo-draft.html',\r\n  sitemap: 'sitemap.seo-draft.xml',\r\n};\r\n\r\n/** Lokaal testen — nooit naar GitHub/site (zie .gitignore). */\r\nconst LOCAL_TEST_ORIGIN = 'http://localhost:5501';\r\n\r\nfunction localDraftTestUrls() {\r\n  return {\r\n    indexEn: `${LOCAL_TEST_ORIGIN}/${DRAFT_FILES.indexEn}`,\r\n    indexEl: `${LOCAL_TEST_ORIGIN}/${DRAFT_FILES.indexEl}`,\r\n    sitemap: `${LOCAL_TEST_ORIGIN}/${DRAFT_FILES.sitemap}`,\r\n  };\r\n}\r\n\r\n/** @deprecated alias */\r\nconst REPO_FILES = LIVE_FILES;\r\n\r\nconst DRAFT_KEY = 'seoDraft';\r\nconst DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;\r\nconst MIN_ACTIVE_BUSINESSES = 50;\r\n\r\nconst MARKERS = [\r\n  ['N8N_SCHEMA_START', 'N8N_SCHEMA_END'],\r\n  ['N8N_SEO_START', 'N8N_SEO_END'],\r\n];\r\n\r\nconst LOC_DICT = {\r\n  'Kala Nera': 'Καλά Νερά',\r\n  'Kato Gatzea': 'Κάτω Γατζέα',\r\n  'Ano Gatzea': 'Άνω Γατζέα',\r\n  Koropi: 'Κορώπη',\r\n  Milies: 'Μηλιές',\r\n  Vizitsa: 'Βυζίτσα',\r\n  Afissos: 'Αφήσσος',\r\n};\r\n\r\nconst categoryLabelEN = {\r\n  Camp: 'Camping & Caravan site',\r\n  Drink: 'Bar & Café',\r\n  Eat: 'Restaurant & Taverna',\r\n  Other: 'Local Business',\r\n  Rent: 'Rental Service',\r\n  Shop: 'Local Shop & Boutique',\r\n  Sleep: 'Hotel & Accommodation',\r\n  Travel: 'Travel Agency & Tours',\r\n};\r\n\r\nconst categoryLabelEL = {\r\n  Camp: 'Κάμπινγκ',\r\n  Drink: 'Μπαρ & Καφετέρια',\r\n  Eat: 'Εστιατόριο & Ταβέρνα',\r\n  Other: 'Τοπική Επιχείρηση',\r\n  Rent: 'Υπηρεσία Ενοικίασης',\r\n  Shop: 'Τοπικό Κατάστημα',\r\n  Sleep: 'Ξενοδοχείο & Διαμονή',\r\n  Travel: 'Ταξιδιωτικό Γραφείο',\r\n};\r\n\r\nconst CATEGORY_ORDER = ['Camp', 'Drink', 'Eat', 'Other', 'Rent', 'Shop', 'Sleep', 'Travel'];\r\n\r\nconst STATIC_PAGES = [\r\n  { path: '/', changefreq: 'daily', priority: '1.0' },\r\n  { path: '/wishlist.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/index-el.html', changefreq: 'daily', priority: '1.0' },\r\n  { path: '/install.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/install-el.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/wishlist-el.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/bus.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/bus-el.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/t-form.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/t-form-el.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/info.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/info-el.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/privacy.html', changefreq: 'yearly', priority: '0.4' },\r\n  { path: '/privacy-el.html', changefreq: 'yearly', priority: '0.4' },\r\n  { path: '/events.html', changefreq: 'weekly', priority: '0.7' },\r\n  { path: '/events-el.html', changefreq: 'weekly', priority: '0.7' },\r\n  { path: '/flights.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/flights-el.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/useful-numbers.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/useful-numbers-el.html', changefreq: 'monthly', priority: '0.5' },\r\n];\r\n\r\nfunction githubRawUrl(fileName) {\r\n  return `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${fileName}`;\r\n}\r\n\r\nconst slugFromName = (name) =>\r\n  String(name ?? '')\r\n    .toLowerCase()\r\n    .replace(/[^a-z0-9]+/g, '-')\r\n    .replace(/(^-|-$)/g, '');\r\n\r\nconst jsonLdEmbed = (obj) => JSON.stringify(obj).replace(/</g, '\\\\u003c');\r\n\r\nconst escapeHtml = (s) =>\r\n  String(s ?? '')\r\n    .replace(/&/g, '&amp;')\r\n    .replace(/</g, '&lt;')\r\n    .replace(/>/g, '&gt;')\r\n    .replace(/\"/g, '&quot;')\r\n    .replace(/'/g, '&#039;');\r\n\r\nconst absoluteAssetUrl = (photoField) => {\r\n  const fallback = `${SITE_ORIGIN}/pix/nophoto.jpg`;\r\n  const raw = String(photoField ?? '').trim();\r\n  if (!raw) return fallback;\r\n  if (/^https?:\\/\\//i.test(raw)) {\r\n    if (/^https?:\\/\\/(www\\.)?kalanera\\.gr\\b/i.test(raw)) {\r\n      return raw.replace(/^https?:\\/\\/(www\\.)?kalanera\\.gr\\b/i, SITE_ORIGIN);\r\n    }\r\n    return raw;\r\n  }\r\n  let assetPath = raw.replace(/^(\\.\\.\\/)+/, '').replace(/^\\/+/, '');\r\n  if (!assetPath.startsWith('pix/')) {\r\n    assetPath = assetPath.replace(/^pix\\/?/, '');\r\n    assetPath = `pix/${assetPath}`;\r\n  }\r\n  return `${SITE_ORIGIN}/${assetPath}`;\r\n};\r\n\r\nconst telForLd = (p) => {\r\n  const s = String(p ?? '').trim();\r\n  if (!s || s === '-') return '';\r\n  return s;\r\n};\r\n\r\nconst locEn = (locRaw) => String(locRaw ?? 'Kala Nera').trim() || 'Kala Nera';\r\nconst locEl = (locRaw) => LOC_DICT[locEn(locRaw)] ?? locEn(locRaw);\r\n\r\nfunction sheetStatus(row) {\r\n  return String(row?.Status ?? row?.status ?? row?.STATUS ?? '').trim().toLowerCase();\r\n}\r\n\r\nfunction categoryRank(cat) {\r\n  const key = String(cat ?? 'Other').trim() || 'Other';\r\n  const idx = CATEGORY_ORDER.indexOf(key);\r\n  return idx === -1 ? CATEGORY_ORDER.indexOf('Other') : idx;\r\n}\r\n\r\nfunction parseDatum(raw) {\r\n  const s = String(raw ?? '').trim();\r\n  if (!s) return null;\r\n  const m = s.match(/^(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{4})/);\r\n  if (!m) return null;\r\n  const [, day, month, year] = m;\r\n  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;\r\n}\r\n\r\nfunction businessLastmod(biz) {\r\n  return parseDatum(biz.Datum) || new Date().toISOString().slice(0, 10);\r\n}\r\n\r\nfunction markerPresent(html, tag) {\r\n  return html.includes(`<!-- ${tag} -->`);\r\n}\r\n\r\nfunction assertMarkers(html, label) {\r\n  const missing = [];\r\n  for (const [start, end] of MARKERS) {\r\n    if (!markerPresent(html, start)) missing.push(`${label}: ${start}`);\r\n    if (!markerPresent(html, end)) missing.push(`${label}: ${end}`);\r\n  }\r\n  if (missing.length) {\r\n    throw new Error(`HTML-markers ontbreken — ${missing.join(', ')}`);\r\n  }\r\n}\r\n\r\n/** Voorkomt zichtbare \\\\n op de site (veelvoorkomende fout bij verkeerd escapen). */\r\nfunction assertNoLiteralBackslashN(html, label) {\r\n  if (/\\\\n/.test(html)) {\r\n    throw new Error(`${label}: letterlijke \\\\\\\\n in output (zou zichtbaar op site)`);\r\n  }\r\n  if (/\\\\u003c/i.test(html.replace(/<script type=\"application\\/ld\\+json\">[\\s\\S]*?<\\/script>/gi, ''))) {\r\n    throw new Error(`${label}: verdachte \\\\\\\\u-escape buiten JSON-LD`);\r\n  }\r\n}\r\n\r\nfunction assertJsonLd(html, label) {\r\n  const m = html.match(/<script type=\"application\\/ld\\+json\">([\\s\\S]*?)<\\/script>/i);\r\n  if (!m) throw new Error(`${label}: geen JSON-LD script gevonden na patch`);\r\n  try {\r\n    JSON.parse(m[1]);\r\n  } catch (e) {\r\n    throw new Error(`${label}: JSON-LD parse error — ${e.message}`);\r\n  }\r\n}\r\n\r\nfunction replaceBetweenMarkers(source, startTag, endTag, newContent) {\r\n  const start = `<!-- ${startTag} -->`;\r\n  const end = `<!-- ${endTag} -->`;\r\n  const startIdx = source.indexOf(start);\r\n  const endIdx = source.indexOf(end);\r\n  if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) {\r\n    throw new Error(`Markers ${startTag} / ${endTag} niet gevonden`);\r\n  }\r\n  return source.slice(0, startIdx + start.length) + '\\n' + newContent + '\\n' + source.slice(endIdx);\r\n}\r\n\r\nfunction applyBlocks(html, schemaScript, seoSection) {\r\n  let out = replaceBetweenMarkers(html, 'N8N_SCHEMA_START', 'N8N_SCHEMA_END', schemaScript);\r\n  out = replaceBetweenMarkers(out, 'N8N_SEO_START', 'N8N_SEO_END', seoSection);\r\n  return out;\r\n}\r\n\r\nfunction validatePatchedHtml(html, label) {\r\n  assertMarkers(html, label);\r\n  assertNoLiteralBackslashN(html, label);\r\n  assertJsonLd(html, label);\r\n}\r\n\r\nfunction staticUrlBlock({ path: pagePath, changefreq, priority }) {\r\n  const loc = pagePath === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${pagePath}`;\r\n  return [\r\n    '  <url>',\r\n    `    <loc>${loc}</loc>`,\r\n    `    <changefreq>${changefreq}</changefreq>`,\r\n    `    <priority>${priority}</priority>`,\r\n    '  </url>',\r\n  ].join('\\n');\r\n}\r\n\r\nfunction businessUrlBlock(loc, lastmod) {\r\n  return [\r\n    '    <url>',\r\n    `        <loc>${loc}</loc>`,\r\n    `        <lastmod>${lastmod}</lastmod>`,\r\n    '        <priority>0.8</priority>',\r\n    '    </url>',\r\n  ].join('\\n');\r\n}\r\n\r\nfunction buildSeoBlocks(rows) {\r\n  const itemListElement = [];\r\n  const liFragmentsEN = [];\r\n  const liFragmentsEL = [];\r\n  let position = 0;\r\n\r\n  for (const biz of rows) {\r\n    position += 1;\r\n    const nameEN = String(biz.Name ?? '').trim();\r\n    const nameELDisplay = String(biz.Name_EL ?? biz.Name_el ?? '').trim() || nameEN;\r\n    const slug = slugFromName(biz.Name);\r\n    if (!nameEN || !slug) continue;\r\n\r\n    const catKey = String(biz.Category ?? 'Other').trim() || 'Other';\r\n    const fullCatEN = categoryLabelEN[catKey] ?? categoryLabelEN.Other;\r\n    const fullCatEL = categoryLabelEL[catKey] ?? categoryLabelEL.Other;\r\n    const locationEN = locEn(biz.Location);\r\n    const locationEL = locEl(biz.Location);\r\n    const tel = telForLd(biz.Phone);\r\n    const pageEN = `${SITE_ORIGIN}/business/${slug}.html`;\r\n    const pageEL = `${SITE_ORIGIN}/business/${slug}-el.html`;\r\n\r\n    const lb = {\r\n      '@type': 'LocalBusiness',\r\n      name: nameEN,\r\n      url: pageEN,\r\n      image: absoluteAssetUrl(biz.PhotoURL),\r\n      address: {\r\n        '@type': 'PostalAddress',\r\n        addressLocality: locationEN,\r\n        addressRegion: 'Pelion',\r\n        postalCode: '37010',\r\n        addressCountry: 'GR',\r\n      },\r\n    };\r\n\r\n    const altEl = String(biz.AlternateName_el ?? biz.AlternateName ?? '').trim();\r\n    const useAlt =\r\n      altEl && altEl !== nameEN ? altEl : nameELDisplay !== nameEN ? nameELDisplay : '';\r\n    if (useAlt) lb.alternateName = useAlt;\r\n    if (tel) lb.telephone = tel;\r\n\r\n    itemListElement.push({ '@type': 'ListItem', position, item: lb });\r\n\r\n    const phraseEN = `${escapeHtml(nameEN)} — ${fullCatEN} in ${escapeHtml(locationEN)}, Pelion.`;\r\n    const phraseEL = `«${escapeHtml(nameELDisplay)}» · ${escapeHtml(fullCatEL)} · ${escapeHtml(locationEL)}, Πήλιο.`;\r\n\r\n    liFragmentsEN.push(\r\n      `<li><h3 style=\"display:inline; font-size:inherit; margin:0;\"><a href=\"${escapeHtml(pageEN)}\">${escapeHtml(nameEN)}</a></h3><span> - ${phraseEN}</span></li>`,\r\n    );\r\n    liFragmentsEL.push(\r\n      `<li><h3 style=\"display:inline; font-size:inherit; margin:0;\"><a href=\"${escapeHtml(pageEL)}\">${escapeHtml(nameELDisplay)}</a></h3><span> — ${phraseEL}</span></li>`,\r\n    );\r\n  }\r\n\r\n  const schemaScript = `<script type=\"application/ld+json\">${jsonLdEmbed({\r\n    '@context': 'https://schema.org',\r\n    '@type': 'ItemList',\r\n    itemListElement,\r\n  })}</script>`;\r\n\r\n  const htmlSectionEN = `<section id=\"seo-directory\" style=\"display:none;\" aria-hidden=\"true\"><h2>Local Businesses in Kala Nera</h2><ul>${liFragmentsEN.join('')}</ul></section>`;\r\n  const htmlSectionEL = `<section id=\"seo-directory\" style=\"display:none;\" aria-hidden=\"true\"><h2>Επιχειρήσεις στα Καλά Νερά</h2><ul>${liFragmentsEL.join('')}</ul></section>`;\r\n\r\n  return { schemaScript, htmlSectionEN, htmlSectionEL, count: rows.length };\r\n}\r\n\r\nfunction buildSitemapXml(rows) {\r\n  const slugs = rows\r\n    .map((biz) => ({\r\n      slug: slugFromName(biz.Name),\r\n      lastmod: businessLastmod(biz),\r\n      name: String(biz.Name ?? '').trim(),\r\n    }))\r\n    .filter((b) => b.slug && b.name)\r\n    .sort((a, b) => a.slug.localeCompare(b.slug, 'en'));\r\n\r\n  const parts = [\r\n    '<?xml version=\"1.0\" encoding=\"UTF-8\"?>',\r\n    '<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">',\r\n    ...STATIC_PAGES.map((p) => staticUrlBlock(p)),\r\n  ];\r\n\r\n  for (const biz of slugs) {\r\n    parts.push(businessUrlBlock(`${SITE_ORIGIN}/business/${biz.slug}.html`, biz.lastmod));\r\n    parts.push(businessUrlBlock(`${SITE_ORIGIN}/business/${biz.slug}-el.html`, biz.lastmod));\r\n  }\r\n\r\n  parts.push('</urlset>', '');\r\n  return { xml: parts.join('\\n'), businessCount: slugs.length, urlCount: STATIC_PAGES.length + slugs.length * 2 };\r\n}\r\n\r\nasync function fetchText(ctx, url) {\r\n  return await ctx.helpers.httpRequest({\r\n    method: 'GET',\r\n    url,\r\n    encoding: 'utf8',\r\n    returnFullResponse: false,\r\n    timeout: 60000,\r\n    headers: {\r\n      Accept: 'text/html,application/xml,text/plain,*/*',\r\n      'User-Agent': 'kalanera-n8n-seo-publish/2.0',\r\n    },\r\n  });\r\n}\r\n\r\nasync function fetchIndexHtml(ctx, fileName) {\r\n  const githubUrl = githubRawUrl(fileName);\r\n  try {\r\n    const text = await fetchText(ctx, githubUrl);\r\n    if (text && String(text).length > 500) {\r\n      return { source: 'github', url: githubUrl, html: String(text) };\r\n    }\r\n  } catch {\r\n    /* fallback live */\r\n  }\r\n  const liveUrl = `${SITE_ORIGIN}/${fileName}`;\r\n  const text = await fetchText(ctx, liveUrl);\r\n  return { source: 'live', url: liveUrl, html: String(text) };\r\n}\r\n\r\nfunction loadActiveRows(inputItems) {\r\n  const allRows = inputItems.map((i) => i.json).filter(Boolean);\r\n  const active = allRows.filter((r) => sheetStatus(r) === 'active');\r\n  active.sort((a, b) => {\r\n    const byCat = categoryRank(a.Category) - categoryRank(b.Category);\r\n    if (byCat !== 0) return byCat;\r\n    return String(a.Name).localeCompare(String(b.Name), 'en');\r\n  });\r\n  if (!active.length) {\r\n    throw new Error('Geen Active rijen in Sheet — controleer Status-kolom');\r\n  }\r\n  if (active.length < MIN_ACTIVE_BUSINESSES) {\r\n    throw new Error(`Slechts ${active.length} Active rijen (min ${MIN_ACTIVE_BUSINESSES}) — abort`);\r\n  }\r\n  return active;\r\n}\r\n\r\nfunction toFileItem(fileName, htmlContent, meta, extra = {}) {\r\n  return {\r\n    json: {\r\n      fileName,\r\n      htmlContent,\r\n      byteSize: Buffer.byteLength(htmlContent, 'utf8'),\r\n      ...meta,\r\n      ...extra,\r\n    },\r\n  };\r\n}\r\n\r\nfunction toDraftFileItem(role, htmlContent, meta) {\r\n  return toFileItem(DRAFT_FILES[role], htmlContent, meta, {\r\n    liveFileName: LIVE_FILES[role],\r\n    phase: 'preview',\r\n  });\r\n}\r\n\r\nfunction toLiveFileItem(role, htmlContent, meta) {\r\n  return toFileItem(LIVE_FILES[role], htmlContent, meta, { phase: 'live' });\r\n}\r\n\r\nasync function buildPatchedBundle(ctx, active) {\r\n  const { schemaScript, htmlSectionEN, htmlSectionEL, count: seoCount } = buildSeoBlocks(active);\r\n  const { xml: sitemapXml, businessCount, urlCount } = buildSitemapXml(active);\r\n\r\n  const [enSrc, elSrc] = await Promise.all([\r\n    fetchIndexHtml(ctx, LIVE_FILES.indexEn),\r\n    fetchIndexHtml(ctx, LIVE_FILES.indexEl),\r\n  ]);\r\n\r\n  assertMarkers(enSrc.html, 'index.html (vóór patch)');\r\n  assertMarkers(elSrc.html, 'index-el.html (vóór patch)');\r\n\r\n  const patchedIndexEn = applyBlocks(enSrc.html, schemaScript, htmlSectionEN);\r\n  const patchedIndexEl = applyBlocks(elSrc.html, schemaScript, htmlSectionEL);\r\n\r\n  validatePatchedHtml(patchedIndexEn, 'index.html');\r\n  validatePatchedHtml(patchedIndexEl, 'index-el.html');\r\n\r\n  if (/\\\\n/.test(sitemapXml)) {\r\n    throw new Error('sitemap.xml: letterlijke \\\\\\\\n in output');\r\n  }\r\n\r\n  const liveFiles = {\r\n    [LIVE_FILES.indexEn]: patchedIndexEn,\r\n    [LIVE_FILES.indexEl]: patchedIndexEl,\r\n    [LIVE_FILES.sitemap]: sitemapXml,\r\n  };\r\n\r\n  const draftFiles = {\r\n    [DRAFT_FILES.indexEn]: patchedIndexEn,\r\n    [DRAFT_FILES.indexEl]: patchedIndexEl,\r\n    [DRAFT_FILES.sitemap]: sitemapXml,\r\n  };\r\n\r\n  return {\r\n    liveFiles,\r\n    draftFiles,\r\n    meta: {\r\n      seoBusinessCount: seoCount,\r\n      sitemapBusinessCount: businessCount,\r\n      sitemapUrlCount: urlCount,\r\n      indexSources: { en: enSrc.source, el: elSrc.source },\r\n      draftFileNames: Object.values(DRAFT_FILES),\r\n      liveFileNames: Object.values(LIVE_FILES),\r\n      testUrls: localDraftTestUrls(),\r\n    },\r\n  };\r\n}\r\n\r\n\r\nconst active = loadActiveRows($input.all());\r\nconst bundle = await buildPatchedBundle(this, active);\r\n\r\nconst sd = $getWorkflowStaticData('global');\r\nconst generatedAt = new Date().toISOString();\r\nconst expiresAt = new Date(Date.now() + DRAFT_MAX_AGE_MS).toISOString();\r\nsd[DRAFT_KEY] = {\r\n  generatedAt,\r\n  expiresAt,\r\n  liveFiles: bundle.liveFiles,\r\n  draftFiles: bundle.draftFiles,\r\n  meta: bundle.meta,\r\n};\r\n\r\nconst testUrls = localDraftTestUrls();\r\n\r\nreturn [\r\n  {\r\n    json: {\r\n      ok: true,\r\n      phase: 'preview',\r\n      message:\r\n        'Draft opgeslagen in n8n. Run nu lokaal: node scripts/fetch-seo-draft-from-n8n.mjs — dan staan de 3 *-seo-draft.* bestanden in Verkenner.',\r\n      generatedAt,\r\n      expiresAt,\r\n      ...bundle.meta,\r\n      testUrls,\r\n      localCommand: 'node scripts/fetch-seo-draft-from-n8n.mjs',\r\n      files: [\r\n        {\r\n          draftFileName: DRAFT_FILES.indexEn,\r\n          liveFileName: LIVE_FILES.indexEn,\r\n          testUrl: testUrls.indexEn,\r\n        },\r\n        {\r\n          draftFileName: DRAFT_FILES.indexEl,\r\n          liveFileName: LIVE_FILES.indexEl,\r\n          testUrl: testUrls.indexEl,\r\n        },\r\n        {\r\n          draftFileName: DRAFT_FILES.sitemap,\r\n          liveFileName: LIVE_FILES.sitemap,\r\n          testUrl: testUrls.sitemap,\r\n        },\r\n      ],\r\n      nextStep: 'node scripts/fetch-seo-draft-from-n8n.mjs → test op localhost:5501 → Manual Go live',\r\n    },\r\n  },\r\n];\r\n"
+      },
+      "id": "code-preview-005",
+      "name": "Preview — build + validate + draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nreturn [{ json: j }];"
+      },
+      "id": "code-preview-summary-006",
+      "name": "Preview summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "path": "seo-draft-export",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-export-011",
+      "name": "Webhook — seo draft export GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -580,
+        120
+      ],
+      "webhookId": "seo-draft-export",
+      "notes": "Voor fetch-seo-draft-from-n8n.mjs. Workflow moet ACTIVE zijn."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "/**\r\n * n8n Webhook GET: export seoDraft naar lokaal script (bestanden op schijf).\r\n */\r\nconst sd = $getWorkflowStaticData('global');\r\nconst draft = sd.seoDraft;\r\n\r\nif (!draft || !draft.draftFiles) {\r\n  throw new Error('Geen preview-draft — run eerst Manual — Preview (SEO + sitemap)');\r\n}\r\n\r\nif (draft.expiresAt && Date.parse(draft.expiresAt) < Date.now()) {\r\n  throw new Error(`Draft verlopen (${draft.expiresAt}) — run Preview opnieuw`);\r\n}\r\n\r\nreturn [\r\n  {\r\n    json: {\r\n      ok: true,\r\n      generatedAt: draft.generatedAt,\r\n      expiresAt: draft.expiresAt,\r\n      files: draft.draftFiles,\r\n      meta: draft.meta ?? {},\r\n    },\r\n  },\r\n];\r\n"
+      },
+      "id": "code-export-012",
+      "name": "Export draft JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-export-013",
+      "name": "Respond draft JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "/**\r\n * n8n Code node: Go live — lees goedgekeurde draft, push naar live bestandsnamen.\r\n */\r\n/**\r\n * Gedeelde logica voor SEO + sitemap (n8n preview + go-live).\r\n * Wordt ingesloten door build-publish-seo-sitemap-workflow.mjs — niet direct in n8n plakken.\r\n */\r\nconst SITE_ORIGIN = 'https://www.kalanera.gr';\r\n\r\n/** Zelfde repo als GitHub Push1 — index-bron voor preview (niet live site). */\r\nconst GITHUB = {\r\n  owner: 'evertvanlaar',\r\n  repo: 'VisualStudioCode',\r\n  branch: 'main',\r\n};\r\n\r\n/** Live bestanden op GitHub Pages (alleen bij Go live). */\r\nconst LIVE_FILES = {\r\n  indexEn: 'index.html',\r\n  indexEl: 'index-el.html',\r\n  sitemap: 'sitemap.xml',\r\n};\r\n\r\n/** Preview/draft — repo-root, andere naam dan live; test-URL’s werken met zelfde CSS/JS-paden. */\r\nconst DRAFT_FILES = {\r\n  indexEn: 'index.seo-draft.html',\r\n  indexEl: 'index-el.seo-draft.html',\r\n  sitemap: 'sitemap.seo-draft.xml',\r\n};\r\n\r\n/** Lokaal testen — nooit naar GitHub/site (zie .gitignore). */\r\nconst LOCAL_TEST_ORIGIN = 'http://localhost:5501';\r\n\r\nfunction localDraftTestUrls() {\r\n  return {\r\n    indexEn: `${LOCAL_TEST_ORIGIN}/${DRAFT_FILES.indexEn}`,\r\n    indexEl: `${LOCAL_TEST_ORIGIN}/${DRAFT_FILES.indexEl}`,\r\n    sitemap: `${LOCAL_TEST_ORIGIN}/${DRAFT_FILES.sitemap}`,\r\n  };\r\n}\r\n\r\n/** @deprecated alias */\r\nconst REPO_FILES = LIVE_FILES;\r\n\r\nconst DRAFT_KEY = 'seoDraft';\r\nconst DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;\r\nconst MIN_ACTIVE_BUSINESSES = 50;\r\n\r\nconst MARKERS = [\r\n  ['N8N_SCHEMA_START', 'N8N_SCHEMA_END'],\r\n  ['N8N_SEO_START', 'N8N_SEO_END'],\r\n];\r\n\r\nconst LOC_DICT = {\r\n  'Kala Nera': 'Καλά Νερά',\r\n  'Kato Gatzea': 'Κάτω Γατζέα',\r\n  'Ano Gatzea': 'Άνω Γατζέα',\r\n  Koropi: 'Κορώπη',\r\n  Milies: 'Μηλιές',\r\n  Vizitsa: 'Βυζίτσα',\r\n  Afissos: 'Αφήσσος',\r\n};\r\n\r\nconst categoryLabelEN = {\r\n  Camp: 'Camping & Caravan site',\r\n  Drink: 'Bar & Café',\r\n  Eat: 'Restaurant & Taverna',\r\n  Other: 'Local Business',\r\n  Rent: 'Rental Service',\r\n  Shop: 'Local Shop & Boutique',\r\n  Sleep: 'Hotel & Accommodation',\r\n  Travel: 'Travel Agency & Tours',\r\n};\r\n\r\nconst categoryLabelEL = {\r\n  Camp: 'Κάμπινγκ',\r\n  Drink: 'Μπαρ & Καφετέρια',\r\n  Eat: 'Εστιατόριο & Ταβέρνα',\r\n  Other: 'Τοπική Επιχείρηση',\r\n  Rent: 'Υπηρεσία Ενοικίασης',\r\n  Shop: 'Τοπικό Κατάστημα',\r\n  Sleep: 'Ξενοδοχείο & Διαμονή',\r\n  Travel: 'Ταξιδιωτικό Γραφείο',\r\n};\r\n\r\nconst CATEGORY_ORDER = ['Camp', 'Drink', 'Eat', 'Other', 'Rent', 'Shop', 'Sleep', 'Travel'];\r\n\r\nconst STATIC_PAGES = [\r\n  { path: '/', changefreq: 'daily', priority: '1.0' },\r\n  { path: '/wishlist.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/index-el.html', changefreq: 'daily', priority: '1.0' },\r\n  { path: '/install.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/install-el.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/wishlist-el.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/bus.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/bus-el.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/t-form.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/t-form-el.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/info.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/info-el.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/privacy.html', changefreq: 'yearly', priority: '0.4' },\r\n  { path: '/privacy-el.html', changefreq: 'yearly', priority: '0.4' },\r\n  { path: '/events.html', changefreq: 'weekly', priority: '0.7' },\r\n  { path: '/events-el.html', changefreq: 'weekly', priority: '0.7' },\r\n  { path: '/flights.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/flights-el.html', changefreq: 'monthly', priority: '0.6' },\r\n  { path: '/useful-numbers.html', changefreq: 'monthly', priority: '0.5' },\r\n  { path: '/useful-numbers-el.html', changefreq: 'monthly', priority: '0.5' },\r\n];\r\n\r\nfunction githubRawUrl(fileName) {\r\n  return `https://raw.githubusercontent.com/${GITHUB.owner}/${GITHUB.repo}/${GITHUB.branch}/${fileName}`;\r\n}\r\n\r\nconst slugFromName = (name) =>\r\n  String(name ?? '')\r\n    .toLowerCase()\r\n    .replace(/[^a-z0-9]+/g, '-')\r\n    .replace(/(^-|-$)/g, '');\r\n\r\nconst jsonLdEmbed = (obj) => JSON.stringify(obj).replace(/</g, '\\\\u003c');\r\n\r\nconst escapeHtml = (s) =>\r\n  String(s ?? '')\r\n    .replace(/&/g, '&amp;')\r\n    .replace(/</g, '&lt;')\r\n    .replace(/>/g, '&gt;')\r\n    .replace(/\"/g, '&quot;')\r\n    .replace(/'/g, '&#039;');\r\n\r\nconst absoluteAssetUrl = (photoField) => {\r\n  const fallback = `${SITE_ORIGIN}/pix/nophoto.jpg`;\r\n  const raw = String(photoField ?? '').trim();\r\n  if (!raw) return fallback;\r\n  if (/^https?:\\/\\//i.test(raw)) {\r\n    if (/^https?:\\/\\/(www\\.)?kalanera\\.gr\\b/i.test(raw)) {\r\n      return raw.replace(/^https?:\\/\\/(www\\.)?kalanera\\.gr\\b/i, SITE_ORIGIN);\r\n    }\r\n    return raw;\r\n  }\r\n  let assetPath = raw.replace(/^(\\.\\.\\/)+/, '').replace(/^\\/+/, '');\r\n  if (!assetPath.startsWith('pix/')) {\r\n    assetPath = assetPath.replace(/^pix\\/?/, '');\r\n    assetPath = `pix/${assetPath}`;\r\n  }\r\n  return `${SITE_ORIGIN}/${assetPath}`;\r\n};\r\n\r\nconst telForLd = (p) => {\r\n  const s = String(p ?? '').trim();\r\n  if (!s || s === '-') return '';\r\n  return s;\r\n};\r\n\r\nconst locEn = (locRaw) => String(locRaw ?? 'Kala Nera').trim() || 'Kala Nera';\r\nconst locEl = (locRaw) => LOC_DICT[locEn(locRaw)] ?? locEn(locRaw);\r\n\r\nfunction sheetStatus(row) {\r\n  return String(row?.Status ?? row?.status ?? row?.STATUS ?? '').trim().toLowerCase();\r\n}\r\n\r\nfunction categoryRank(cat) {\r\n  const key = String(cat ?? 'Other').trim() || 'Other';\r\n  const idx = CATEGORY_ORDER.indexOf(key);\r\n  return idx === -1 ? CATEGORY_ORDER.indexOf('Other') : idx;\r\n}\r\n\r\nfunction parseDatum(raw) {\r\n  const s = String(raw ?? '').trim();\r\n  if (!s) return null;\r\n  const m = s.match(/^(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{4})/);\r\n  if (!m) return null;\r\n  const [, day, month, year] = m;\r\n  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;\r\n}\r\n\r\nfunction businessLastmod(biz) {\r\n  return parseDatum(biz.Datum) || new Date().toISOString().slice(0, 10);\r\n}\r\n\r\nfunction markerPresent(html, tag) {\r\n  return html.includes(`<!-- ${tag} -->`);\r\n}\r\n\r\nfunction assertMarkers(html, label) {\r\n  const missing = [];\r\n  for (const [start, end] of MARKERS) {\r\n    if (!markerPresent(html, start)) missing.push(`${label}: ${start}`);\r\n    if (!markerPresent(html, end)) missing.push(`${label}: ${end}`);\r\n  }\r\n  if (missing.length) {\r\n    throw new Error(`HTML-markers ontbreken — ${missing.join(', ')}`);\r\n  }\r\n}\r\n\r\n/** Voorkomt zichtbare \\\\n op de site (veelvoorkomende fout bij verkeerd escapen). */\r\nfunction assertNoLiteralBackslashN(html, label) {\r\n  if (/\\\\n/.test(html)) {\r\n    throw new Error(`${label}: letterlijke \\\\\\\\n in output (zou zichtbaar op site)`);\r\n  }\r\n  if (/\\\\u003c/i.test(html.replace(/<script type=\"application\\/ld\\+json\">[\\s\\S]*?<\\/script>/gi, ''))) {\r\n    throw new Error(`${label}: verdachte \\\\\\\\u-escape buiten JSON-LD`);\r\n  }\r\n}\r\n\r\nfunction assertJsonLd(html, label) {\r\n  const m = html.match(/<script type=\"application\\/ld\\+json\">([\\s\\S]*?)<\\/script>/i);\r\n  if (!m) throw new Error(`${label}: geen JSON-LD script gevonden na patch`);\r\n  try {\r\n    JSON.parse(m[1]);\r\n  } catch (e) {\r\n    throw new Error(`${label}: JSON-LD parse error — ${e.message}`);\r\n  }\r\n}\r\n\r\nfunction replaceBetweenMarkers(source, startTag, endTag, newContent) {\r\n  const start = `<!-- ${startTag} -->`;\r\n  const end = `<!-- ${endTag} -->`;\r\n  const startIdx = source.indexOf(start);\r\n  const endIdx = source.indexOf(end);\r\n  if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) {\r\n    throw new Error(`Markers ${startTag} / ${endTag} niet gevonden`);\r\n  }\r\n  return source.slice(0, startIdx + start.length) + '\\n' + newContent + '\\n' + source.slice(endIdx);\r\n}\r\n\r\nfunction applyBlocks(html, schemaScript, seoSection) {\r\n  let out = replaceBetweenMarkers(html, 'N8N_SCHEMA_START', 'N8N_SCHEMA_END', schemaScript);\r\n  out = replaceBetweenMarkers(out, 'N8N_SEO_START', 'N8N_SEO_END', seoSection);\r\n  return out;\r\n}\r\n\r\nfunction validatePatchedHtml(html, label) {\r\n  assertMarkers(html, label);\r\n  assertNoLiteralBackslashN(html, label);\r\n  assertJsonLd(html, label);\r\n}\r\n\r\nfunction staticUrlBlock({ path: pagePath, changefreq, priority }) {\r\n  const loc = pagePath === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${pagePath}`;\r\n  return [\r\n    '  <url>',\r\n    `    <loc>${loc}</loc>`,\r\n    `    <changefreq>${changefreq}</changefreq>`,\r\n    `    <priority>${priority}</priority>`,\r\n    '  </url>',\r\n  ].join('\\n');\r\n}\r\n\r\nfunction businessUrlBlock(loc, lastmod) {\r\n  return [\r\n    '    <url>',\r\n    `        <loc>${loc}</loc>`,\r\n    `        <lastmod>${lastmod}</lastmod>`,\r\n    '        <priority>0.8</priority>',\r\n    '    </url>',\r\n  ].join('\\n');\r\n}\r\n\r\nfunction buildSeoBlocks(rows) {\r\n  const itemListElement = [];\r\n  const liFragmentsEN = [];\r\n  const liFragmentsEL = [];\r\n  let position = 0;\r\n\r\n  for (const biz of rows) {\r\n    position += 1;\r\n    const nameEN = String(biz.Name ?? '').trim();\r\n    const nameELDisplay = String(biz.Name_EL ?? biz.Name_el ?? '').trim() || nameEN;\r\n    const slug = slugFromName(biz.Name);\r\n    if (!nameEN || !slug) continue;\r\n\r\n    const catKey = String(biz.Category ?? 'Other').trim() || 'Other';\r\n    const fullCatEN = categoryLabelEN[catKey] ?? categoryLabelEN.Other;\r\n    const fullCatEL = categoryLabelEL[catKey] ?? categoryLabelEL.Other;\r\n    const locationEN = locEn(biz.Location);\r\n    const locationEL = locEl(biz.Location);\r\n    const tel = telForLd(biz.Phone);\r\n    const pageEN = `${SITE_ORIGIN}/business/${slug}.html`;\r\n    const pageEL = `${SITE_ORIGIN}/business/${slug}-el.html`;\r\n\r\n    const lb = {\r\n      '@type': 'LocalBusiness',\r\n      name: nameEN,\r\n      url: pageEN,\r\n      image: absoluteAssetUrl(biz.PhotoURL),\r\n      address: {\r\n        '@type': 'PostalAddress',\r\n        addressLocality: locationEN,\r\n        addressRegion: 'Pelion',\r\n        postalCode: '37010',\r\n        addressCountry: 'GR',\r\n      },\r\n    };\r\n\r\n    const altEl = String(biz.AlternateName_el ?? biz.AlternateName ?? '').trim();\r\n    const useAlt =\r\n      altEl && altEl !== nameEN ? altEl : nameELDisplay !== nameEN ? nameELDisplay : '';\r\n    if (useAlt) lb.alternateName = useAlt;\r\n    if (tel) lb.telephone = tel;\r\n\r\n    itemListElement.push({ '@type': 'ListItem', position, item: lb });\r\n\r\n    const phraseEN = `${escapeHtml(nameEN)} — ${fullCatEN} in ${escapeHtml(locationEN)}, Pelion.`;\r\n    const phraseEL = `«${escapeHtml(nameELDisplay)}» · ${escapeHtml(fullCatEL)} · ${escapeHtml(locationEL)}, Πήλιο.`;\r\n\r\n    liFragmentsEN.push(\r\n      `<li><h3 style=\"display:inline; font-size:inherit; margin:0;\"><a href=\"${escapeHtml(pageEN)}\">${escapeHtml(nameEN)}</a></h3><span> - ${phraseEN}</span></li>`,\r\n    );\r\n    liFragmentsEL.push(\r\n      `<li><h3 style=\"display:inline; font-size:inherit; margin:0;\"><a href=\"${escapeHtml(pageEL)}\">${escapeHtml(nameELDisplay)}</a></h3><span> — ${phraseEL}</span></li>`,\r\n    );\r\n  }\r\n\r\n  const schemaScript = `<script type=\"application/ld+json\">${jsonLdEmbed({\r\n    '@context': 'https://schema.org',\r\n    '@type': 'ItemList',\r\n    itemListElement,\r\n  })}</script>`;\r\n\r\n  const htmlSectionEN = `<section id=\"seo-directory\" style=\"display:none;\" aria-hidden=\"true\"><h2>Local Businesses in Kala Nera</h2><ul>${liFragmentsEN.join('')}</ul></section>`;\r\n  const htmlSectionEL = `<section id=\"seo-directory\" style=\"display:none;\" aria-hidden=\"true\"><h2>Επιχειρήσεις στα Καλά Νερά</h2><ul>${liFragmentsEL.join('')}</ul></section>`;\r\n\r\n  return { schemaScript, htmlSectionEN, htmlSectionEL, count: rows.length };\r\n}\r\n\r\nfunction buildSitemapXml(rows) {\r\n  const slugs = rows\r\n    .map((biz) => ({\r\n      slug: slugFromName(biz.Name),\r\n      lastmod: businessLastmod(biz),\r\n      name: String(biz.Name ?? '').trim(),\r\n    }))\r\n    .filter((b) => b.slug && b.name)\r\n    .sort((a, b) => a.slug.localeCompare(b.slug, 'en'));\r\n\r\n  const parts = [\r\n    '<?xml version=\"1.0\" encoding=\"UTF-8\"?>',\r\n    '<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">',\r\n    ...STATIC_PAGES.map((p) => staticUrlBlock(p)),\r\n  ];\r\n\r\n  for (const biz of slugs) {\r\n    parts.push(businessUrlBlock(`${SITE_ORIGIN}/business/${biz.slug}.html`, biz.lastmod));\r\n    parts.push(businessUrlBlock(`${SITE_ORIGIN}/business/${biz.slug}-el.html`, biz.lastmod));\r\n  }\r\n\r\n  parts.push('</urlset>', '');\r\n  return { xml: parts.join('\\n'), businessCount: slugs.length, urlCount: STATIC_PAGES.length + slugs.length * 2 };\r\n}\r\n\r\nasync function fetchText(ctx, url) {\r\n  return await ctx.helpers.httpRequest({\r\n    method: 'GET',\r\n    url,\r\n    encoding: 'utf8',\r\n    returnFullResponse: false,\r\n    timeout: 60000,\r\n    headers: {\r\n      Accept: 'text/html,application/xml,text/plain,*/*',\r\n      'User-Agent': 'kalanera-n8n-seo-publish/2.0',\r\n    },\r\n  });\r\n}\r\n\r\nasync function fetchIndexHtml(ctx, fileName) {\r\n  const githubUrl = githubRawUrl(fileName);\r\n  try {\r\n    const text = await fetchText(ctx, githubUrl);\r\n    if (text && String(text).length > 500) {\r\n      return { source: 'github', url: githubUrl, html: String(text) };\r\n    }\r\n  } catch {\r\n    /* fallback live */\r\n  }\r\n  const liveUrl = `${SITE_ORIGIN}/${fileName}`;\r\n  const text = await fetchText(ctx, liveUrl);\r\n  return { source: 'live', url: liveUrl, html: String(text) };\r\n}\r\n\r\nfunction loadActiveRows(inputItems) {\r\n  const allRows = inputItems.map((i) => i.json).filter(Boolean);\r\n  const active = allRows.filter((r) => sheetStatus(r) === 'active');\r\n  active.sort((a, b) => {\r\n    const byCat = categoryRank(a.Category) - categoryRank(b.Category);\r\n    if (byCat !== 0) return byCat;\r\n    return String(a.Name).localeCompare(String(b.Name), 'en');\r\n  });\r\n  if (!active.length) {\r\n    throw new Error('Geen Active rijen in Sheet — controleer Status-kolom');\r\n  }\r\n  if (active.length < MIN_ACTIVE_BUSINESSES) {\r\n    throw new Error(`Slechts ${active.length} Active rijen (min ${MIN_ACTIVE_BUSINESSES}) — abort`);\r\n  }\r\n  return active;\r\n}\r\n\r\nfunction toFileItem(fileName, htmlContent, meta, extra = {}) {\r\n  return {\r\n    json: {\r\n      fileName,\r\n      htmlContent,\r\n      byteSize: Buffer.byteLength(htmlContent, 'utf8'),\r\n      ...meta,\r\n      ...extra,\r\n    },\r\n  };\r\n}\r\n\r\nfunction toDraftFileItem(role, htmlContent, meta) {\r\n  return toFileItem(DRAFT_FILES[role], htmlContent, meta, {\r\n    liveFileName: LIVE_FILES[role],\r\n    phase: 'preview',\r\n  });\r\n}\r\n\r\nfunction toLiveFileItem(role, htmlContent, meta) {\r\n  return toFileItem(LIVE_FILES[role], htmlContent, meta, { phase: 'live' });\r\n}\r\n\r\nasync function buildPatchedBundle(ctx, active) {\r\n  const { schemaScript, htmlSectionEN, htmlSectionEL, count: seoCount } = buildSeoBlocks(active);\r\n  const { xml: sitemapXml, businessCount, urlCount } = buildSitemapXml(active);\r\n\r\n  const [enSrc, elSrc] = await Promise.all([\r\n    fetchIndexHtml(ctx, LIVE_FILES.indexEn),\r\n    fetchIndexHtml(ctx, LIVE_FILES.indexEl),\r\n  ]);\r\n\r\n  assertMarkers(enSrc.html, 'index.html (vóór patch)');\r\n  assertMarkers(elSrc.html, 'index-el.html (vóór patch)');\r\n\r\n  const patchedIndexEn = applyBlocks(enSrc.html, schemaScript, htmlSectionEN);\r\n  const patchedIndexEl = applyBlocks(elSrc.html, schemaScript, htmlSectionEL);\r\n\r\n  validatePatchedHtml(patchedIndexEn, 'index.html');\r\n  validatePatchedHtml(patchedIndexEl, 'index-el.html');\r\n\r\n  if (/\\\\n/.test(sitemapXml)) {\r\n    throw new Error('sitemap.xml: letterlijke \\\\\\\\n in output');\r\n  }\r\n\r\n  const liveFiles = {\r\n    [LIVE_FILES.indexEn]: patchedIndexEn,\r\n    [LIVE_FILES.indexEl]: patchedIndexEl,\r\n    [LIVE_FILES.sitemap]: sitemapXml,\r\n  };\r\n\r\n  const draftFiles = {\r\n    [DRAFT_FILES.indexEn]: patchedIndexEn,\r\n    [DRAFT_FILES.indexEl]: patchedIndexEl,\r\n    [DRAFT_FILES.sitemap]: sitemapXml,\r\n  };\r\n\r\n  return {\r\n    liveFiles,\r\n    draftFiles,\r\n    meta: {\r\n      seoBusinessCount: seoCount,\r\n      sitemapBusinessCount: businessCount,\r\n      sitemapUrlCount: urlCount,\r\n      indexSources: { en: enSrc.source, el: elSrc.source },\r\n      draftFileNames: Object.values(DRAFT_FILES),\r\n      liveFileNames: Object.values(LIVE_FILES),\r\n      testUrls: localDraftTestUrls(),\r\n    },\r\n  };\r\n}\r\n\r\n\r\nconst sd = $getWorkflowStaticData('global');\r\nconst draft = sd[DRAFT_KEY];\r\n\r\nif (!draft || !draft.liveFiles) {\r\n  throw new Error('Geen preview-draft — run eerst \"Manual — Preview (SEO + sitemap)\"');\r\n}\r\n\r\nif (draft.expiresAt && Date.parse(draft.expiresAt) < Date.now()) {\r\n  throw new Error(`Draft verlopen (${draft.expiresAt}) — run Preview opnieuw`);\r\n}\r\n\r\nconst { liveFiles, meta, generatedAt } = draft;\r\n\r\nfor (const [fileName, html] of Object.entries(liveFiles)) {\r\n  if (fileName.endsWith('.html')) {\r\n    validatePatchedHtml(html, fileName);\r\n  } else if (fileName.endsWith('.xml') && /\\\\n/.test(html)) {\r\n    throw new Error('sitemap.xml: letterlijke \\\\\\\\n in draft');\r\n  }\r\n}\r\n\r\nconst publishedAt = new Date().toISOString();\r\nconst summary = { ...meta, generatedAt, publishedAt, phase: 'live' };\r\n\r\nreturn [\r\n  toLiveFileItem('indexEn', liveFiles[LIVE_FILES.indexEn], summary),\r\n  toLiveFileItem('indexEl', liveFiles[LIVE_FILES.indexEl], summary),\r\n  toLiveFileItem('sitemap', liveFiles[LIVE_FILES.sitemap], summary),\r\n];\r\n"
+      },
+      "id": "code-golive-007",
+      "name": "Load draft → GitHub items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -300,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "evertvanlaar",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "VisualStudioCode",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.fileName }}",
+        "fileContent": "={{ $json.htmlContent }}",
+        "commitMessage": "Automatische creatie",
+        "additionalParameters": {}
+      },
+      "id": "github-golive-008",
+      "name": "GitHub Push",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        200
+      ],
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub account"
+        }
+      },
+      "notes": "Alleen Go live. Zelfde instellingen als GitHub Push1."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const built = $('Load draft → GitHub items').all();\nconst github = $input.all();\nconst s = built[0]?.json ?? {};\nreturn [{\n  json: {\n    ok: true,\n    phase: 'live',\n    message: 'Live bestanden gecommit (index.html, index-el.html, sitemap.xml). GitHub Pages volgt.',\n    files: built.map((b, i) => ({\n      fileName: b.json.fileName,\n      bytes: b.json.byteSize,\n      commitUrl: github[i]?.json?.commit?.html_url ?? null,\n    })),\n    seoBusinessCount: s.seoBusinessCount,\n    sitemapUrlCount: s.sitemapUrlCount,\n    publishedAt: s.publishedAt,\n  },\n}];"
+      },
+      "id": "code-golive-summary-009",
+      "name": "Go live summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        280,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Manual — Preview (SEO + sitemap)": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — business",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — business": {
+      "main": [
+        [
+          {
+            "node": "Preview — build + validate + draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preview — build + validate + draft": {
+      "main": [
+        [
+          {
+            "node": "Preview summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook — seo draft export GET": {
+      "main": [
+        [
+          {
+            "node": "Export draft JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export draft JSON": {
+      "main": [
+        [
+          {
+            "node": "Respond draft JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual — Go live (SEO + sitemap)": {
+      "main": [
+        [
+          {
+            "node": "Load draft → GitHub items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load draft → GitHub items": {
+      "main": [
+        [
+          {
+            "node": "GitHub Push",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Push": {
+      "main": [
+        [
+          {
+            "node": "Go live summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Athens"
+  }
+}
