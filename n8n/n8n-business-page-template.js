@@ -182,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.45';
+    const appVersion = '3.1.46';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -416,7 +416,7 @@ ${contactCardHtml}
         <a href="../${escapeHtml(ix)}" class="footer-brand-lockup"><img src="../logo.png" alt="${escapeHtml(isGreek ? 'Καλά Νερά' : 'Kala Nera')}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">${isGreek ? 'Καλά <span>Νερά</span>' : 'Kala <span>Nera</span>'}</span></a>
         <p class="footer-tagline">${escapeHtml(footerTagline)}</p><p class="footer-lead">${escapeHtml(footerAboutText)}</p>
         <div class="footer-install-strip">
-          <a href="../${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer" aria-label="${escapeHtml(isGreek ? 'Εγκατάσταση Καλά Νερά Guide στο κινητό' : 'Install Kala Nera Guide on your phone')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="install-badge__text"><span class="install-badge__title">${escapeHtml(isGreek ? 'Εγκατάσταση στο κινητό' : 'Install on your phone')}</span><span class="install-badge__note">${escapeHtml(isGreek ? 'Δωρεάν · Μέσω browser · Όχι App Store ή Google Play' : 'Free · Browser install · Not in App Store or Google Play')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
+          <a href="../${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer" aria-label="${escapeHtml(isGreek ? 'Εγκατάσταση Καλά Νερά Guide στο κινητό' : 'Install Kala Nera Guide on your phone')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="install-badge__text"><span class="install-badge__title">${escapeHtml(isGreek ? 'Εγκατάσταση στο κινητό' : 'Install on your phone')}</span><span class="install-badge__note">${escapeHtml(isGreek ? 'Δωρεάν · Google Play ή browser' : 'Free · Google Play or browser install')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
           <div class="footer-install-qr"><img src="../${isGreek ? 'pix/install-qr-el.png' : 'pix/install-qr-en.png'}" width="72" height="72" alt="${escapeHtml(isGreek ? 'QR εγκατάστασης: kalanera.gr/install-el.html' : 'QR: install Kala Nera Guide at kalanera.gr/install.html')}" loading="lazy"><span class="footer-install-qr__label">${escapeHtml(isGreek ? 'Σάρωση' : 'Scan')}</span></div>
         </div></div>
       <div class="footer-aside"><div class="footer-aside-cols">

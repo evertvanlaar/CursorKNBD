@@ -561,7 +561,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.45'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.46'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -699,6 +699,7 @@ function wantsInstallDeepLink() {
 }
 
 const TWA_ANDROID_PACKAGE = 'com.kalanera.app';
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.kalanera.app';
 const PWA_INSTALLED_STORAGE_KEY = 'kalanera_pwa_installed';
 /** QR install page: show success panel after Install accepted in this tab (session only). */
 const PWA_INSTALL_SUCCESS_SESSION_KEY = 'kalanera_pwa_install_success';
@@ -5394,6 +5395,22 @@ function getInstallPlatform() {
     return 'unknown';
 }
 
+function applyPlayStorePromoUi() {
+    const hideInApp = isAppStandalone() || isOpenedFromKalaneraTwa();
+    const hidePlayOnIos = isIOSInstallDevice();
+
+    document.querySelectorAll('.js-play-store-promo').forEach((el) => {
+        const hide = hideInApp || (hidePlayOnIos && el.classList.contains('js-play-store-android'));
+        el.hidden = hide;
+        el.setAttribute('aria-hidden', hide ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('.footer-install-strip').forEach((strip) => {
+        strip.hidden = hideInApp;
+        strip.setAttribute('aria-hidden', hideInApp ? 'true' : 'false');
+    });
+}
+
 function applyInstallPlatformUi() {
     const platform = getInstallPlatform();
     const uiKey = platform === 'installed' ? null : (platform === 'unknown' ? 'desktop' : platform);
@@ -5454,6 +5471,8 @@ function applyInstallPlatformUi() {
             iosBanner.style.display = 'none';
         }
     }
+
+    applyPlayStorePromoUi();
 }
 
 function bodyWantsInstallPromo() {

@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+const PLAY_URL = 'https://play.google.com/store/apps/details?id=com.kalanera.app';
 
 const DEFAULTS = {
   en: {
@@ -20,7 +21,10 @@ const DEFAULTS = {
     fbAria: 'Kala Nera on Facebook',
     installAria: 'Install Kala Nera Guide on your phone',
     installTitle: 'Install on your phone',
-    installNote: 'Free · Browser install · Not in App Store or Google Play',
+    installNote: 'Free · Google Play or browser install',
+    playAria: 'Get Kala Nera Guide on Google Play',
+    playAlt: 'Get it on Google Play',
+    playBadge: 'google-play-badge-en.png',
     qrAlt: 'QR: install Kala Nera Guide at kalanera.gr/install.html',
     qrLabel: 'Scan',
     links: {
@@ -49,7 +53,10 @@ const DEFAULTS = {
     fbAria: 'Καλά Νερά στο Facebook',
     installAria: 'Εγκατάσταση Καλά Νερά Guide στο κινητό',
     installTitle: 'Εγκατάσταση στο κινητό',
-    installNote: 'Δωρεάν · Μέσω browser · Όχι App Store ή Google Play',
+    installNote: 'Δωρεάν · Google Play ή browser',
+    playAria: 'Λήψη Οδηγού Καλών Νερών από το Google Play',
+    playAlt: 'Διαθέσιμο στο Google Play',
+    playBadge: 'google-play-badge-el.png',
     qrAlt: 'QR εγκατάστασης: kalanera.gr/install-el.html',
     qrLabel: 'Σάρωση',
     links: {
@@ -130,6 +137,7 @@ function buildHubFooter({ isEl, prefix, tagline, lead, legal, ariaMap, compact }
   const logo = `${prefix}logo.png`;
   const installHref = `${prefix}${L.install}`;
   const qrSrc = `${prefix}${L.qr}`;
+  const playBadge = `<a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="${L.playAria}"><img src="${prefix}pix/${L.playBadge}" width="135" height="40" alt="${L.playAlt}" loading="lazy"></a>`;
   const nl = compact ? '\n' : '\n';
   const ind = compact ? '  ' : '    ';
   const ind2 = ind + ind;
@@ -143,7 +151,7 @@ function buildHubFooter({ isEl, prefix, tagline, lead, legal, ariaMap, compact }
     .join(nl);
 
   if (compact) {
-    return `<footer class="site-footer">${nl}${ind}<div class="footer-container footer-container--hub">${nl}${ind2}<div class="footer-column footer-column--brand">${nl}${ind3}<a href="${ix}" class="footer-brand-lockup"><img src="${logo}" alt="${L.logoAlt}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">${L.wordmark}</span></a>${nl}${ind3}<p class="footer-tagline">${tagline}</p><p class="footer-lead">${lead}</p>${nl}${ind3}<div class="footer-install-strip">${nl}${ind3}  <a href="${installHref}" class="install-badge install-badge--footer" aria-label="${L.installAria}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="install-badge__text"><span class="install-badge__title">${L.installTitle}</span><span class="install-badge__note">${L.installNote}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>${nl}${ind3}  <div class="footer-install-qr"><img src="${qrSrc}" width="72" height="72" alt="${L.qrAlt}" loading="lazy"><span class="footer-install-qr__label">${L.qrLabel}</span></div>${nl}${ind3}</div>${nl}${ind2}</div>${nl}${ind2}<div class="footer-aside">${nl}${ind3}<div class="footer-aside-cols">${nl}${ind3}  <div class="footer-column footer-column--site"><div class="footer-nav-section"><h3>${L.siteTitle}</h3><ul>${nl}${siteLinks.split(nl).map((l) => ind3 + '    ' + l.trim()).join(nl)}${nl}${ind3}    </ul></div></div>${nl}${ind3}  <div class="footer-column footer-column--social"><h3>${L.socialTitle}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="${L.fbAria}"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div><div class="footer-nav-section footer-nav-section--under-social"><h3>${L.infoTitle}</h3><ul>${nl}${infoLinks.split(nl).map((l) => ind3 + '      ' + l.trim()).join(nl)}${nl}${ind3}    </ul></div></div>${nl}${ind3}</div>${nl}${ind3}<p class="footer-legal">${legal}</p>${nl}${ind2}</div>${nl}${ind}</div>${nl}</footer>`;
+    return `<footer class="site-footer">${nl}${ind}<div class="footer-container footer-container--hub">${nl}${ind2}<div class="footer-column footer-column--brand">${nl}${ind3}<a href="${ix}" class="footer-brand-lockup"><img src="${logo}" alt="${L.logoAlt}" width="52" height="52" class="footer-brand-logo" loading="lazy"><span class="footer-lockup-wordmark logo">${L.wordmark}</span></a>${nl}${ind3}<p class="footer-tagline">${tagline}</p><p class="footer-lead">${lead}</p>${nl}${ind3}<div class="footer-install-strip">${nl}${ind3}  ${playBadge}${nl}${ind3}  <a href="${installHref}" class="install-badge install-badge--footer" aria-label="${L.installAria}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="install-badge__text"><span class="install-badge__title">${L.installTitle}</span><span class="install-badge__note">${L.installNote}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>${nl}${ind3}  <div class="footer-install-qr"><img src="${qrSrc}" width="72" height="72" alt="${L.qrAlt}" loading="lazy"><span class="footer-install-qr__label">${L.qrLabel}</span></div>${nl}${ind3}</div>${nl}${ind2}</div>${nl}${ind2}<div class="footer-aside">${nl}${ind3}<div class="footer-aside-cols">${nl}${ind3}  <div class="footer-column footer-column--site"><div class="footer-nav-section"><h3>${L.siteTitle}</h3><ul>${nl}${siteLinks.split(nl).map((l) => ind3 + '    ' + l.trim()).join(nl)}${nl}${ind3}    </ul></div></div>${nl}${ind3}  <div class="footer-column footer-column--social"><h3>${L.socialTitle}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="${L.fbAria}"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div><div class="footer-nav-section footer-nav-section--under-social"><h3>${L.infoTitle}</h3><ul>${nl}${infoLinks.split(nl).map((l) => ind3 + '      ' + l.trim()).join(nl)}${nl}${ind3}    </ul></div></div>${nl}${ind3}</div>${nl}${ind3}<p class="footer-legal">${legal}</p>${nl}${ind2}</div>${nl}${ind}</div>${nl}</footer>`;
   }
 
   return `<footer class="site-footer">
@@ -156,6 +164,7 @@ ${ind3}</a>
 ${ind3}<p class="footer-tagline">${tagline}</p>
 ${ind3}<p class="footer-lead">${lead}</p>
 ${ind3}<div class="footer-install-strip">
+${ind3}    ${playBadge}
 ${ind3}    <a href="${installHref}" class="install-badge install-badge--footer" aria-label="${L.installAria}">
 ${ind3}        <span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span>
 ${ind3}        <span class="install-badge__text">
