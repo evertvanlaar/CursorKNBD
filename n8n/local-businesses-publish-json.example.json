@@ -77,6 +77,49 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst fileContent = String(j.jsonText ?? '');\nif (!fileContent) throw new Error('Pack JSON: jsonText ontbreekt of is leeg');\nconst fileName = 'data/local-businesses.json';\nreturn [{ json: { fileName, fileContent, byteSize: Buffer.byteLength(fileContent, 'utf8'), generatedAt: j.envelope?.generatedAt ?? null, rowCount: j.envelope?.rowCount ?? null, stagingFileName: j.stagingFileName ?? 'local-businesses.staging.json' } }];"
+      },
+      "id": "code-github-prep-005",
+      "name": "Prepare GitHub push",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, -120],
+      "notes": "Mapt jsonText → fileContent. Zonder deze node faalt GitHub Push (undefined.endsWith). Zie n8n/local-businesses-github-push-code.js"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "evertvanlaar",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "VisualStudioCode",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.fileName }}",
+        "fileContent": "={{ $json.fileContent }}",
+        "commitMessage": "data: sync local-businesses from Sheet"
+      },
+      "id": "github-push-006",
+      "name": "GitHub Push",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [400, -120],
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub account"
+        }
+      },
+      "notes": "Niet rechtstreeks na Pack JSON — altijd via Prepare GitHub push."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
         "jsCode": "const j = $input.first().json;\nconst buf = Buffer.from(j.jsonText, 'utf8');\nreturn [\n  {\n    json: {\n      fileName: j.stagingFileName,\n      byteSize: buf.length,\n    },\n    binary: {\n      data: {\n        data: buf.toString('base64'),\n        mimeType: 'application/json',\n        fileName: j.stagingFileName,\n      },\n    },\n  },\n];"
       },
       "id": "code-binary-005",
@@ -201,7 +244,15 @@
       "main": [[{ "node": "Pack JSON (publish)", "type": "main", "index": 0 }]]
     },
     "Pack JSON (publish)": {
-      "main": [[{ "node": "To binary (staging)", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          { "node": "Prepare GitHub push", "type": "main", "index": 0 },
+          { "node": "To binary (staging)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Prepare GitHub push": {
+      "main": [[{ "node": "GitHub Push", "type": "main", "index": 0 }]]
     },
     "To binary (staging)": {
       "main": [[{ "node": "HTTP deploy (optional)", "type": "main", "index": 0 }]]

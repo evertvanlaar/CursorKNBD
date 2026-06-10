@@ -108,8 +108,24 @@ function businessUrlBlock(loc, lastmod) {
   ].join('\n');
 }
 
+function normalizeBusinessRows(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.rows)) return payload.rows;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  if (payload && Array.isArray(payload.items)) return payload.items;
+  return [];
+}
+
+function loadBusinessRows() {
+  if (!fs.existsSync(JSON_PATH)) {
+    throw new Error(`Missing ${path.relative(ROOT, JSON_PATH)} — run scripts/refresh-local-businesses-snapshot.mjs or seed from dev/`);
+  }
+  const payload = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8'));
+  return normalizeBusinessRows(payload);
+}
+
 function buildSitemap() {
-  const businesses = JSON.parse(fs.readFileSync(JSON_PATH, 'utf8'));
+  const businesses = loadBusinessRows();
   const active = businesses.filter((b) => String(b.Status ?? '').trim().toLowerCase() === 'active');
 
   const warnings = [];

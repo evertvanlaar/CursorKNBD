@@ -114,6 +114,11 @@ Bij `?bizData=json` probeert de app ook `dev/local-businesses.json` op LAN-hosts
    Vergelijk output met `GET .../webhook/local-businesses`.
 
 5. Deploy-node configureren (één kiezen, zie workflow-notities):
+   - **GitHub Push** → repo `VisualStudioCode`, pad `data/local-businesses.json`  
+     **Niet** rechtstreeks na *Pack JSON*: die node levert `jsonText` / `stagingFileName`, niet `fileName` / `fileContent`.  
+     Gebruik de tussennode **Prepare GitHub push** (code in `n8n/local-businesses-github-push-code.js`) of zet in GitHub Push:
+     - File Path: `data/local-businesses.json`
+     - File Content: `={{ $json.jsonText }}`
    - **SFTP/SSH** naar `.../data/local-businesses.staging.json`
    - **HTTP POST** naar intern deploy-script op de VPS
    - Handmatig: execution output kopiëren + upload
