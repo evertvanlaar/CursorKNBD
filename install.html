@@ -21,7 +21,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=3.1.47">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=3.1.55">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -102,7 +102,7 @@
             <details class="install-landing-help install-landing-help--advanced" id="install-landing-help-android">
                 <summary>Alternative: add via Chrome (without Play Store)</summary>
                 <p class="install-landing-hint">Browser shortcut on your home screen — not the Play Store app.</p>
-                <button type="button" id="install-landing-btn" class="install-landing-btn-primary install-landing-btn--waiting" data-install-trigger>
+                <button type="button" id="install-landing-btn" class="install-landing-btn-primary install-landing-btn--waiting" data-install-trigger data-install-mode="pwa">
                     <i class="fa fa-download" aria-hidden="true"></i>
                     <span>Add to home screen</span>
                 </button>
@@ -129,17 +129,25 @@
             </details>
         </div>
 
-        <div class="install-landing-card" data-install-ui="desktop">
+        <div class="install-landing-card install-landing-card--desktop" data-install-ui="desktop">
             <img src="logo.png" alt="" width="72" height="72" class="install-landing-logo" loading="eager">
             <h1>Install on your phone</h1>
-            <p class="install-landing-lead">The free <strong>Kala Nera</strong> Guide app is for phones only — not for desktop computers.</p>
-            <div class="install-landing-desktop-block">
-                <h2 class="install-landing-desktop-heading">Android</h2>
-                <p>Scan the <strong>Google Play</strong> QR below or tap the badge — then tap <strong>Install</strong> in the Play Store.</p>
-            </div>
-            <div class="install-landing-desktop-block">
-                <h2 class="install-landing-desktop-heading">iPhone / iPad</h2>
-                <p>Open <strong>www.kalanera.gr/install.html</strong> in <strong>Safari</strong> and choose <strong>Add to Home Screen</strong>.</p>
+            <p class="install-landing-lead">Scan the code for your device with your phone camera.</p>
+            <div class="install-landing-qr-grid" role="group" aria-label="Install options by device">
+                <div class="install-landing-qr-tile install-landing-qr-tile--android">
+                    <div class="install-landing-qr-tile__meta">
+                        <h2 class="install-landing-qr-tile__title">Android</h2>
+                        <p class="install-landing-qr-tile__hint">Google Play · tap <strong>Install</strong></p>
+                    </div>
+                    <div class="install-landing-qr-frame"><img src="pix/play-store-qr-en.png" width="136" height="136" alt="QR code: Google Play — Kala Nera Guide"></div>
+                </div>
+                <div class="install-landing-qr-tile install-landing-qr-tile--ios">
+                    <div class="install-landing-qr-tile__meta">
+                        <h2 class="install-landing-qr-tile__title">iPhone / iPad</h2>
+                        <p class="install-landing-qr-tile__hint">Opens install page in <strong>Safari</strong> · Add to Home Screen</p>
+                    </div>
+                    <div class="install-landing-qr-frame"><img src="pix/install-qr-en.png" width="136" height="136" alt="QR code: https://www.kalanera.gr/install.html"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -147,20 +155,6 @@
     <div class="install-landing-done" id="install-landing-done" hidden>
         <p id="install-landing-done-msg"><i class="fa fa-check-circle" aria-hidden="true"></i> The app is already on your home screen. Open it from there.</p>
     </div>
-
-    <section class="install-landing-qr install-landing-qr--play" data-install-ui="desktop" aria-labelledby="install-qr-play-heading">
-        <h2 id="install-qr-play-heading">Android — scan for Google Play</h2>
-        <p>Opens the official <strong>Kala Nera Guide</strong> listing — tap <strong>Install</strong> in the Play Store app.</p>
-        <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--landing" target="_blank" rel="noopener noreferrer" aria-label="Get Kala Nera Guide on Google Play"><img src="pix/google-play-badge-en.png" width="135" height="40" alt="Get it on Google Play" loading="lazy"></a>
-        <img src="pix/play-store-qr-en.png" width="200" height="200" alt="QR code: Google Play — Kala Nera Guide">
-        <p class="install-landing-qr-url"><code>play.google.com/store/apps/details?id=com.kalanera.app</code></p>
-    </section>
-    <section class="install-landing-qr install-landing-qr--safari" data-install-ui="desktop" aria-labelledby="install-qr-safari-heading">
-        <h2 id="install-qr-safari-heading">iPhone — scan for Safari install page</h2>
-        <p>Open in <strong>Safari</strong> → Share → <strong>Add to Home Screen</strong>.</p>
-        <img src="pix/install-qr-en.png" width="200" height="200" alt="QR code: https://www.kalanera.gr/install.html">
-        <p class="install-landing-qr-url"><code>https://www.kalanera.gr/install.html</code></p>
-    </section>
 
     <p style="text-align:center">
         <a href="index.html" class="install-landing-home"><i class="fa-solid fa-compass" aria-hidden="true"></i> Browse the guide without installing</a>
@@ -176,12 +170,16 @@
             </a>
             <p class="footer-tagline">Kala Nera · Pelion, Greece</p>
             <p class="footer-lead">We help travelers discover the best places—from authentic taverns to wonderful stays—in Kala Nera and the wider Pelion area.</p>
-            <div class="footer-install-strip">
-<a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="Get Kala Nera Guide on Google Play"><img src="pix/google-play-badge-en.png" width="135" height="40" alt="Get it on Google Play" loading="lazy"></a>
-<a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="footer-install-qr footer-install-qr--play js-play-store-promo js-play-store-android" aria-label="Scan QR code — open Kala Nera Guide on Google Play"><img src="pix/play-store-qr-en.png" width="72" height="72" alt="QR code: Google Play — Kala Nera Guide" loading="lazy"><span class="footer-install-qr__label">Google Play</span></a>
-<a href="install.html" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="Install Kala Nera Guide on iPhone via Safari"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">iPhone: add via Safari</span><span class="install-badge__note">Free · No App Store</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
-</div></div>
-        </div>
+            <div class="footer-install-strip footer-install-strip--compact">
+                <div class="footer-install-strip__stack">
+                    <span class="footer-install-strip__label">Get the app</span>
+                    <div class="footer-install-strip__actions">
+                        <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="Get Kala Nera Guide on Google Play"><img src="pix/google-play-badge-en.png" width="135" height="40" alt="Get it on Google Play" loading="lazy"></a>
+                        <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="footer-install-qr footer-install-qr--play footer-install-qr--icon-only js-play-store-promo js-play-store-android" aria-label="Scan QR code — open Kala Nera Guide on Google Play"><img src="pix/play-store-qr-en.png" width="76" height="76" alt="QR code: Google Play — Kala Nera Guide" loading="eager" decoding="sync"></a>
+                    </div>
+                </div>
+                <a href="install.html" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="Install Kala Nera Guide on iPhone via Safari"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">Add via Safari</span><span class="install-badge__note">Free · No App Store</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
+            </div></div>
 
         <div class="footer-aside">
             <div class="footer-aside-cols">
@@ -220,7 +218,7 @@
 
 </footer>
 
-<script src="app.js?v=3.1.47"></script>
+<script src="app.js?v=3.1.55"></script>
 
 <nav class="bottom-nav" aria-label="Primary">
     <div class="bottom-nav-inner">

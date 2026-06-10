@@ -1,6 +1,6 @@
 # Install-strategie — Android, iOS, QR & stickers
 
-**Versie:** 3.1.47+ · **Play Store:** `com.kalanera.app`
+**Versie:** 3.1.48+ · **Play Store:** `com.kalanera.app`
 
 ## Drie install-methodes
 
@@ -30,9 +30,9 @@ Geen nieuwe stickers verplicht. Optioneel later: sticker 2 direct naar Play Stor
 | Plek | Android | iOS |
 |------|---------|-----|
 | **Homepage hero** | Klein Play-badge | Verborgen |
-| **Footer** | Play-badge (135×40) + Play-QR | Link “iPhone: add via Safari” |
+| **Footer** | Mobiel: Play-badge · Desktop: Play-QR (56px) | Alleen op iOS: Safari-link |
 | **install.html (mobiel)** | Play-badge → Play Store | Safari-stappen |
-| **install.html (desktop)** | Play-QR + badge | install-qr (Safari-pagina) |
+| **install.html (desktop)** | Twee QR-tegels naast elkaar (Play + Safari) | — |
 | **In de Play-app (TWA)** | Footer-installstrip verborgen | — |
 
 ## Technisch

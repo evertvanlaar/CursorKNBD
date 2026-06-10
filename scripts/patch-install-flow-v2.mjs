@@ -41,15 +41,22 @@ function buildFooterInstallStrip(prefix, lang) {
   const installHref = `${prefix}${L.installPage}`;
   const playQr = `${prefix}pix/${L.playQrFile}`;
   const playBadge = `${prefix}pix/google-play-badge-${lang}.png`;
-  return `<div class="footer-install-strip">
-<a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="${L.playAria}"><img src="${playBadge}" width="135" height="40" alt="${L.playAlt}" loading="lazy"></a>
-<a href="${PLAY_URL}" class="footer-install-qr footer-install-qr--play js-play-store-promo js-play-store-android" aria-label="${L.playQrAria}"><img src="${playQr}" width="72" height="72" alt="${L.playQrAlt}" loading="lazy"><span class="footer-install-qr__label">${L.playQrLabel}</span></a>
-<a href="${installHref}" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="${L.iosAria}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">${L.iosTitle}</span><span class="install-badge__note">${L.iosNote}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
-</div>`;
+  const stripLabel = lang === 'el' ? 'Λήψη εφαρμογής' : 'Get the app';
+  const iosTitle = lang === 'el' ? 'Μέσω Safari' : 'Add via Safari';
+  return `<div class="footer-install-strip footer-install-strip--compact">
+                <div class="footer-install-strip__stack">
+                    <span class="footer-install-strip__label">${stripLabel}</span>
+                    <div class="footer-install-strip__actions">
+                        <a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="${L.playAria}"><img src="${playBadge}" width="135" height="40" alt="${L.playAlt}" loading="lazy"></a>
+                        <a href="${PLAY_URL}" class="footer-install-qr footer-install-qr--play footer-install-qr--icon-only js-play-store-promo js-play-store-android" aria-label="${L.playQrAria}"><img src="${playQr}" width="76" height="76" alt="${L.playQrAlt}" loading="eager" decoding="sync"></a>
+                    </div>
+                </div>
+                <a href="${installHref}" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="${L.iosAria}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">${iosTitle}</span><span class="install-badge__note">${L.iosNote}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
+            </div>`;
 }
 
 function patchFooterStrip(html, prefix, lang) {
-  const re = /<div class="footer-install-strip">[\s\S]*?<\/div>\s*(?=<\/div>\s*<div class="footer-aside">|<\/div><div class="footer-aside">|<\/div>\s*<\/div>\s*<div class="footer-aside">)/i;
+  const re = /<div class="footer-install-strip[^"]*">[\s\S]*?install-badge--ios-only[\s\S]*?<\/a>\s*(?:<\/div>\s*)?<\/div>\s*(?=\s*<\/div>\s*<div class="footer-aside">)/i;
   if (!re.test(html)) return html;
   return html.replace(re, buildFooterInstallStrip(prefix, lang));
 }
@@ -92,11 +99,16 @@ for (const fp of collectHtmlFiles(root)) {
 // n8n template
 const n8nFp = path.join(root, 'n8n', 'n8n-business-page-template.js');
 let n8n = fs.readFileSync(n8nFp, 'utf8');
-const n8nStripRe = /<div class="footer-install-strip">[\s\S]*?<\/div><\/div>\s*<div class="footer-aside">/;
-const n8nReplacement = `<div class="footer-install-strip">
-          <a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="\${escapeHtml(isGreek ? '${COPY.el.playAria}' : '${COPY.en.playAria}')}"><img src="../\${isGreek ? 'pix/google-play-badge-el.png' : 'pix/google-play-badge-en.png'}" width="135" height="40" alt="\${escapeHtml(isGreek ? '${COPY.el.playAlt}' : '${COPY.en.playAlt}')}" loading="lazy"></a>
-          <a href="${PLAY_URL}" class="footer-install-qr footer-install-qr--play js-play-store-promo js-play-store-android" aria-label="\${escapeHtml(isGreek ? '${COPY.el.playQrAria}' : '${COPY.en.playQrAria}')}"><img src="../\${isGreek ? 'pix/play-store-qr-el.png' : 'pix/play-store-qr-en.png'}" width="72" height="72" alt="\${escapeHtml(isGreek ? '${COPY.el.playQrAlt}' : '${COPY.en.playQrAlt}')}" loading="lazy"><span class="footer-install-qr__label">\${escapeHtml(isGreek ? '${COPY.el.playQrLabel}' : '${COPY.en.playQrLabel}')}</span></a>
-          <a href="../\${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="\${escapeHtml(isGreek ? '${COPY.el.iosAria}' : '${COPY.en.iosAria}')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">\${escapeHtml(isGreek ? '${COPY.el.iosTitle}' : '${COPY.en.iosTitle}')}</span><span class="install-badge__note">\${escapeHtml(isGreek ? '${COPY.el.iosNote}' : '${COPY.en.iosNote}')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
+const n8nStripRe = /<div class="footer-install-strip[^"]*">[\s\S]*?<\/div>\s*<\/div>\s*<div class="footer-aside">/;
+const n8nReplacement = `<div class="footer-install-strip footer-install-strip--compact">
+          <div class="footer-install-strip__stack">
+            <span class="footer-install-strip__label">\${escapeHtml(isGreek ? 'Λήψη εφαρμογής' : 'Get the app')}</span>
+            <div class="footer-install-strip__actions">
+              <a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="\${escapeHtml(isGreek ? '${COPY.el.playAria}' : '${COPY.en.playAria}')}"><img src="../\${isGreek ? 'pix/google-play-badge-el.png' : 'pix/google-play-badge-en.png'}" width="135" height="40" alt="\${escapeHtml(isGreek ? '${COPY.el.playAlt}' : '${COPY.en.playAlt}')}" loading="lazy"></a>
+              <a href="${PLAY_URL}" class="footer-install-qr footer-install-qr--play footer-install-qr--icon-only js-play-store-promo js-play-store-android" aria-label="\${escapeHtml(isGreek ? '${COPY.el.playQrAria}' : '${COPY.en.playQrAria}')}"><img src="../\${isGreek ? 'pix/play-store-qr-el.png' : 'pix/play-store-qr-en.png'}" width="76" height="76" alt="\${escapeHtml(isGreek ? '${COPY.el.playQrAlt}' : '${COPY.en.playQrAlt}')}" loading="eager" decoding="sync"></a>
+            </div>
+          </div>
+          <a href="../\${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="\${escapeHtml(isGreek ? '${COPY.el.iosAria}' : '${COPY.en.iosAria}')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">\${escapeHtml(isGreek ? 'Μέσω Safari' : 'Add via Safari')}</span><span class="install-badge__note">\${escapeHtml(isGreek ? '${COPY.el.iosNote}' : '${COPY.en.iosNote}')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
         </div></div>
       <div class="footer-aside">`;
 if (n8nStripRe.test(n8n)) {
