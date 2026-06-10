@@ -115,11 +115,10 @@ function patchN8nTemplate() {
   js = js.replaceAll(COPY.en.installNoteOld, COPY.en.installNoteNew);
   js = js.replaceAll(COPY.el.installNoteOld, COPY.el.installNoteNew);
 
+  const playLine = `<a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="\${escapeHtml(isGreek ? '${COPY.el.playAria}' : '${COPY.en.playAria}')}"><img src="../\${isGreek ? 'pix/google-play-badge-el.png' : 'pix/google-play-badge-en.png'}" width="135" height="40" alt="\${escapeHtml(isGreek ? '${COPY.el.playAlt}' : '${COPY.en.playAlt}')}" loading="lazy"></a>`;
   js = js.replace(
-    '<div class="footer-install-strip">\n          <a href="../${isGreek',
-    `<div class="footer-install-strip">
-          <a href="${PLAY_URL}" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="\${escapeHtml(isGreek ? '${COPY.el.playAria}' : '${COPY.en.playAria}')}"><img src="../\${isGreek ? 'pix/google-play-badge-el.png' : 'pix/google-play-badge-en.png'}" width="135" height="40" alt="\${escapeHtml(isGreek ? '${COPY.el.playAlt}' : '${COPY.en.playAlt}')}" loading="lazy"></a>
-          <a href="../\${isGreek`
+    /(<div class="footer-install-strip">\s*\n\s*)<a href="\.\.\/\$\{isGreek \? 'install-el\.html'/,
+    `$1${playLine}\n          <a href="../\${isGreek ? 'install-el.html'`
   );
 
   fs.writeFileSync(fp, js, 'utf8');
