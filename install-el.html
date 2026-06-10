@@ -21,7 +21,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=3.1.46">
+    <link id="main-stylesheet" rel="stylesheet" href="style.css?v=3.1.47">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -93,26 +93,25 @@
     <div id="install-landing-ready">
         <div class="install-landing-card" data-install-ui="android">
             <img src="logo.png" alt="" width="72" height="72" class="install-landing-logo" loading="eager">
-            <h1>Καλά Νερά Guide στην αρχική οθόνη</h1>
-            <p class="install-landing-lead">Δωρεάν επιχειρήσεις, λεωφορείο και tips για το Πήλιο — με ένα πάτημα.</p>
+            <h1>Λήψη Οδηγού Καλών Νερών</h1>
+            <p class="install-landing-lead">Δωρεάν εφαρμογή — επιχειρήσεις, λεωφορείο και tips για το Πήλιο · από το Google Play.</p>
             <div class="install-landing-play-store">
-            <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--landing" target="_blank" rel="noopener noreferrer" aria-label="Λήψη Οδηγού Καλών Νερών από το Google Play"><img src="pix/google-play-badge-el.png" width="155" height="60" alt="Διαθέσιμο στο Google Play" loading="eager"></a>
-            <p class="install-landing-play-trust">Επίσημη εφαρμογή στο Google Play · Δωρεάν · Επαληθευμένη από Google</p>
+                <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--landing" target="_blank" rel="noopener noreferrer" aria-label="Λήψη Οδηγού Καλών Νερών από το Google Play"><img src="pix/google-play-badge-el.png" width="135" height="40" alt="Διαθέσιμο στο Google Play" loading="eager"></a>
+                <p class="install-landing-play-trust">Ανοίγει το Google Play στον browser · Πατήστε <strong>Εγκατάσταση</strong> εκεί</p>
             </div>
-            <p class="install-landing-divider" aria-hidden="true"><span>ή εγκατάσταση μέσω Chrome</span></p>
-            <button type="button" id="install-landing-btn" class="install-landing-btn-primary install-landing-btn--waiting" data-install-trigger>
-                <i class="fa fa-download" aria-hidden="true"></i>
-                <span>Εγκατάσταση τώρα</span>
-            </button>
-            <p class="install-landing-aware">Έχετε ήδη το εικονίδιο <strong>Καλά Νερά</strong> στην αρχική οθόνη; Ανοίξτε την εφαρμογή από εκεί.</p>
-            <details class="install-landing-help" id="install-landing-help-android">
-                <summary>Χρειάζεστε βοήθεια;</summary>
+            <details class="install-landing-help install-landing-help--advanced" id="install-landing-help-android">
+                <summary>Εναλλακτικά: μέσω Chrome (χωρίς Play Store)</summary>
+                <p class="install-landing-hint">Σύντομη εφαρμογή στην αρχική οθόνη — όχι η εφαρμογή Play Store.</p>
+                <button type="button" id="install-landing-btn" class="install-landing-btn-primary install-landing-btn--waiting" data-install-trigger>
+                    <i class="fa fa-download" aria-hidden="true"></i>
+                    <span>Προσθήκη στην αρχική οθόνη</span>
+                </button>
                 <ol class="install-landing-steps">
-                    <li>Πατήστε <strong>Εγκατάσταση τώρα</strong></li>
+                    <li>Πατήστε <strong>Προσθήκη στην αρχική οθόνη</strong> παραπάνω</li>
                     <li>Στο παράθυρο επιλέξτε <strong>Εγκατάσταση</strong></li>
                     <li>Το εικονίδιο εμφανίζεται στην αρχική οθόνη</li>
                 </ol>
-                <p class="install-landing-hint" id="install-landing-android-hint" hidden>Χρησιμοποιήστε <strong>Chrome</strong>. Δεν εμφανίστηκε παράθυρο; <strong>Περισσότερα</strong> (···) κάτω → <strong>Εγκατάσταση</strong>.</p>
+                <p class="install-landing-hint" id="install-landing-android-hint" hidden>Χρησιμοποιήστε <strong>Chrome</strong>. Δεν εμφανίστηκε παράθυρο; <strong>Περισσότερα</strong> (···) → <strong>Εγκατάσταση εφαρμογής</strong>.</p>
             </details>
         </div>
 
@@ -132,14 +131,16 @@
 
         <div class="install-landing-card" data-install-ui="desktop">
             <img src="logo.png" alt="" width="72" height="72" class="install-landing-logo" loading="eager">
-            <h1>Εγκατάσταση της εφαρμογής</h1>
-            <p class="install-landing-lead">Προσθέστε δωρεάν την εφαρμογή <strong>Καλά Νερά</strong> Guide στην αρχική οθόνη του κινητού — επιχειρήσεις, λεωφορείο και πληροφορίες για το Πήλιο. Δεν εγκαθίσταται στον υπολογιστή.</p>
-            <p class="install-landing-desktop-play">Για Android μπορείτε επίσης από το <strong>Google Play</strong> — ασφαλές και επαληθευμένο.</p>
-            <ol class="install-landing-steps">
-                <li>Ανοίξτε <strong>Chrome</strong> στο Android <em>ή</em> <strong>Safari</strong> στο iPhone</li>
-                <li>Μεταβείτε στο <strong>www.kalanera.gr/install-el.html</strong> <em>ή</em> σαρώστε τον QR παρακάτω</li>
-                <li>Πατήστε <strong>Εγκατάσταση</strong> και επιβεβαιώστε — το εικονίδιο στην αρχική οθόνη</li>
-            </ol>
+            <h1>Εγκατάσταση στο κινητό</h1>
+            <p class="install-landing-lead">Η δωρεάν εφαρμογή <strong>Καλά Νερά</strong> Guide είναι μόνο για κινητά — όχι για υπολογιστή.</p>
+            <div class="install-landing-desktop-block">
+                <h2 class="install-landing-desktop-heading">Android</h2>
+                <p>Σαρώστε τον QR <strong>Google Play</strong> παρακάτω ή πατήστε το badge — μετά <strong>Εγκατάσταση</strong> στο Play Store.</p>
+            </div>
+            <div class="install-landing-desktop-block">
+                <h2 class="install-landing-desktop-heading">iPhone / iPad</h2>
+                <p>Ανοίξτε <strong>www.kalanera.gr/install-el.html</strong> στη <strong>Safari</strong> → <strong>Προσθήκη στην αρχική οθόνη</strong>.</p>
+            </div>
         </div>
     </div>
 
@@ -147,10 +148,17 @@
         <p id="install-landing-done-msg"><i class="fa fa-check-circle" aria-hidden="true"></i> Η εφαρμογή είναι ήδη στην αρχική οθόνη. Ανοίξτε την από εκεί.</p>
     </div>
 
-    <section class="install-landing-qr" data-install-ui="desktop" aria-labelledby="install-qr-heading">
-        <h2 id="install-qr-heading">Σαρώστε για εγκατάσταση</h2>
-        <p>Στρέψτε την <strong>κάμερα</strong> του κινητού στον κωδικό — ανοίξτε τον σύνδεσμο και εγκαταστήστε την εφαρμογή <strong>Καλά Νερά</strong> Guide.</p>
-        <img src="pix/install-qr-el.png" width="220" height="220" alt="QR εγκατάστασης εφαρμογής: https://www.kalanera.gr/install-el.html">
+    <section class="install-landing-qr install-landing-qr--play" data-install-ui="desktop" aria-labelledby="install-qr-play-heading">
+        <h2 id="install-qr-play-heading">Android — σάρωση για Google Play</h2>
+        <p>Ανοίγει την επίσημη σελίδα <strong>Καλά Νερά Guide</strong> — πατήστε <strong>Εγκατάσταση</strong> στο Play Store.</p>
+        <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--landing" target="_blank" rel="noopener noreferrer" aria-label="Λήψη Οδηγού Καλών Νερών από το Google Play"><img src="pix/google-play-badge-el.png" width="135" height="40" alt="Διαθέσιμο στο Google Play" loading="lazy"></a>
+        <img src="pix/play-store-qr-el.png" width="200" height="200" alt="QR κωδικός: Google Play — Kala Nera Guide">
+        <p class="install-landing-qr-url"><code>play.google.com/store/apps/details?id=com.kalanera.app</code></p>
+    </section>
+    <section class="install-landing-qr install-landing-qr--safari" data-install-ui="desktop" aria-labelledby="install-qr-safari-heading">
+        <h2 id="install-qr-safari-heading">iPhone — σάρωση για σελίδα Safari</h2>
+        <p>Ανοίξτε στη <strong>Safari</strong> → Κοινή χρήση → <strong>Προσθήκη στην αρχική οθόνη</strong>.</p>
+        <img src="pix/install-qr-el.png" width="200" height="200" alt="QR: https://www.kalanera.gr/install-el.html">
         <p class="install-landing-qr-url"><code>https://www.kalanera.gr/install-el.html</code></p>
     </section>
 
@@ -170,19 +178,9 @@
             <p class="footer-lead">Βοηθάμε τους επισκέπτες να ανακαλύψουν τα καλύτερα σημεία—από αυθεντικές ταβέρνες μέχρι όμορφες διαμονές—στα Καλά Νερά και το ευρύτερο Πήλιο.</p>
             <div class="footer-install-strip">
 <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="Λήψη Οδηγού Καλών Νερών από το Google Play"><img src="pix/google-play-badge-el.png" width="135" height="40" alt="Διαθέσιμο στο Google Play" loading="lazy"></a>
-<a href="install-el.html" class="install-badge install-badge--footer" aria-label="Εγκατάσταση Καλά Νερά Guide στο κινητό">
-                    <span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span>
-                    <span class="install-badge__text">
-                        <span class="install-badge__title">Εγκατάσταση στο κινητό</span>
-                        <span class="install-badge__note">Δωρεάν · Google Play ή browser</span>
-                    </span>
-                    <i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i>
-                </a>
-                <div class="footer-install-qr">
-                    <img src="pix/install-qr-el.png" width="72" height="72" alt="QR εγκατάστασης: kalanera.gr/install-el.html" loading="lazy">
-                    <span class="footer-install-qr__label">Σάρωση</span>
-                </div>
-            </div>
+<a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="footer-install-qr footer-install-qr--play js-play-store-promo js-play-store-android" aria-label="Σάρωση QR — Google Play Οδηγός Καλών Νερών"><img src="pix/play-store-qr-el.png" width="72" height="72" alt="QR κωδικός: Google Play — Kala Nera Guide" loading="lazy"><span class="footer-install-qr__label">Google Play</span></a>
+<a href="install-el.html" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="Εγκατάσταση στο iPhone μέσω Safari"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">iPhone: μέσω Safari</span><span class="install-badge__note">Δωρεάν · Χωρίς App Store</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
+</div></div>
         </div>
 
         <div class="footer-aside">
@@ -222,7 +220,7 @@
 
 </footer>
 
-<script src="app.js?v=3.1.46"></script>
+<script src="app.js?v=3.1.47"></script>
 
 <nav class="bottom-nav" aria-label="Κύρια πλοήγηση">
     <div class="bottom-nav-inner">

@@ -561,7 +561,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.46'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.47'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -933,11 +933,11 @@ function getInstallGuidance(scenario) {
         desktop: {
             title: 'Εγκαταστήστε την εφαρμογή <strong>Καλά Νερά</strong> Guide στο κινητό σας.',
             steps: [
-                'Ανοίξτε Chrome (Android) ή Safari (iPhone).',
-                `Μεταβείτε στο <strong>${liveUrl.replace('https://', '')}</strong> ή σαρώστε τον QR κωδικό.`,
-                'Πατήστε <strong>Εγκατάσταση</strong> — το εικονίδιο στην αρχική οθόνη.'
+                '<strong>Android:</strong> σαρώστε τον QR Google Play στη σελίδα εγκατάστασης ή ανοίξτε το Google Play.',
+                '<strong>iPhone:</strong> Safari → <strong>' + liveUrl.replace('https://', '') + '</strong> → Κοινή χρήση → Προσθήκη στην αρχική οθόνη.',
+                'Η εφαρμογή δεν εγκαθίσταται στον υπολογιστή.'
             ],
-            landingHint: 'Η εφαρμογή δεν εγκαθίσταται στον υπολογιστή — μόνο στο τηλέφωνο.'
+            landingHint: 'Ανοίξτε <strong>' + liveUrl.replace('https://', '') + '</strong> στο κινητό για οδηγίες.'
         },
         localDev: {
             title: 'Δοκιμή από υπολογιστή — η εγκατάσταση λειτουργεί μόνο στο live site.',
@@ -1003,11 +1003,11 @@ function getInstallGuidance(scenario) {
         desktop: {
             title: 'Install the <strong>Kala Nera Guide</strong> mobile app on your phone.',
             steps: [
-                'Open Chrome (Android) or Safari (iPhone).',
-                `Go to <strong>${liveUrl.replace('https://', '')}</strong> or scan the QR code.`,
-                'Tap <strong>Install</strong> — the app icon appears on your home screen.'
+                '<strong>Android:</strong> scan the Google Play QR on the install page, or open Google Play and search Kala Nera Guide.',
+                '<strong>iPhone:</strong> open Safari → <strong>' + liveUrl.replace('https://', '') + '</strong> → Share → Add to Home Screen.',
+                'The app does not install on a desktop computer.'
             ],
-            landingHint: 'The app installs on your phone only, not on this computer.'
+            landingHint: 'Open <strong>' + liveUrl.replace('https://', '') + '</strong> on your phone for step-by-step help.'
         },
         localDev: {
             title: 'You are testing locally — install only works on the live site.',
@@ -5398,9 +5398,16 @@ function getInstallPlatform() {
 function applyPlayStorePromoUi() {
     const hideInApp = isAppStandalone() || isOpenedFromKalaneraTwa();
     const hidePlayOnIos = isIOSInstallDevice();
+    const onAndroid = isAndroidDevice();
 
     document.querySelectorAll('.js-play-store-promo').forEach((el) => {
         const hide = hideInApp || (hidePlayOnIos && el.classList.contains('js-play-store-android'));
+        el.hidden = hide;
+        el.setAttribute('aria-hidden', hide ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('.js-install-ios-promo').forEach((el) => {
+        const hide = hideInApp || onAndroid;
         el.hidden = hide;
         el.setAttribute('aria-hidden', hide ? 'true' : 'false');
     });

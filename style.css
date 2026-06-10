@@ -1,4 +1,4 @@
-/* version 3.1.46 */
+/* version 3.1.47 */
 @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap');
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
@@ -2774,15 +2774,29 @@ h1{font-size:1.35rem;margin-bottom:10px;line-height:1.15}
 
 .play-store-badge:focus-visible{outline:2px solid #a7d4a7;outline-offset:3px}
 
-.play-store-badge img{display:block;width:auto;max-width:100%;height:auto}
+.play-store-badge img{display:block;object-fit:contain}
 
 .play-store-badge--footer{flex:0 0 auto;align-self:center}
 
-.play-store-badge--hero img{width:135px;height:40px}
+.play-store-badge--footer img,.play-store-badge--hero img,.play-store-badge--landing img{width:135px;height:40px;max-width:135px}
 
-.play-store-badge--landing img{width:min(100%,200px);height:auto}
+.play-store-badge--landing img{width:min(135px,100%);height:auto;max-height:40px}
 
-.footer-install-strip .play-store-badge--footer{align-self:stretch;min-height:44px;padding:2px 0}
+.footer-install-strip{align-items:center;gap:10px}
+
+.footer-install-strip .play-store-badge--footer{align-self:center;flex:0 0 auto;padding:0}
+
+.footer-install-qr--play{text-decoration:none;color:inherit}
+
+.install-badge--ios-only{flex:1 1 180px}
+
+.install-landing-desktop-block{margin:16px 0 0;text-align:left}
+
+.install-landing-desktop-heading{margin:0 0 6px;font-size:1rem;color:var(--text)}
+
+.install-landing-qr--play,.install-landing-qr--safari{margin-top:20px}
+
+.install-landing-help--advanced{margin-top:16px}
 
 .install-landing-play-store{margin:0 0 4px}
 

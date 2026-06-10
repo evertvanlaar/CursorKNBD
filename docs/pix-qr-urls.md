@@ -8,9 +8,11 @@ Statische QR’s: de URL staat **letterlijk in de PNG** (geen redirect-dienst).
 
 | Bestand | Exacte URL in de QR | `www` | `index.html` | Gebruik op site |
 |---------|---------------------|-------|--------------|-----------------|
-| `install-qr-en.png` | `https://www.kalanera.gr/install.html` | ja | nee | Footer hub (`index.html`), `install.html`, business EN |
-| `install-qr-el.png` | `https://www.kalanera.gr/install-el.html` | ja | nee | Footer hub (`index-el.html`), `install-el.html`, business EL |
-| `home-qr.png` | `https://www.kalanera.gr/` | ja | nee | *(nog niet in HTML; bedoeld voor homepage-stickers)* |
+| `play-store-qr-en.png` | `https://play.google.com/store/apps/details?id=com.kalanera.app` | — | — | Footer + `install.html` desktop (Android) |
+| `play-store-qr-el.png` | *(zelfde Play URL)* | — | — | Footer EL + `install-el.html` desktop (Android) |
+| `install-qr-en.png` | `https://www.kalanera.gr/install.html` | ja | nee | Stickers, `install.html` desktop (iPhone) |
+| `install-qr-el.png` | `https://www.kalanera.gr/install-el.html` | ja | nee | Stickers EL, `install-el.html` desktop (iPhone) |
+| `home-qr.png` | `https://www.kalanera.gr/` | ja | nee | Homepage-stickers (browse site) |
 
 **Aanbevolen sticker install (GR):** `install-qr-el.png` → `https://www.kalanera.gr/install-el.html`
 

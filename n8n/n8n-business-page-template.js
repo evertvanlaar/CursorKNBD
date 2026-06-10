@@ -182,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.46';
+    const appVersion = '3.1.47';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -417,8 +417,8 @@ ${contactCardHtml}
         <p class="footer-tagline">${escapeHtml(footerTagline)}</p><p class="footer-lead">${escapeHtml(footerAboutText)}</p>
         <div class="footer-install-strip">
           <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="play-store-badge play-store-badge--footer js-play-store-promo js-play-store-android" target="_blank" rel="noopener noreferrer" aria-label="${escapeHtml(isGreek ? 'Λήψη Οδηγού Καλών Νερών από το Google Play' : 'Get Kala Nera Guide on Google Play')}"><img src="../${isGreek ? 'pix/google-play-badge-el.png' : 'pix/google-play-badge-en.png'}" width="135" height="40" alt="${escapeHtml(isGreek ? 'Διαθέσιμο στο Google Play' : 'Get it on Google Play')}" loading="lazy"></a>
-          <a href="../${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer" aria-label="${escapeHtml(isGreek ? 'Εγκατάσταση Καλά Νερά Guide στο κινητό' : 'Install Kala Nera Guide on your phone')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="install-badge__text"><span class="install-badge__title">${escapeHtml(isGreek ? 'Εγκατάσταση στο κινητό' : 'Install on your phone')}</span><span class="install-badge__note">${escapeHtml(isGreek ? 'Δωρεάν · Google Play ή browser' : 'Free · Google Play or browser install')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
-          <div class="footer-install-qr"><img src="../${isGreek ? 'pix/install-qr-el.png' : 'pix/install-qr-en.png'}" width="72" height="72" alt="${escapeHtml(isGreek ? 'QR εγκατάστασης: kalanera.gr/install-el.html' : 'QR: install Kala Nera Guide at kalanera.gr/install.html')}" loading="lazy"><span class="footer-install-qr__label">${escapeHtml(isGreek ? 'Σάρωση' : 'Scan')}</span></div>
+          <a href="https://play.google.com/store/apps/details?id=com.kalanera.app" class="footer-install-qr footer-install-qr--play js-play-store-promo js-play-store-android" aria-label="${escapeHtml(isGreek ? 'Σάρωση QR — Google Play Οδηγός Καλών Νερών' : 'Scan QR code — open Kala Nera Guide on Google Play')}"><img src="../${isGreek ? 'pix/play-store-qr-el.png' : 'pix/play-store-qr-en.png'}" width="72" height="72" alt="${escapeHtml(isGreek ? 'QR κωδικός: Google Play — Kala Nera Guide' : 'QR code: Google Play — Kala Nera Guide')}" loading="lazy"><span class="footer-install-qr__label">${escapeHtml(isGreek ? 'Google Play' : 'Google Play')}</span></a>
+          <a href="../${isGreek ? 'install-el.html' : 'install.html'}" class="install-badge install-badge--footer install-badge--ios-only js-install-ios-promo" aria-label="${escapeHtml(isGreek ? 'Εγκατάσταση στο iPhone μέσω Safari' : 'Install Kala Nera Guide on iPhone via Safari')}"><span class="install-badge__icon" aria-hidden="true"><i class="fa-brands fa-safari"></i></span><span class="install-badge__text"><span class="install-badge__title">${escapeHtml(isGreek ? 'iPhone: μέσω Safari' : 'iPhone: add via Safari')}</span><span class="install-badge__note">${escapeHtml(isGreek ? 'Δωρεάν · Χωρίς App Store' : 'Free · No App Store')}</span></span><i class="fa-solid fa-chevron-right install-badge__chevron" aria-hidden="true"></i></a>
         </div></div>
       <div class="footer-aside"><div class="footer-aside-cols">
         <div class="footer-column footer-column--site"><div class="footer-nav-section"><h3>${escapeHtml(footerSiteTitle)}</h3><ul>
