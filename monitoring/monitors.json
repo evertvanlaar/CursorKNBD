@@ -110,11 +110,32 @@
       }
     },
     {
+      "id": "bus-json",
+      "name": "Bus JSON (primair)",
+      "url": "https://www.kalanera.gr/data/bus-schedule.json",
+      "category": "data",
+      "priority": "critical",
+      "checks": {
+        "status": 200,
+        "maxResponseMs": 5000,
+        "contentTypeIncludes": "json",
+        "json": {
+          "minRowCount": 20,
+          "maxAgeHours": 336
+        }
+      },
+      "uptimeRobot": {
+        "monitorType": "Keyword",
+        "keyword": "rowCount",
+        "alertWhen": "keywordNotExists"
+      }
+    },
+    {
       "id": "n8n-bus-schedule",
-      "name": "n8n bus-schedule-next",
+      "name": "n8n bus-schedule-next (fallback)",
       "url": "https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0",
       "category": "n8n",
-      "priority": "high",
+      "priority": "medium",
       "checks": {
         "status": 200,
         "maxResponseMs": 15000,
@@ -124,7 +145,7 @@
         "monitorType": "Keyword",
         "keyword": "Europe/Athens",
         "alertWhen": "keywordNotExists",
-        "note": "Geen HTTP(s)-monitor: n8n webhooks geven 404 op HEAD."
+        "note": "Optioneel na bus-JSON-cutover: uitschakelen of interval 24u. Geen HTTP(s): n8n webhooks geven 404 op HEAD."
       }
     }
   ]

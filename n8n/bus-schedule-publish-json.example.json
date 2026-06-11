@@ -1,0 +1,258 @@
+{
+  "name": "kalanera-bus-schedule-publish-json (example)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-bus-publish-001",
+      "name": "Manual — publish JSON",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-720, -80]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "id": "schedule-bus-publish-002",
+      "name": "Schedule — daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-720, 120],
+      "notes": "Bus-schema wijzigt ~2×/jaar; dagelijks is ruim voldoende. Workflow INACTIVE houden tot deploy getest is."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig",
+          "mode": "list",
+          "cachedResultName": "localbusinesses-kalanera",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 681885468,
+          "mode": "list",
+          "cachedResultName": "Bus_Schedule",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig/edit#gid=681885468"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "id": "sheets-bus-publish-003",
+      "name": "Google Sheets — Bus_Schedule",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [-440, 20],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.all().map((i) => i.json);\nconst generatedAt = new Date().toISOString();\nconst envelope = {\n  generatedAt,\n  source: 'google-sheets',\n  rowCount: rows.length,\n  rows,\n};\nconst jsonText = JSON.stringify(envelope);\nreturn [\n  {\n    json: {\n      envelope,\n      jsonText,\n      stagingFileName: 'bus-schedule.staging.json',\n    },\n  },\n];"
+      },
+      "id": "code-bus-pack-004",
+      "name": "Pack JSON (publish)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-160, 20]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst fileContent = String(j.jsonText ?? '');\nif (!fileContent) throw new Error('Pack JSON: jsonText ontbreekt of is leeg');\nconst fileName = 'data/bus-schedule.json';\nreturn [{ json: { fileName, fileContent, byteSize: Buffer.byteLength(fileContent, 'utf8'), generatedAt: j.envelope?.generatedAt ?? null, rowCount: j.envelope?.rowCount ?? null, stagingFileName: j.stagingFileName ?? 'bus-schedule.staging.json' } }];"
+      },
+      "id": "code-bus-github-prep-005",
+      "name": "Prepare GitHub push",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, -120]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "evertvanlaar",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "VisualStudioCode",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.fileName }}",
+        "fileContent": "={{ $json.fileContent }}",
+        "commitMessage": "data: sync bus-schedule from Sheet"
+      },
+      "id": "github-bus-push-006",
+      "name": "GitHub Push",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [400, -120],
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "REPLACE_WITH_GITHUB_CREDENTIAL_ID",
+          "name": "GitHub account"
+        }
+      },
+      "notes": "Niet rechtstreeks na Pack JSON — altijd via Prepare GitHub push."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const j = $input.first().json;\nconst buf = Buffer.from(j.jsonText, 'utf8');\nreturn [\n  {\n    json: {\n      fileName: j.stagingFileName,\n      byteSize: buf.length,\n    },\n    binary: {\n      data: {\n        data: buf.toString('base64'),\n        mimeType: 'application/json',\n        fileName: j.stagingFileName,\n      },\n    },\n  },\n];"
+      },
+      "id": "code-bus-binary-005",
+      "name": "To binary (staging)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [120, 20],
+      "notes": "Koppel SFTP/SSH → /data/bus-schedule.staging.json op kalanera.gr. Zie docs/static-bus-json-rollout.md"
+    },
+    {
+      "parameters": {
+        "path": "bus-schedule-json-preview",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wb-bus-preview-007",
+      "name": "Webhook — JSON preview GET",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [-720, 360],
+      "webhookId": "bus-schedule-json-preview"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig",
+          "mode": "list",
+          "cachedResultName": "localbusinesses-kalanera",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 681885468,
+          "mode": "list",
+          "cachedResultName": "Bus_Schedule",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DGtUvOvJ35MzXsZBZOPR1xzkyb0V_sMttOKcv1JBuig/edit#gid=681885468"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "id": "sheets-bus-preview-008",
+      "name": "Google Sheets — preview",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [-440, 360],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows = $input.all().map((i) => i.json);\nconst generatedAt = new Date().toISOString();\nconst envelope = {\n  generatedAt,\n  source: 'google-sheets',\n  rowCount: rows.length,\n  rows,\n};\nreturn [{ json: { jsonText: JSON.stringify(envelope) } }];"
+      },
+      "id": "code-bus-pack-preview-009",
+      "name": "Pack JSON (preview)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-160, 360]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.jsonText }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json; charset=utf-8"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-bus-preview-010",
+      "name": "Respond preview JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [120, 360]
+    }
+  ],
+  "connections": {
+    "Manual — publish JSON": {
+      "main": [[{ "node": "Google Sheets — Bus_Schedule", "type": "main", "index": 0 }]]
+    },
+    "Schedule — daily 06:00": {
+      "main": [[{ "node": "Google Sheets — Bus_Schedule", "type": "main", "index": 0 }]]
+    },
+    "Google Sheets — Bus_Schedule": {
+      "main": [[{ "node": "Pack JSON (publish)", "type": "main", "index": 0 }]]
+    },
+    "Pack JSON (publish)": {
+      "main": [
+        [
+          { "node": "Prepare GitHub push", "type": "main", "index": 0 },
+          { "node": "To binary (staging)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Prepare GitHub push": {
+      "main": [[{ "node": "GitHub Push", "type": "main", "index": 0 }]]
+    },
+    "Webhook — JSON preview GET": {
+      "main": [[{ "node": "Google Sheets — preview", "type": "main", "index": 0 }]]
+    },
+    "Google Sheets — preview": {
+      "main": [[{ "node": "Pack JSON (preview)", "type": "main", "index": 0 }]]
+    },
+    "Pack JSON (preview)": {
+      "main": [[{ "node": "Respond preview JSON", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

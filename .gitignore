@@ -25,6 +25,9 @@ npm-debug.log*
 data/local-businesses.json
 data/local-businesses.staging.json
 data/local-businesses.meta.json
+data/bus-schedule.json
+data/bus-schedule.staging.json
+data/bus-schedule.meta.json
 
 # Lokale SEO/sitemap preview (nooit naar GitHub/site)
 index.seo-draft.html

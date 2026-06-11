@@ -25,7 +25,7 @@
 
 ---
 
-## Monitors (6 stuks)
+## Monitors (7 stuks)
 
 Definitie staat in `monitoring/monitors.json`. Samenvatting:
 
@@ -36,7 +36,8 @@ Definitie staat in `monitoring/monitors.json`. Samenvatting:
 | `business-json` | `https://www.kalanera.gr/data/local-businesses.json` | **Primair** na JSON-cutover |
 | `pwa-manifest` | `https://www.kalanera.gr/manifest.json` | PWA / Play Store TWA |
 | `n8n-business-fallback` | `https://n8n.vanlaar.cloud/webhook/local-businesses` | Backup als JSON faalt |
-| `n8n-bus-schedule` | `https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0` | Bus-widget |
+| `bus-json` | `https://www.kalanera.gr/data/bus-schedule.json` | **Primair** bus-schema na JSON-cutover |
+| `n8n-bus-schedule` | `https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0` | Bus fallback (optioneel uitzetten) |
 
 Drempels in het check-script (lokaal):
 
@@ -87,7 +88,8 @@ Voorbeeld homepage: keyword `business-list` → **Alert when: Keyword does NOT e
 | Bedrijven JSON | Keyword | `https://www.kalanera.gr/data/local-businesses.json` | `rowCount` | Keyword **not** exists |
 | PWA manifest | HTTP(s) | `https://www.kalanera.gr/manifest.json` | — | — |
 | n8n bedrijven fallback | **Keyword** (verplicht) | `https://n8n.vanlaar.cloud/webhook/local-businesses` | `Name` | Keyword **not** exists |
-| n8n bus | **Keyword** (verplicht) | `https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0` | `Europe/Athens` | Keyword **not** exists |
+| Bus JSON | Keyword | `https://www.kalanera.gr/data/bus-schedule.json` | `rowCount` | Keyword **not** exists |
+| n8n bus (fallback) | **Keyword** (optioneel) | `https://n8n.vanlaar.cloud/webhook/bus-schedule-next?dir=volos&remaining=0&dayOffset=0` | `Europe/Athens` | Keyword **not** exists |
 
 **n8n + HTTP(s) = valse alarmen:** n8n-webhooks antwoorden **404 op HEAD**, maar **200 op GET**. Het gratis HTTP-monitor-type gebruikt HEAD → je krijgt een incident terwijl de webhook wél werkt. Gebruik voor beide n8n-URL’s daarom type **Keyword**.
 
