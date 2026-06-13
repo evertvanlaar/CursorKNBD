@@ -182,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.57';
+    const appVersion = '3.1.58';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
