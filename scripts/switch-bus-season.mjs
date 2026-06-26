@@ -52,11 +52,30 @@ function copySeason(seasonKey, destPath) {
   console.log('  rowCount:', env.rowCount ?? env.rows?.length);
 }
 
+function seasonMetaFromSrc(seasonKey) {
+  const src = SEASON_SRC[seasonKey];
+  if (!src || !fs.existsSync(src)) return null;
+  const env = readJson(src);
+  return {
+    validFrom: env.validFrom ?? null,
+    validUntil: env.validUntil ?? null,
+  };
+}
+
 function writeMeta(activeScheduleId, activeFile) {
+  const active = seasonMetaFromSrc(activeScheduleId) || {};
+  const seasons = {};
+  for (const key of Object.keys(SEASON_SRC)) {
+    const m = seasonMetaFromSrc(key);
+    if (m) seasons[key] = { validFrom: m.validFrom, validUntil: m.validUntil };
+  }
   writeJson(DATA.meta, {
     activeScheduleId,
     activeFile: path.basename(activeFile),
     updatedAt: new Date().toISOString(),
+    validFrom: active.validFrom ?? null,
+    validUntil: active.validUntil ?? null,
+    seasons,
     winterFile: 'bus-schedule.winter.json',
     summerFile: 'bus-schedule.summer.json',
     testSummerUrl: 'https://www.kalanera.gr/bus.html?busData=json&busSeason=summer',
