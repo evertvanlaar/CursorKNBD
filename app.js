@@ -680,7 +680,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.92'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.93'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -1934,8 +1934,9 @@ function renderBusinesses(data) {
             const catColor = getColor(categoryForColor || biz.Category || 'Other');
             const safeBizName = String(biz.Name || '').replace(/'/g, "\\'"); // Veilig voor JS strings
             
-            const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' Kala Nera reviews')}`;
-            const mapsUrl = biz.GoogleMapsLink || `https://www.google.com/maps/search/${encodeURIComponent(biz.Name + ' Kala Nera')}`;
+            const locForSearch = String(biz.Location || 'Kala Nera').trim();
+            const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' ' + locForSearch + ' reviews')}`;
+            const mapsUrl = biz.GoogleMapsLink || `https://www.google.com/maps/search/${encodeURIComponent(biz.Name + ' ' + locForSearch)}`;
             
             // Email HTML
             const emailHtml = (biz.Email && biz.Email.trim() !== "" && biz.Email !== "-") 

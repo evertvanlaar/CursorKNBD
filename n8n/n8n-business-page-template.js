@@ -182,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.92';
+    const appVersion = '3.1.93';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -277,10 +277,11 @@ for (const item of $input.all()) {
     const imgSrcAbsolute = absoluteAssetUrl(biz.PhotoURL);
     const imgAlt = isGreek ? `${name} στα ${loc}` : `${name} in ${loc}`;
 
-    const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' Kala Nera reviews')}`;
+    const locForSearch = String(locEn || biz.Location || 'Kala Nera').trim();
+    const reviewUrl = `https://www.google.com/search?q=${encodeURIComponent(biz.Name + ' ' + locForSearch + ' reviews')}`;
     const mapsUrl =
       (biz.GoogleMapsLink && String(biz.GoogleMapsLink).trim()) ||
-      `https://www.google.com/maps/search/${encodeURIComponent(biz.Name + ' Kala Nera')}`;
+      `https://www.google.com/maps/search/${encodeURIComponent(biz.Name + ' ' + locForSearch)}`;
     const gtagBiz = gtagSafeName(biz.Name);
 
     const breadcrumbLd = {
