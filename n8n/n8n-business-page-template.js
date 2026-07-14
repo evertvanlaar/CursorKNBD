@@ -182,7 +182,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.100';
+    const appVersion = '3.1.101';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -202,8 +202,8 @@ for (const item of $input.all()) {
     const footerContactTitle = isGreek ? 'Επικοινωνία' : 'Contact';
     const footerPrivacyLabel = isGreek ? 'Πολιτική απορρήτου' : 'Privacy policy';
     const footerCopyright = isGreek
-      ? '© 2026 Οδηγός Καλών Νερών. E-Project όλα τα δικαιώματα διατηρούνται.'
-      : '© 2026 Kala Nera Guide. E-Project all rights reserved.';
+      ? '© 2026 Οδηγός Καλών Νερών. E-Project όλα τα δικαιώματα διατηρούνται - Developed by Evert van Laar'
+      : '© 2026 Kala Nera Guide. E-Project all rights reserved - Developed by Evert van Laar';
     const footerPoweredLabel = isGreek ? 'Με την υποστήριξη' : 'Powered by';
     const footerPoweredAria = isGreek
       ? 'Με την υποστήριξη KanteKlik — επικοινωνία μέσω email'
@@ -439,7 +439,7 @@ ${contactCardHtml}
             <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
             <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
           </ul></div></div></div>
-        <p class="footer-legal">${escapeHtml(footerCopyright)} · <span class="footer-powered-inline">${escapeHtml(footerPoweredLabel)} <a href="mailto:info@spiti.tech">KanteKlik</a></span></p>
+        <p class="footer-legal">${escapeHtml(footerCopyright)}</p>
       </div></div>
   </footer>
   <nav class="bottom-nav" aria-label="${escapeHtml(bottomNavAria)}"><div class="bottom-nav-inner">

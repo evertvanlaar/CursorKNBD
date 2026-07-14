@@ -14,7 +14,7 @@ const DEFAULTS = {
     tagline: 'Kala Nera · Pelion, Greece',
     lead: 'We help travelers discover the best places—from authentic taverns to wonderful stays—in Kala Nera and the wider Pelion area.',
     legal:
-      '© 2026 Kala Nera Guide. E-Project all rights reserved. · <span class="footer-powered-inline">Powered by <a href="mailto:info@spiti.tech">KanteKlik</a></span>',
+      '© 2026 Kala Nera Guide. E-Project all rights reserved - Developed by Evert van Laar',
     siteTitle: 'Site',
     socialTitle: 'Social',
     infoTitle: 'Info',
@@ -46,7 +46,7 @@ const DEFAULTS = {
     tagline: 'Καλά Νερά · Πήλιο, Ελλάδα',
     lead: 'Βοηθάμε τους επισκέπτες να ανακαλύψουν τα καλύτερα σημεία—από αυθεντικές ταβέρνες μέχρι όμορφες διαμονές—στα Καλά Νερά και το ευρύτερο Πήλιο.',
     legal:
-      '© 2026 Οδηγός Καλών Νερών. E-Project όλα τα δικαιώματα διατηρούνται. · <span class="footer-powered-inline">Με την υποστήριξη <a href="mailto:info@spiti.tech">KanteKlik</a></span>',
+      '© 2026 Οδηγός Καλών Νερών. E-Project όλα τα δικαιώματα διατηρούνται - Developed by Evert van Laar',
     siteTitle: 'Ιστότοπος',
     socialTitle: 'Κοινωνικά',
     infoTitle: 'Πληροφορίες',
@@ -107,11 +107,10 @@ function extractLegal(footerHtml, fallback) {
     footerHtml.match(/footer-bottom-row"><p>([^<]+)</i);
   if (!m) return fallback;
   let text = m[1].trim();
-  if (!text.includes('footer-powered-inline') && !text.includes('KanteKlik')) {
-    const powered = fallback.includes('Με την υποστήριξη')
-      ? ' · <span class="footer-powered-inline">Με την υποστήριξη <a href="mailto:info@spiti.tech">KanteKlik</a></span>'
-      : ' · <span class="footer-powered-inline">Powered by <a href="mailto:info@spiti.tech">KanteKlik</a></span>';
-    text += powered;
+  if (text.includes('footer-powered-inline') || text.includes('KanteKlik')) {
+    return text.includes('Με την υποστήριξη') || text.includes('δικαιώματα διατηρούνται')
+      ? '© 2026 Οδηγός Καλών Νερών. E-Project όλα τα δικαιώματα διατηρούνται - Developed by Evert van Laar'
+      : '© 2026 Kala Nera Guide. E-Project all rights reserved - Developed by Evert van Laar';
   }
   return text;
 }
