@@ -42,6 +42,8 @@ const ROOT_HTML_FILES = [
   't-form-el.html',
   'privacy.html',
   'privacy-el.html',
+  'about.html',
+  'about-el.html',
   'info.html',
   'info-el.html',
   'flights.html',

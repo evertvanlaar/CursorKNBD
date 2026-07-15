@@ -44,6 +44,8 @@ const STATIC_PAGES = [
   { path: '/info-el.html', changefreq: 'monthly', priority: '0.6' },
   { path: '/privacy.html', changefreq: 'yearly', priority: '0.4' },
   { path: '/privacy-el.html', changefreq: 'yearly', priority: '0.4' },
+  { path: '/about.html', changefreq: 'yearly', priority: '0.4' },
+  { path: '/about-el.html', changefreq: 'yearly', priority: '0.4' },
   { path: '/events.html', changefreq: 'weekly', priority: '0.7' },
   { path: '/events-el.html', changefreq: 'weekly', priority: '0.7' },
   { path: '/flights.html', changefreq: 'monthly', priority: '0.6' },

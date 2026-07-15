@@ -34,6 +34,7 @@ const DEFAULTS = {
       info: { href: 'info.html', icon: 'fa-compass', label: 'Pelion guide' },
       useful: { href: 'useful-numbers.html', icon: 'fa-phone', label: 'Useful numbers' },
       contact: { href: 'mailto:info@spiti.tech', icon: 'fa-envelope', label: 'Contact', mail: true },
+      about: { href: 'about.html', icon: 'fa-circle-info', label: 'About us' },
       privacy: { href: 'privacy.html', icon: 'fa-user-shield', label: 'Privacy policy' },
     },
     index: 'index.html',
@@ -66,6 +67,7 @@ const DEFAULTS = {
       info: { href: 'info-el.html', icon: 'fa-compass', label: 'Οδηγός Πηλίου' },
       useful: { href: 'useful-numbers-el.html', icon: 'fa-phone', label: 'Χρήσιμα τηλέφωνα' },
       contact: { href: 'mailto:info@spiti.tech', icon: 'fa-envelope', label: 'Επικοινωνία', mail: true },
+      about: { href: 'about-el.html', icon: 'fa-circle-info', label: 'Σχετικά με εμάς' },
       privacy: { href: 'privacy-el.html', icon: 'fa-user-shield', label: 'Πολιτική απορρήτου' },
     },
     index: 'index-el.html',
@@ -145,7 +147,7 @@ function buildHubFooter({ isEl, prefix, tagline, lead, legal, ariaMap, compact }
   const siteLinks = ['bus', 'wishlist', 'tform', 'info', 'useful']
     .map((k) => navLi(prefix, L.links[k], ariaMap))
     .join(nl);
-  const infoLinks = ['contact', 'privacy']
+  const infoLinks = ['contact', 'about', 'privacy']
     .map((k) => navLi(prefix, L.links[k], ariaMap))
     .join(nl);
 
