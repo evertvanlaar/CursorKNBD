@@ -74,9 +74,9 @@ android {
     defaultConfig {
         applicationId "com.kalanera.app"
         minSdkVersion 23
-        targetSdkVersion 35
-        versionCode 8
-        versionName "3.1.45"
+        targetSdkVersion 36
+        versionCode 9
+        versionName "3.1.103"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
