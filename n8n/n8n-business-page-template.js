@@ -1,6 +1,7 @@
 /**
  * n8n "Code"-node template: twee talen per zaak → business/{slug}.html & business/{slug}-el.html
  * - Magazine detail layout (Rodia POC): sheet chrome, contact card, review/maps, photo lightbox via app.js
+ * - Contact: Phone / Email / Website / MH.T.E.·AMA·GEMI·License (EL: MH.T.E.·ΑΜΑ·ΓΕΜΗ·Άδεια)
  * - Domein: overal https://www.kalanera.gr
  * - OG + Twitter meta, JSON-LD BreadcrumbList + category-specific LocalBusiness
  *
@@ -114,6 +115,68 @@ const telForLd = (p) => {
 
 const telHref = (p) => telForLd(p).replace(/\s+/g, '');
 
+/**
+ * Sheet-kolom AMA-MHTE-GEMI → één of meer contactrijen.
+ * kind: mhte | ama | gemi | license — label EN/EL via regLabel().
+ * Prefix in de waarde wordt weggelaten. Delen met | → meerdere rijen.
+ */
+const parseRegEntries = (raw) => {
+  const text = String(raw ?? '').trim();
+  if (!text || text === '-') return [];
+
+  const parts = text
+    .split(/\s*\|\s*/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  return parts.map((part) => {
+    const isMhte =
+      /MH\s*\.?\s*T\s*\.?\s*E/i.test(part) ||
+      /Μ\s*\.?\s*Η\s*\.?\s*Τ\s*\.?\s*Ε/i.test(part) ||
+      /\b0726[A-ZΑ-Ω0-9]/i.test(part) ||
+      /\b0762[A-ZΑ-Ω0-9]/i.test(part);
+
+    const isGemi = /(?:^|[\s|/])(?:GEMI|ΓΕΜΗ)\b/i.test(part);
+
+    const isAma =
+      /(?:^|[\s|/])(?:AMA|ΑΜΑ|ΜΑΓ|MAG)\b/i.test(part) ||
+      /Αριθμός\s+Μητρώου\s+Ακινήτου/i.test(part) ||
+      /^0{3,}\d{7,}$/.test(
+        part.replace(/^(?:AMA|ΑΜΑ|ΜΑΓ|MAG|License|Licence)\s*:?\s*/i, '').trim(),
+      );
+
+    let kind = 'license';
+    if (isMhte) kind = 'mhte';
+    else if (isGemi) kind = 'gemi';
+    else if (isAma) kind = 'ama';
+
+    let value = part
+      .replace(
+        /^(?:MH\s*\.?\s*T\s*\.?\s*E\s*\.?|Μ\s*\.?\s*Η\s*\.?\s*Τ\s*\.?\s*Ε\s*\.?)\s*:?\s*/i,
+        '',
+      )
+      .replace(/^(?:License|Licence)\s*:?\s*/i, '')
+      .replace(/^(?:ΜΑΓ\/License|MAG\/License)\s*:?\s*/i, '')
+      .replace(/^(?:AMA|ΑΜΑ|ΜΑΓ|MAG)\s*:?\s*/i, '')
+      .replace(/^(?:GEMI|ΓΕΜΗ)\s*:?\s*/i, '')
+      .trim();
+
+    if (!value) value = part;
+    return { kind, value };
+  });
+};
+
+/** Contact-label voor registratienummer (EN of EL). */
+const regLabel = (kind, isGreek) => {
+  const labels = {
+    mhte: 'MH.T.E.',
+    ama: isGreek ? 'ΑΜΑ' : 'AMA',
+    gemi: isGreek ? 'ΓΕΜΗ' : 'GEMI',
+    license: isGreek ? 'Άδεια' : 'License',
+  };
+  return labels[kind] || labels.license;
+};
+
 /** Link text for Website row: "Facebook" instead of long profile.php URLs; own domains stay as hostname. */
 const websiteDisplayLabel = (url) => {
   const raw = String(url ?? '').trim();
@@ -182,7 +245,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.103';
+    const appVersion = '3.1.106';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -274,6 +337,16 @@ for (const item of $input.all()) {
           ? safeWebsite
           : '';
 
+    const licenseRaw = [
+      biz['AMA-MHTE-GEMI'],
+      biz.AMA_MHTE_GEMI,
+      biz['AMA MHTE GEMI'],
+    ]
+      .map((v) => String(v ?? '').trim())
+      .find((v) => v && v !== '-');
+    const licenseNo = licenseRaw || '';
+    const regEntries = parseRegEntries(licenseNo);
+
     const imgSrc = businessPixSrc(biz.PhotoURL);
     const imgSrcAbsolute = absoluteAssetUrl(biz.PhotoURL);
     const imgAlt = isGreek ? `${name} στα ${loc}` : `${name} in ${loc}`;
@@ -316,6 +389,15 @@ for (const item of $input.all()) {
       },
       ...(tel ? { telephone: tel } : {}),
       ...(websiteHref ? { sameAs: websiteHref } : {}),
+      ...(regEntries.length
+        ? {
+            identifier: regEntries.map((e) => ({
+              '@type': 'PropertyValue',
+              name: regLabel(e.kind, isGreek),
+              value: e.value,
+            })),
+          }
+        : {}),
     };
 
     const ldGraph = { '@context': 'https://schema.org', '@graph': [breadcrumbLd, businessLd] };
@@ -344,6 +426,17 @@ for (const item of $input.all()) {
           `            <a href="${escapeHtml(websiteHref)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(websiteHref)}">${escapeHtml(websiteDisplayLabel(websiteHref))}</a>\n` +
           '          </div>',
       );
+    }
+    if (regEntries.length) {
+      for (const entry of regEntries) {
+        const label = regLabel(entry.kind, isGreek);
+        contactRows.push(
+          '          <div class="biz-detail-contact-row">\n' +
+            `            <span class="biz-detail-contact-label"><i class="fa-solid fa-id-card" aria-hidden="true"></i> ${escapeHtml(label)}</span>\n` +
+            `            <span class="biz-detail-contact-value">${escapeHtml(entry.value)}</span>\n` +
+            '          </div>',
+        );
+      }
     }
     const contactCardHtml = contactRows.length
       ? `        <div class="biz-detail-contact flights-card">\n${contactRows.join('\n')}\n        </div>`
@@ -379,10 +472,21 @@ ${siteLangScript}  <meta charset="UTF-8">
   <meta name="twitter:image" content="${escapeHtml(imgSrcAbsolute)}">
   <script type="application/ld+json">${jsonLdEmbed(ldGraph)}</script>
   <link rel="icon" type="image/png" href="../favicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="../style.css?v=${appVersion}">
   <link rel="manifest" href="/manifest.json">
+  <style>
+    /* Contact-waarden (MH.T.E. / AMA / License): zelfde gewicht/kleur als phone/email/website-links */
+    .biz-detail-contact-row .biz-detail-contact-value{
+      grid-column:2;padding:.32rem 0;min-width:0;
+      font-family:Inter,system-ui,sans-serif;
+      font-size:.78rem;font-weight:700;color:#4a6c4a;text-align:left;
+      font-variant-numeric:tabular-nums;line-height:1.35;
+      white-space:normal;overflow-wrap:anywhere;max-width:min(100%,22rem);
+      text-decoration:none;
+    }
+  </style>
 </head>
 <body class="biz-detail-page">
   <header class="site-header"><nav class="main-nav"><div class="nav-container">
