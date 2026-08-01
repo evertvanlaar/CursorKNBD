@@ -22,6 +22,8 @@ Bij invullen van het Google **production access**-formulier: alleen claimen wat 
 | [A2-play-store-copy.md](./A2-play-store-copy.md) | Listing-teksten Play Console |
 | [A3-release-notes-3.1.1.md](./A3-release-notes-3.1.1.md) | What's new EN/EL (3.1.0 / 3.1.1) |
 | [A3-release-notes-3.1.45.md](./A3-release-notes-3.1.45.md) | What's new EN/EL (3.1.45 — deep links fix) |
+| [A3-release-notes-3.1.103.md](./A3-release-notes-3.1.103.md) | What's new + Windows build (3.1.103 — targetSdk 36) |
+| [A3-release-notes-3.1.108.md](./A3-release-notes-3.1.108.md) | What's new EN/EL (3.1.108 — hub sort + lang/cat) |
 | [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
 | [A5-production-access-round2.md](./A5-production-access-round2.md) | Production access — context & strategie (2e aanvraag) |
 | [A5-invulsheet-production-access.md](./A5-invulsheet-production-access.md) | **Invulsheet — copy-paste per veld (START HIER)** |
