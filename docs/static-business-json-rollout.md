@@ -54,6 +54,17 @@ Ondersteund door `app.js` (`normalizeBusinessWebhookPayload`):
 
 Alleen rijen met `Status` = `Active` (case-insensitive) worden in de UI getoond.
 
+### Highlight / “Just added” (Sheet → n8n → site)
+
+n8n pakt alle Sheet-kolommen as-is; geen workflow-wijziging nodig.
+
+| Kolom | Gebruik |
+|-------|---------|
+| `HighlightUntil` | Laatste dag dat “New” / Just added actief is (inclusief). Formaat: `DD-MM-YYYY` of `YYYY-MM-DD`. |
+| `IsNew` | Optioneel: `yes` / `true` / `1` zolang gezet (geen auto-expiry). Liever `HighlightUntil`. |
+
+Homepage toont een horizontale **Just added**-strip (desktop + mobiel) en een klein **New**-label op directory-kaarten zolang de highlight geldig is (datum t.o.v. Europe/Athens). Lege/verlopen highlights → strip verborgen.
+
 ---
 
 ## Fase 0 — Lokaal testen (geen productie)

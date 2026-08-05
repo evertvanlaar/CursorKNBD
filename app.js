@@ -628,7 +628,126 @@ function normalizeBusinessDirectoryRow(biz) {
     const row = { ...biz };
     if (row.Location != null) row.Location = String(row.Location).trim();
     if (row.Category != null) row.Category = String(row.Category).trim() || 'Other';
+    if (row.HighlightUntil != null) row.HighlightUntil = String(row.HighlightUntil).trim();
+    if (row.IsNew != null) row.IsNew = String(row.IsNew).trim();
     return row;
+}
+
+/** Calendar date YYYY-MM-DD in Europe/Athens (Sheet dates are local Greece). */
+function todayYmdAthens() {
+    try {
+        return new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Europe/Athens',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).format(new Date());
+    } catch (e) {
+        return new Date().toISOString().slice(0, 10);
+    }
+}
+
+/** Parse Sheet date cells: ISO, DD-MM-YYYY, or D/M/YYYY (+ optional time). */
+function parseSheetDate(raw) {
+    const s = String(raw ?? '').trim();
+    if (!s) return null;
+    const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (iso) {
+        return `${iso[1]}-${iso[2].padStart(2, '0')}-${iso[3].padStart(2, '0')}`;
+    }
+    const eu = s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+    if (!eu) return null;
+    const [, day, month, year] = eu;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+function sheetTruthyFlag(raw) {
+    const s = String(raw ?? '').trim().toLowerCase();
+    return s === 'yes' || s === 'y' || s === 'true' || s === '1' || s === 'x';
+}
+
+/**
+ * Editorial highlight from Google Sheet (via n8n JSON, no code change per business):
+ * - HighlightUntil: last day inclusive (DD-MM-YYYY or YYYY-MM-DD)
+ * - IsNew: yes/true while set (optional; prefer HighlightUntil so it expires)
+ */
+function businessIsHighlighted(biz) {
+    if (!biz) return false;
+    const until = parseSheetDate(biz.HighlightUntil);
+    if (until) return until >= todayYmdAthens();
+    return sheetTruthyFlag(biz.IsNew);
+}
+
+function compareBusinessHighlightThenName(a, b) {
+    const ha = businessIsHighlighted(a) ? 0 : 1;
+    const hb = businessIsHighlighted(b) ? 0 : 1;
+    if (ha !== hb) return ha - hb;
+    return compareBusinessDisplayNames(a, b);
+}
+
+function businessDirectorySlug(biz) {
+    return String(biz && biz.Name ? biz.Name : '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+}
+
+function getJustAddedBusinesses() {
+    let list = allBusinesses.filter(businessIsHighlighted);
+    if (!locationFilterShowsAllBusinesses()) {
+        list = list.filter((biz) => activeLocations.has(biz.Location));
+    }
+    list.sort((a, b) => {
+        const ua = parseSheetDate(a.HighlightUntil) || '';
+        const ub = parseSheetDate(b.HighlightUntil) || '';
+        if (ua !== ub) return ub.localeCompare(ua);
+        return compareBusinessDisplayNames(a, b);
+    });
+    return list.slice(0, 8);
+}
+
+function renderJustAddedStrip() {
+    const host = document.getElementById('just-added');
+    if (!host) return;
+    if (!isHomeHubPage()) {
+        host.hidden = true;
+        host.innerHTML = '';
+        return;
+    }
+
+    const items = getJustAddedBusinesses();
+    if (!items.length) {
+        host.hidden = true;
+        host.innerHTML = '';
+        return;
+    }
+
+    const isEl = currentLang === 'el';
+    const title = isEl ? 'Πρόσφατα' : 'Just added';
+    const labelNew = isEl ? 'Νέο' : 'New';
+    const cards = items.map((biz) => {
+        const displayName = (isEl && biz.Name_EL) ? biz.Name_EL : biz.Name;
+        const bizId = businessDirectorySlug(biz);
+        const detailHref = `business/${bizId}${isEl ? '-el' : ''}.html`;
+        const img = absolutePhotoUrl(biz.PhotoURL);
+        const safeName = String(biz.Name || '').replace(/'/g, "\\'");
+        return `
+            <a class="just-added-card" href="${detailHref}" onclick="gtag('event', 'click_just_added', {'biz_name': '${safeName}'})">
+                <span class="just-added-card__media">
+                    <img src="${img}" alt="" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/pix/nophoto.jpg'">
+                    <span class="biz-new-badge" aria-hidden="true">${labelNew}</span>
+                </span>
+                <span class="just-added-card__name">${escapeHtml(displayName)}</span>
+            </a>`;
+    }).join('');
+
+    host.hidden = false;
+    host.setAttribute('aria-label', title);
+    host.innerHTML = `
+        <div class="just-added__head">
+            <h2 class="just-added__title">${title}</h2>
+        </div>
+        <div class="just-added__rail" role="list">${cards}</div>`;
 }
 
 function activeBusinessRows(rawData) {
@@ -680,7 +799,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.111'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.114'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -1954,6 +2073,7 @@ function applyFilters() {
 
     syncHubCategoryForSearch(filtered, isSearching);
     syncHubFilterBar();
+    renderJustAddedStrip();
     if (isHomeHubPage() && !hubListUnlocked()) {
         syncHubResultsLine(0);
         renderHubIdlePrompt();
@@ -2032,14 +2152,20 @@ function renderBusinesses(data) {
             const phoneHtml = (biz.Phone && biz.Phone.trim() !== "" && biz.Phone !== "-")
                 ? `<a href="tel:${biz.Phone}" class="btn-icon phone-btn" title="${escapeHtml(biz.Phone)}" onclick="gtag('event', 'click_phone', {'biz_name': '${safeBizName}'})"><i class="fa fa-phone"></i></a>`
                 : '';
+            const highlighted = businessIsHighlighted(biz);
+            const newBadgeHtml = highlighted
+                ? `<span class="biz-new-badge">${currentLang === 'el' ? 'Νέο' : 'New'}</span>`
+                : '';
+            const highlightClass = highlighted ? ' is-highlighted' : '';
 
             if (useMagazineCardLayout()) {
                 grid.innerHTML += `
-    <div class="biz-card-mini biz-card-mini--magazine" id="${bizId}">
+    <div class="biz-card-mini biz-card-mini--magazine${highlightClass}" id="${bizId}">
         <div class="magazine-preview">
             <a class="magazine-link" href="${detailHref}" onclick="gtag('event', 'click_image', {'biz_name': '${safeBizName}'})">
                 <img src="${finalImageUrl}" onerror="this.onerror=null;this.src='/pix/nophoto.jpg'" alt="${escapeHtml(displayName)}">
             </a>
+            ${newBadgeHtml}
             ${shareHtml}
             <button class="wishlist-btn ${isFavorite ? 'active' : ''}" onclick="toggleWishlist('${safeBizName}', this)" aria-label="Toggle favorite">
                 <i class="${isFavorite ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
@@ -2062,11 +2188,12 @@ function renderBusinesses(data) {
 
   // 3. De Grid HTML
 grid.innerHTML += `
-    <div class="biz-card-mini is-media" id="${bizId}" style="border-left: 4px solid ${catColor}">
+    <div class="biz-card-mini is-media${highlightClass}" id="${bizId}" style="border-left: 4px solid ${catColor}">
         <div class="mini-preview">
             <a class="media-link" href="business/${bizId}${currentLang === 'el' ? '-el' : ''}.html" onclick="gtag('event', 'click_image', {'biz_name': '${safeBizName}'})">
                 <img src="${finalImageUrl}" onerror="this.onerror=null;this.src='/pix/nophoto.jpg'" alt="${displayName}">
             </a>
+            ${newBadgeHtml}
             <div class="media-overlay">
                 <div class="media-title">${displayName}</div>
                 <div class="mini-actions mini-actions-media">
@@ -2114,7 +2241,7 @@ grid.innerHTML += `
     if (isHomeHubPage() && activeCategory && listMode !== 'az') {
         const grid = document.createElement('div');
         grid.className = 'business-grid hub-category-grid';
-        const sorted = [...data].sort(compareBusinessDisplayNames);
+        const sorted = [...data].sort(compareBusinessHighlightThenName);
         sorted.forEach((biz) => renderCardInto(grid, biz, activeCategory));
         container.appendChild(grid);
         if (hubCategoryScrollPending && activeCategory) {
@@ -2175,7 +2302,7 @@ grid.innerHTML += `
             const grid = document.createElement('div');
             grid.className = 'business-grid category-section-grid';
             grouped[category]
-                .sort(compareBusinessDisplayNames)
+                .sort(compareBusinessHighlightThenName)
                 .forEach(biz => renderCardInto(grid, biz, category));
 
             details.appendChild(summary);
@@ -2188,7 +2315,7 @@ grid.innerHTML += `
         const grid = document.createElement('div');
         grid.className = 'business-grid';
 
-        const sorted = [...data].sort(compareBusinessDisplayNames);
+        const sorted = [...data].sort(compareBusinessHighlightThenName);
 
         sorted.forEach(biz => renderCardInto(grid, biz, biz.Category || 'Other'));
         container.appendChild(grid);
