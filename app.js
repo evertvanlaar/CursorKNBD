@@ -680,7 +680,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.109'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.111'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -5906,9 +5906,80 @@ function initBizDetailPhotoLightbox() {
     });
 }
 
+/**
+ * Announce new items in the More sheet.
+ * Bump `id` to re-show the tip for everyone; add keys that should get a "New" label
+ * (e.g. ['beaches', 'bus']). Keys are matched in renderMoreSheetContent.
+ */
+const MORE_WHATS_NEW = {
+    id: '2026-08-beaches',
+    keys: ['beaches'],
+};
+const MORE_WHATS_NEW_STORAGE_KEY = 'kn_more_whats_new_seen';
+
+function trackExternalGuideClick(linkId, source) {
+    if (typeof gtag !== 'function') return;
+    try {
+        gtag('event', 'click_external_guide', {
+            link_id: linkId,
+            source: source || 'unknown',
+        });
+    } catch (e) { /* ignore */ }
+}
+
+function getMoreWhatsNewSeenId() {
+    try {
+        return localStorage.getItem(MORE_WHATS_NEW_STORAGE_KEY) || '';
+    } catch (e) {
+        return '';
+    }
+}
+
+function isMoreWhatsNewUnread() {
+    const id = MORE_WHATS_NEW && MORE_WHATS_NEW.id;
+    if (!id) return false;
+    return getMoreWhatsNewSeenId() !== id;
+}
+
+function markMoreWhatsNewSeen() {
+    const id = MORE_WHATS_NEW && MORE_WHATS_NEW.id;
+    if (!id) return;
+    try {
+        localStorage.setItem(MORE_WHATS_NEW_STORAGE_KEY, id);
+    } catch (e) { /* ignore */ }
+}
+
+function isMoreWhatsNewKey(key) {
+    const keys = MORE_WHATS_NEW && Array.isArray(MORE_WHATS_NEW.keys) ? MORE_WHATS_NEW.keys : [];
+    return keys.indexOf(key) !== -1;
+}
+
+function moreNewLabelHtml(isEl, show) {
+    if (!show) return '';
+    const label = isEl ? 'Νέο' : 'New';
+    return `<span class="more-link-new">${label}</span>`;
+}
+
+function updateMoreWhatsNewBadge() {
+    const moreBtn = document.querySelector('.bottom-nav a[data-more]');
+    if (!moreBtn) return;
+
+    const unread = isMoreWhatsNewUnread();
+    moreBtn.classList.toggle('has-whats-new', unread);
+
+    const isEl = (document.documentElement.lang || 'en') === 'el';
+    if (unread) {
+        moreBtn.setAttribute('aria-label', isEl ? 'Περισσότερα, νέες επιλογές' : 'More, new items');
+    } else if (moreBtn.getAttribute('aria-label')) {
+        moreBtn.removeAttribute('aria-label');
+    }
+}
+
 function initMoreTab() {
     const moreBtn = document.querySelector('.bottom-nav a[data-more]');
     if (!moreBtn) return;
+
+    updateMoreWhatsNewBadge();
 
     moreBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -5956,7 +6027,14 @@ async function openMoreSheet() {
     if (!isAppStandalone()) {
         await refreshInstallSituation();
     }
-    renderMoreSheetContent();
+
+    // Show New labels for this open if still unread, then clear the tip.
+    const showWhatsNewLabels = isMoreWhatsNewUnread();
+    renderMoreSheetContent({ showWhatsNewLabels });
+    if (showWhatsNewLabels) {
+        markMoreWhatsNewSeen();
+        updateMoreWhatsNewBadge();
+    }
 
     backdrop.hidden = false;
     sheet.hidden = false;
@@ -5982,10 +6060,11 @@ function closeMoreSheet() {
     document.body.classList.remove('sheet-open');
 }
 
-function renderMoreSheetContent() {
+function renderMoreSheetContent(options) {
     const container = document.getElementById('more-sheet-content');
     if (!container) return;
 
+    const showWhatsNewLabels = !!(options && options.showWhatsNewLabels);
     const isEl = (document.documentElement.lang || 'en') === 'el';
     const brandName = isEl ? 'ΚάντεΚλικ' : 'KanteKlik';
     const labels = {
@@ -6000,6 +6079,7 @@ function renderMoreSheetContent() {
         travelFlights: isEl ? 'Πτήσεις (αεροδρόμιο Βόλου - VOL)' : 'Flights (Volos airport - VOL)',
         travelEvents: isEl ? 'Τοπικές εκδηλώσεις' : 'Regional events',
         travelWalking: isEl ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)',
+        travelBeaches: isEl ? 'Παραλίες (BeachAtlas)' : 'Beaches (BeachAtlas)',
         travelExternal: isEl ? 'Εξωτερικός ιστότοπος' : 'External site',
         travelNumbers: isEl ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers',
         travelNumbersSub: isEl ? 'Τοπικοί & έκτακτοι' : 'Local & emergency',
@@ -6008,6 +6088,10 @@ function renderMoreSheetContent() {
         addBusiness: isEl ? 'Προσθέστε την επιχείρησή σας' : 'Add your Business',
         addBusinessSub: isEl ? 'Δωρεάν' : 'Free',
     };
+    const newBeaches = showWhatsNewLabels && isMoreWhatsNewKey('beaches');
+    const newWalking = showWhatsNewLabels && isMoreWhatsNewKey('walking');
+    const beachesAside = `${moreNewLabelHtml(isEl, newBeaches)}<span class="more-link-aside-meta">${labels.travelExternal}</span>`;
+    const walkingAside = `${moreNewLabelHtml(isEl, newWalking)}<span class="more-link-aside-meta">${labels.travelExternal}</span>`;
 
     const fb = getFooterFacebookLink();
     const fbHref = (fb && fb.href) ? fb.href : 'https://www.facebook.com/kalanera.info';
@@ -6038,6 +6122,7 @@ function renderMoreSheetContent() {
     const busHref = isEl ? 'bus-el.html' : 'bus.html';
     const tFormHref = isEl ? 't-form-el.html' : 't-form.html';
     const walkingPelionHref = 'https://walking-pelion.blogspot.com/';
+    const beachAtlasHref = 'https://www.beachatlas.com/kala-nera';
 
     const formattedCopyright = (() => {
         // Avoid double copyright symbol (some pages already include "©")
@@ -6073,9 +6158,13 @@ function renderMoreSheetContent() {
                 <a href="${pathPrefix}${eventsHref}">
                     <span class="more-link-leading"><i class="fa-solid fa-calendar-days"></i><span class="more-link-label">${labels.travelEvents}</span></span>
                 </a>
-                <a href="${walkingPelionHref}" target="_blank" rel="noopener noreferrer">
+                <a href="${walkingPelionHref}" target="_blank" rel="noopener noreferrer" onclick="trackExternalGuideClick('walking_pelion','more_sheet')">
                     <span class="more-link-leading"><i class="fa-solid fa-person-hiking"></i><span class="more-link-label">${labels.travelWalking}</span></span>
-                    <small>${labels.travelExternal}</small>
+                    <small class="more-link-aside">${walkingAside}</small>
+                </a>
+                <a href="${beachAtlasHref}" target="_blank" rel="noopener noreferrer" onclick="trackExternalGuideClick('beachatlas','more_sheet')">
+                    <span class="more-link-leading"><i class="fa-solid fa-umbrella-beach"></i><span class="more-link-label">${labels.travelBeaches}</span></span>
+                    <small class="more-link-aside">${beachesAside}</small>
                 </a>
                 <a href="${pathPrefix}${usefulNumbersHref}">
                     <span class="more-link-leading"><i class="fa-solid fa-phone"></i><span class="more-link-label">${labels.travelNumbers}</span></span>
