@@ -1,4 +1,4 @@
-/* version 3.1.126 */
+/* version 3.1.127 */
 @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap');
 @keyframes slideDown{from{transform: translateY(-100%)}to{transform: translateY(0)}}
 
@@ -3825,6 +3825,13 @@ body.is-offline .map-wrapper::after{content:"📍 Kaart niet beschikbaar in offl
 .photo-gallery-credit{
   margin:.55rem 0 0;margin-inline-start:max(4px,env(safe-area-inset-left,0px));
   font-size:.75rem;line-height:1.45;color:var(--muted,#64748b)
+}
+@media (min-width:768px){
+  /* Desktop gallery lead is longer than other pages; match credit width so wraps stay natural */
+  .photo-gallery-page .flights-page-lead--desktop,
+  .photo-gallery-page .photo-gallery-credit{
+    max-width:min(54rem,100%)
+  }
 }
 .photo-gallery-credit a{
   color:var(--primary-olive,#4a6c4a);font-weight:700;text-decoration:none;
