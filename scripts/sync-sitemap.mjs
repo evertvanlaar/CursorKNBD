@@ -52,6 +52,8 @@ const STATIC_PAGES = [
   { path: '/flights-el.html', changefreq: 'monthly', priority: '0.6' },
   { path: '/useful-numbers.html', changefreq: 'monthly', priority: '0.5' },
   { path: '/useful-numbers-el.html', changefreq: 'monthly', priority: '0.5' },
+  { path: '/gallery.html', changefreq: 'monthly', priority: '0.6' },
+  { path: '/gallery-el.html', changefreq: 'monthly', priority: '0.6' },
 ];
 
 /** Zelfde slug-logica als n8n-business-page-template.js */
