@@ -79,7 +79,7 @@ In ASO-tekst expliciet benoemen (waar waar):
 | Feature | In oudere test-build | Nu (≥ 2.1.173) |
 |---------|----------------------|----------------|
 | Bus timetable | Beperkt / afwezig in review | Volledige pagina met dag/richting/filters |
-| Pelion Guide | Niet als hub | info.html: flights, events, walking, numbers, bus |
+| Pelion Guide | Niet als hub | info.html: flights, events, walking, beaches, gallery, numbers, bus |
 | Favorites | Basis | Wishlist met kaarten en acties |
 | Directory UI | Eenvoudiger | Categorieën, locaties, A–Z, zoeken |
 | Brand | “Business Directory” | **Kala Nera Guide** |

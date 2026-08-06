@@ -29,7 +29,7 @@ git push origin PLAYSTORE-START:main   # optioneel: main gelijk trekken op GitHu
 Versie bump:
 
 ```bash
-echo "3.1.45" > asset-version.txt
+echo "3.1.125" > asset-version.txt
 node scripts/sync-asset-version.mjs
 ```
 

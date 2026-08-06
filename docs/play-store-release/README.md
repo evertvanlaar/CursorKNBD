@@ -7,7 +7,7 @@ Documenten voor ASO en store listing. Gebaseerd op **huidige app (≥ 2.1.173)**
 Het externe testrapport (`Test-reports/com.kalanera.app_feedback.pdf`) reflecteert een **oudere build (~2.1.117)** met beperktere functionaliteit en UI. Sindsdien zijn o.a. toegevoegd of verbeterd:
 
 - Bus-dienstregeling (Kala Nera) met richting/dag/filters
-- Pelion Guide-hub (vluchten, events, wandelen, nuttige nummers, bus)
+- Pelion Guide-hub (vluchten, events, wandelen, nuttige nummers, bus, fotogallery)
 - Uitgebreide directory (categorieën, locaties, A–Z, favorieten)
 - Verbeterde More-menu en bottom navigation
 - Merknaam **Kala Nera Guide** / **Οδηγός Καλών Νερών**
@@ -24,6 +24,7 @@ Bij invullen van het Google **production access**-formulier: alleen claimen wat 
 | [A3-release-notes-3.1.45.md](./A3-release-notes-3.1.45.md) | What's new EN/EL (3.1.45 — deep links fix) |
 | [A3-release-notes-3.1.103.md](./A3-release-notes-3.1.103.md) | What's new + Windows build (3.1.103 — targetSdk 36) |
 | [A3-release-notes-3.1.108.md](./A3-release-notes-3.1.108.md) | What's new EN/EL (3.1.108 — hub sort + lang/cat) |
+| [A3-release-notes-3.1.125.md](./A3-release-notes-3.1.125.md) | What's new EN/EL (3.1.125 — photo gallery) |
 | [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
 | [A5-production-access-round2.md](./A5-production-access-round2.md) | Production access — context & strategie (2e aanvraag) |
 | [A5-invulsheet-production-access.md](./A5-invulsheet-production-access.md) | **Invulsheet — copy-paste per veld (START HIER)** |

@@ -799,7 +799,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.114'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.125'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -2834,6 +2834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3c. Business detail: smart crop + enlarge photo on tap
     initSmartCropForBizDetail();
     initBizDetailPhotoLightbox();
+    initPhotoGalleryLightbox();
     initBizDetailShareButton();
     initPageHeaderShareButton();
 
@@ -6034,24 +6035,224 @@ function initBizDetailPhotoLightbox() {
 }
 
 /**
- * Announce new items in the More sheet.
- * Bump `id` to re-show the tip for everyone; add keys that should get a "New" label
- * (e.g. ['beaches', 'bus']). Keys are matched in renderMoreSheetContent.
+ * Multi-image lightbox for gallery.html / gallery-el.html.
+ * Prev/next, keyboard arrows, and horizontal swipe.
+ */
+function initPhotoGalleryLightbox() {
+    const grid = document.getElementById('photo-gallery-grid');
+    if (!grid || grid.dataset.lightboxReady) return;
+    const items = Array.from(grid.querySelectorAll('.photo-gallery-item'));
+    if (!items.length) return;
+    grid.dataset.lightboxReady = '1';
+
+    initPhotoGalleryReveal(items);
+
+    const lang = (document.documentElement.lang || 'en').toLowerCase();
+    const isEl = lang === 'el' || lang.startsWith('el');
+    const labelClose = isEl ? 'Κλείσιμο' : 'Close';
+    const labelPrev = isEl ? 'Προηγούμενη φωτογραφία' : 'Previous photo';
+    const labelNext = isEl ? 'Επόμενη φωτογραφία' : 'Next photo';
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const dialog = document.createElement('dialog');
+    dialog.id = 'photo-gallery-lightbox';
+    dialog.className = 'biz-detail-photo-lightbox photo-gallery-lightbox';
+    dialog.innerHTML = `
+        <button type="button" class="biz-detail-photo-lightbox__close" aria-label="${labelClose}">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="photo-gallery-lightbox__nav photo-gallery-lightbox__nav--prev" aria-label="${labelPrev}">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="photo-gallery-lightbox__nav photo-gallery-lightbox__nav--next" aria-label="${labelNext}">
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+        </button>
+        <figure class="biz-detail-photo-lightbox__figure">
+            <img class="biz-detail-photo-lightbox__img" alt="">
+        </figure>
+        <div class="photo-gallery-lightbox__footer">
+            <p class="photo-gallery-lightbox__counter" aria-live="polite"></p>
+            <div class="photo-gallery-lightbox__strip" role="tablist" aria-label="${isEl ? 'Miniaturen' : 'Thumbnails'}"></div>
+        </div>`;
+    document.body.appendChild(dialog);
+
+    const fullImg = dialog.querySelector('.biz-detail-photo-lightbox__img');
+    const counterEl = dialog.querySelector('.photo-gallery-lightbox__counter');
+    const stripEl = dialog.querySelector('.photo-gallery-lightbox__strip');
+    const closeBtn = dialog.querySelector('.biz-detail-photo-lightbox__close');
+    const prevBtn = dialog.querySelector('.photo-gallery-lightbox__nav--prev');
+    const nextBtn = dialog.querySelector('.photo-gallery-lightbox__nav--next');
+
+    const stripBtns = items.map((item, i) => {
+        const thumb = item.querySelector('img');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'photo-gallery-lightbox__strip-btn';
+        btn.setAttribute('role', 'tab');
+        btn.setAttribute('aria-label', isEl ? `Φωτογραφία ${i + 1}` : `Photo ${i + 1}`);
+        btn.dataset.stripIndex = String(i);
+        const img = document.createElement('img');
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.src = thumb ? (thumb.getAttribute('src') || '') : '';
+        btn.appendChild(img);
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showAt(i, true);
+        });
+        stripEl.appendChild(btn);
+        return btn;
+    });
+
+    let index = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let switchTimer = 0;
+
+    const syncStrip = () => {
+        stripBtns.forEach((btn, i) => {
+            const active = i === index;
+            btn.classList.toggle('is-active', active);
+            btn.setAttribute('aria-selected', active ? 'true' : 'false');
+            if (active) {
+                try {
+                    btn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+                } catch (e) { /* ignore */ }
+            }
+        });
+    };
+
+    const applyImage = (thumb) => {
+        fullImg.src = thumb.currentSrc || thumb.getAttribute('src') || '';
+        fullImg.alt = thumb.alt || '';
+        counterEl.textContent = `${index + 1} / ${items.length}`;
+        syncStrip();
+    };
+
+    const showAt = (nextIndex, animate) => {
+        const total = items.length;
+        index = ((nextIndex % total) + total) % total;
+        const btn = items[index];
+        const thumb = btn.querySelector('img');
+        if (!thumb) return;
+
+        if (!animate || reduceMotion) {
+            fullImg.classList.remove('is-switching');
+            applyImage(thumb);
+            return;
+        }
+
+        fullImg.classList.add('is-switching');
+        window.clearTimeout(switchTimer);
+        switchTimer = window.setTimeout(() => {
+            applyImage(thumb);
+            requestAnimationFrame(() => {
+                fullImg.classList.remove('is-switching');
+            });
+        }, 120);
+    };
+
+    const openAt = (i) => {
+        showAt(i, false);
+        if (typeof dialog.showModal === 'function') dialog.showModal();
+        else dialog.setAttribute('open', '');
+        requestAnimationFrame(syncStrip);
+    };
+
+    const close = () => {
+        if (typeof dialog.close === 'function') dialog.close();
+        else dialog.removeAttribute('open');
+    };
+
+    const goPrev = () => showAt(index - 1, true);
+    const goNext = () => showAt(index + 1, true);
+
+    closeBtn.addEventListener('click', close);
+    prevBtn.addEventListener('click', (e) => { e.stopPropagation(); goPrev(); });
+    nextBtn.addEventListener('click', (e) => { e.stopPropagation(); goNext(); });
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) close();
+    });
+
+    dialog.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
+    });
+
+    dialog.addEventListener('touchstart', (e) => {
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+    }, { passive: true });
+
+    dialog.addEventListener('touchend', (e) => {
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+        if (dx > 0) goPrev();
+        else goNext();
+    }, { passive: true });
+
+    items.forEach((btn, i) => {
+        btn.addEventListener('click', () => openAt(i));
+    });
+}
+
+/** Soft staggered reveal for gallery thumbs (respects reduced motion). */
+function initPhotoGalleryReveal(items) {
+    if (!items || !items.length) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof IntersectionObserver === 'undefined') {
+        items.forEach((el) => el.classList.add('is-visible'));
+        return;
+    }
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const el = entry.target;
+            const delay = Math.min(Number(el.dataset.galleryIndex || 0) % 6, 5) * 40;
+            window.setTimeout(() => el.classList.add('is-visible'), delay);
+            io.unobserve(el);
+        });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    items.forEach((el) => io.observe(el));
+}
+
+/**
+ * Announce new items in the More sheet (mobile tip + New labels).
+ *
+ * Control (edit only this object, then bump asset-version):
+ * - `id`     — change this to re-show the tip for everyone who already dismissed it
+ * - `keys`   — which More rows get a New label (`beaches`, `walking`, …)
+ * - `until`  — optional last day (DD-MM-YYYY / YYYY-MM-DD, Athens). After that: no tip.
+ *
+ * The tip stays until the visitor taps a New-marked item (not merely opening More).
+ * Local retest: localStorage.removeItem('kn_more_whats_new_seen')
  */
 const MORE_WHATS_NEW = {
-    id: '2026-08-beaches',
-    keys: ['beaches'],
+    id: '2026-08-gallery-v1',
+    keys: ['gallery'],
+    until: '30-09-2026',
 };
 const MORE_WHATS_NEW_STORAGE_KEY = 'kn_more_whats_new_seen';
+const MORE_WHATS_NEW_LINK_KEYS = {
+    beachatlas: 'beaches',
+    walking_pelion: 'walking',
+    gallery: 'gallery',
+};
 
 function trackExternalGuideClick(linkId, source) {
-    if (typeof gtag !== 'function') return;
-    try {
-        gtag('event', 'click_external_guide', {
-            link_id: linkId,
-            source: source || 'unknown',
-        });
-    } catch (e) { /* ignore */ }
+    if (typeof gtag === 'function') {
+        try {
+            gtag('event', 'click_external_guide', {
+                link_id: linkId,
+                source: source || 'unknown',
+            });
+        } catch (e) { /* ignore */ }
+    }
+    acknowledgeMoreWhatsNewForLink(linkId);
 }
 
 function getMoreWhatsNewSeenId() {
@@ -6062,10 +6263,17 @@ function getMoreWhatsNewSeenId() {
     }
 }
 
+function isMoreWhatsNewCampaignActive() {
+    const cfg = MORE_WHATS_NEW;
+    if (!cfg || !cfg.id) return false;
+    const until = parseSheetDate(cfg.until);
+    if (until && until < todayYmdAthens()) return false;
+    return true;
+}
+
 function isMoreWhatsNewUnread() {
-    const id = MORE_WHATS_NEW && MORE_WHATS_NEW.id;
-    if (!id) return false;
-    return getMoreWhatsNewSeenId() !== id;
+    if (!isMoreWhatsNewCampaignActive()) return false;
+    return getMoreWhatsNewSeenId() !== MORE_WHATS_NEW.id;
 }
 
 function markMoreWhatsNewSeen() {
@@ -6074,6 +6282,13 @@ function markMoreWhatsNewSeen() {
     try {
         localStorage.setItem(MORE_WHATS_NEW_STORAGE_KEY, id);
     } catch (e) { /* ignore */ }
+}
+
+function acknowledgeMoreWhatsNewForLink(linkId) {
+    const key = MORE_WHATS_NEW_LINK_KEYS[linkId];
+    if (!key || !isMoreWhatsNewKey(key) || !isMoreWhatsNewUnread()) return;
+    markMoreWhatsNewSeen();
+    updateMoreWhatsNewBadge();
 }
 
 function isMoreWhatsNewKey(key) {
@@ -6155,13 +6370,9 @@ async function openMoreSheet() {
         await refreshInstallSituation();
     }
 
-    // Show New labels for this open if still unread, then clear the tip.
-    const showWhatsNewLabels = isMoreWhatsNewUnread();
-    renderMoreSheetContent({ showWhatsNewLabels });
-    if (showWhatsNewLabels) {
-        markMoreWhatsNewSeen();
-        updateMoreWhatsNewBadge();
-    }
+    // Keep tip until visitor taps a New-marked item (see acknowledgeMoreWhatsNewForLink).
+    renderMoreSheetContent({ showWhatsNewLabels: isMoreWhatsNewUnread() });
+    updateMoreWhatsNewBadge();
 
     backdrop.hidden = false;
     sheet.hidden = false;
@@ -6208,6 +6419,8 @@ function renderMoreSheetContent(options) {
         travelWalking: isEl ? 'Περπατήματα (αγγλικός οδηγός)' : 'Walking routes (English guide)',
         travelBeaches: isEl ? 'Παραλίες (BeachAtlas)' : 'Beaches (BeachAtlas)',
         travelExternal: isEl ? 'Εξωτερικός ιστότοπος' : 'External site',
+        travelGallery: isEl ? 'Φωτογραφίες' : 'Photo gallery',
+        travelGallerySub: isEl ? 'Καλά Νερά & περιοχή' : 'Kala Nera & area',
         travelNumbers: isEl ? 'Χρήσιμα τηλέφωνα' : 'Useful numbers',
         travelNumbersSub: isEl ? 'Τοπικοί & έκτακτοι' : 'Local & emergency',
         travelBus: isEl ? 'Λεωφορείο (Καλά Νερά)' : 'Bus (Kala Nera)',
@@ -6217,8 +6430,10 @@ function renderMoreSheetContent(options) {
     };
     const newBeaches = showWhatsNewLabels && isMoreWhatsNewKey('beaches');
     const newWalking = showWhatsNewLabels && isMoreWhatsNewKey('walking');
+    const newGallery = showWhatsNewLabels && isMoreWhatsNewKey('gallery');
     const beachesAside = `${moreNewLabelHtml(isEl, newBeaches)}<span class="more-link-aside-meta">${labels.travelExternal}</span>`;
     const walkingAside = `${moreNewLabelHtml(isEl, newWalking)}<span class="more-link-aside-meta">${labels.travelExternal}</span>`;
+    const galleryAside = `${moreNewLabelHtml(isEl, newGallery)}<span class="more-link-aside-meta">${labels.travelGallerySub}</span>`;
 
     const fb = getFooterFacebookLink();
     const fbHref = (fb && fb.href) ? fb.href : 'https://www.facebook.com/kalanera.info';
@@ -6246,6 +6461,7 @@ function renderMoreSheetContent(options) {
     const flightsHref = isEl ? 'flights-el.html' : 'flights.html';
     const eventsHref = isEl ? 'events-el.html' : 'events.html';
     const usefulNumbersHref = isEl ? 'useful-numbers-el.html' : 'useful-numbers.html';
+    const galleryHref = isEl ? 'gallery-el.html' : 'gallery.html';
     const busHref = isEl ? 'bus-el.html' : 'bus.html';
     const tFormHref = isEl ? 't-form-el.html' : 't-form.html';
     const walkingPelionHref = 'https://walking-pelion.blogspot.com/';
@@ -6292,6 +6508,10 @@ function renderMoreSheetContent(options) {
                 <a href="${beachAtlasHref}" target="_blank" rel="noopener noreferrer" onclick="trackExternalGuideClick('beachatlas','more_sheet')">
                     <span class="more-link-leading"><i class="fa-solid fa-umbrella-beach"></i><span class="more-link-label">${labels.travelBeaches}</span></span>
                     <small class="more-link-aside">${beachesAside}</small>
+                </a>
+                <a href="${pathPrefix}${galleryHref}" onclick="acknowledgeMoreWhatsNewForLink('gallery')">
+                    <span class="more-link-leading"><i class="fa-solid fa-images"></i><span class="more-link-label">${labels.travelGallery}</span></span>
+                    <small class="more-link-aside">${galleryAside}</small>
                 </a>
                 <a href="${pathPrefix}${usefulNumbersHref}">
                     <span class="more-link-leading"><i class="fa-solid fa-phone"></i><span class="more-link-label">${labels.travelNumbers}</span></span>
