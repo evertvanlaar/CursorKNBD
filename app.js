@@ -799,7 +799,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.125'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.126'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -6035,6 +6035,24 @@ function initBizDetailPhotoLightbox() {
 }
 
 /**
+ * Soft nudge only: block right-click / drag-save on gallery images.
+ * Does not prevent screenshots, DevTools, or direct URL access.
+ */
+function bindPhotoGallerySaveNudge(root) {
+    if (!root || root.dataset.saveNudgeBound) return;
+    root.dataset.saveNudgeBound = '1';
+    const blockIfImage = (e) => {
+        const t = e.target;
+        if (t && t.tagName === 'IMG') e.preventDefault();
+    };
+    root.addEventListener('contextmenu', blockIfImage);
+    root.addEventListener('dragstart', blockIfImage);
+    root.querySelectorAll('img').forEach((img) => {
+        img.setAttribute('draggable', 'false');
+    });
+}
+
+/**
  * Multi-image lightbox for gallery.html / gallery-el.html.
  * Prev/next, keyboard arrows, and horizontal swipe.
  */
@@ -6045,6 +6063,7 @@ function initPhotoGalleryLightbox() {
     if (!items.length) return;
     grid.dataset.lightboxReady = '1';
 
+    bindPhotoGallerySaveNudge(grid);
     initPhotoGalleryReveal(items);
 
     const lang = (document.documentElement.lang || 'en').toLowerCase();
@@ -6095,6 +6114,7 @@ function initPhotoGalleryLightbox() {
         img.alt = '';
         img.loading = 'lazy';
         img.decoding = 'async';
+        img.draggable = false;
         img.src = thumb ? (thumb.getAttribute('src') || '') : '';
         btn.appendChild(img);
         btn.addEventListener('click', (e) => {
@@ -6104,6 +6124,9 @@ function initPhotoGalleryLightbox() {
         stripEl.appendChild(btn);
         return btn;
     });
+
+    fullImg.draggable = false;
+    bindPhotoGallerySaveNudge(dialog);
 
     let index = 0;
     let touchStartX = 0;
