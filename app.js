@@ -6276,8 +6276,8 @@ function initPhotoGalleryReveal(items) {
  * Local retest: localStorage.removeItem('kn_more_whats_new_seen')
  */
 const MORE_WHATS_NEW = {
-    id: '2026-08-gallery-v1',
-    keys: ['gallery'],
+    id: '2026-08-gallery-beaches-v1',
+    keys: ['gallery', 'beaches'],
     until: '30-09-2026',
 };
 const MORE_WHATS_NEW_STORAGE_KEY = 'kn_more_whats_new_seen';
