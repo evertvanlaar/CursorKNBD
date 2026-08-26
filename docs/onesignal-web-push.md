@@ -1,22 +1,20 @@
 # OneSignal web push (tester)
 
 **Status:** niet publiek. SDK laadt alleen na `?onesignal=1`.  
-**Website:** `asset-version.txt` → **3.1.133**  
+**Website:** `asset-version.txt` → **3.1.134**  
 **OneSignal-app:** Custom Code, Site URL **`https://kalanera.gr`** (apex — `www` redirect hierheen), App ID in `app.js`
 
 ## Wat bezoekers zien
 
-Niets. Geen bel, geen OneSignal-script, privacytekst ongewijzigd. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.133`).
+Niets. Geen balk, geen OneSignal-script, privacytekst ongewijzigd. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.134`).
 
 ## Zelf testen
 
-Chrome of Edge, **niet** incognito:
+Chrome of Edge, **niet** incognito. De SDK blijft achter `?onesignal=1` (localStorage). Geen testbalk.
 
-1. Open [https://kalanera.gr/?onesignal=1](https://kalanera.gr/?onesignal=1) (`www` springt hier automatisch naartoe)
-2. Bovenaan een donkere testbalk: “OneSignal-test klaar” + knop **Meldingen toestaan**
-3. Eventueel bel rechtsonder
-4. OneSignal dashboard → **Audience → Subscriptions** → **Add to Test Users**
-5. **Messages → New Push** naar Test Users
+1. Open [https://kalanera.gr/?onesignal=1](https://kalanera.gr/?onesignal=1)
+2. Bel rechtsonder (vaag tot hover) — al geopt-in: meldingen beheren
+3. Test-push via OneSignal **Test & preview** naar je test-subscription
 
 In OneSignal **Settings → Web → Site URL** moet `https://kalanera.gr` staan (zonder `www`), anders matcht de origin niet.
 
