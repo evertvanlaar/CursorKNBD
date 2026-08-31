@@ -1,12 +1,12 @@
 # OneSignal web push (tester)
 
 **Status:** niet publiek. SDK laadt alleen na `?onesignal=1`.  
-**Website:** `asset-version.txt` → **3.1.136**  
+**Website:** `asset-version.txt` → **3.1.137**  
 **OneSignal-app:** Custom Code, Site URL **`https://kalanera.gr`** (apex — `www` redirect hierheen), App ID in `app.js`
 
 ## Wat bezoekers zien
 
-Niets. Geen bel, geen kaart, geen footerlink, geen OneSignal-script. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.136`).
+Niets. Geen bel, geen kaart, geen footerlink, geen OneSignal-script. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.137`).
 
 ## Zelf testen
 
