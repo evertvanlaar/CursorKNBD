@@ -1,12 +1,12 @@
 # OneSignal web push (tester)
 
 **Status:** niet publiek. SDK en UI laden alleen na `?onesignal=1`.  
-**Website:** `asset-version.txt` → **3.1.138**  
+**Website:** `asset-version.txt` → **3.1.139**  
 **OneSignal-app:** Custom Code, Site URL **`https://kalanera.gr`** (apex — `www` redirect hierheen), App ID in `app.js`
 
 ## Wat bezoekers zien
 
-Niets. Geen bel, geen kaart, geen footerlink, geen More-rij, geen OneSignal-script. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.138`).
+Niets. Geen bel, geen kaart, geen footerlink, geen More-rij, geen OneSignal-script. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.139`).
 
 Testers zijn geen namenlijst. Alleen wie in **die browser** [https://kalanera.gr/?onesignal=1](https://kalanera.gr/?onesignal=1) opent (vlag in `localStorage`). Andere telefoon/browser: opnieuw die link. Dashboard **Test Users** is alleen voor testduwtjes, niet voor de site-UI.
 
@@ -50,13 +50,13 @@ De kaart is **niet** de browsermachtiging. **Allow** op de kaart start de browse
 ## Opnieuw vanaf het begin (Edge)
 
 1. Slotje op `https://kalanera.gr` → Meldingen → **Vragen** (niet Blokkeren)
-2. [https://kalanera.gr/?onesignal=1&onesignal_banner=reset](https://kalanera.gr/?onesignal=1&onesignal_banner=reset)
+2. [https://kalanera.gr/?onesignal=1&onesignal_banner=reset](https://kalanera.gr/?onesignal=1&onesignal_banner=reset) — dit zet de switch ook **Off**
 3. Hard refreshen. Switch **Off**, kaart zichtbaar. Allow → Edge-prompt → On
 
 | Link | Effect |
 |------|--------|
 | `?onesignal=1` | Tester aan (blijft in die browser) |
-| `?onesignal=1&onesignal_banner=reset` | Tester blijft aan; snooze van de kaart wissen |
+| `?onesignal=1&onesignal_banner=reset` | Tester blijft aan; snooze wissen **én** switch Off (optOut). Daarna kaart opnieuw. |
 | `?onesignal=0` | Tester uit: geen SDK, geen UI |
 
 In OneSignal **Settings → Web → Site URL** moet `https://kalanera.gr` staan (zonder `www`).
