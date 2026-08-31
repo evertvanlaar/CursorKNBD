@@ -1,12 +1,12 @@
 # OneSignal web push (tester)
 
 **Status:** niet publiek. SDK en UI laden alleen na `?onesignal=1`.  
-**Website:** `asset-version.txt` → **3.1.139**  
+**Website:** `asset-version.txt` → **3.1.140**  
 **OneSignal-app:** Custom Code, Site URL **`https://kalanera.gr`** (apex — `www` redirect hierheen), App ID in `app.js`
 
 ## Wat bezoekers zien
 
-Niets. Geen bel, geen kaart, geen footerlink, geen More-rij, geen OneSignal-script. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.139`).
+Niets. Geen bel, geen kaart, geen footerlink, geen More-rij, geen OneSignal-script. Alleen de gewone PWA-cache-update (`kalanera-cache-v3.1.140`).
 
 Testers zijn geen namenlijst. Alleen wie in **die browser** [https://kalanera.gr/?onesignal=1](https://kalanera.gr/?onesignal=1) opent (vlag in `localStorage`). Andere telefoon/browser: opnieuw die link. Dashboard **Test Users** is alleen voor testduwtjes, niet voor de site-UI.
 
@@ -16,7 +16,7 @@ Chrome of Edge, **niet** incognito.
 
 1. Open [https://kalanera.gr/?onesignal=1](https://kalanera.gr/?onesignal=1)
 2. Als meldingen **uit** staan en de browser nog **Vragen** is: na ~1s de kaart “Events & news from Kala Nera?” → **Allow** / **Not now**
-3. **Allow** opent daarna de **echte** browserprompt (eenmalig). Bij toestaan: switch **On**
+3. **Allow** opent daarna de **echte** browserprompt via `Notification.requestPermission()` (niet overgeslagen als de pagina nog een oude “granted” cache had). Bij toestaan: switch **On**. Als Edge de site al op Toestaan heeft, toont de browser géén dialoog — dat is een browseregel.
 4. **Mobiel:** More (···) → **Notifications** (On / Off)  
    **Desktop:** footer Info → **Notifications · On/Off**
 5. Test-push via OneSignal **Test & preview**
@@ -49,9 +49,11 @@ De kaart is **niet** de browsermachtiging. **Allow** op de kaart start de browse
 
 ## Opnieuw vanaf het begin (Edge)
 
-1. Slotje op `https://kalanera.gr` → Meldingen → **Vragen** (niet Blokkeren)
-2. [https://kalanera.gr/?onesignal=1&onesignal_banner=reset](https://kalanera.gr/?onesignal=1&onesignal_banner=reset) — dit zet de switch ook **Off**
-3. Hard refreshen. Switch **Off**, kaart zichtbaar. Allow → Edge-prompt → On
+1. Slotje op `https://kalanera.gr` (zonder `www`) → Meldingen → **Vragen**
+2. Alle tabbladen van kalanera.gr sluiten, daarna opnieuw openen
+3. F12 Console: `Notification.permission` moet `"default"` zijn (niet `"granted"`)
+4. [https://kalanera.gr/?onesignal=1&onesignal_banner=reset](https://kalanera.gr/?onesignal=1&onesignal_banner=reset)
+5. Kaart **Allow** — nu de Edge-prompt. Bij ja: switch On
 
 | Link | Effect |
 |------|--------|

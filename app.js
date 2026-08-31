@@ -792,7 +792,7 @@ function rewriteDomPixImagesToSameOrigin(root = document) {
 }
 
 // --- STAP 2: VERSIE-BEHEER (SLECHTS OP 1 PLEK AANPASSEN) ---
-const APP_VERSION = '3.1.139'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
+const APP_VERSION = '3.1.140'; // <--- Pas VOORTAAN alleen nog maar dit getal aan!
 let CURRENT_APP_VERSION = APP_VERSION; 
 
 if ('serviceWorker' in navigator) {
@@ -1132,9 +1132,9 @@ function ensureOneSignalPushBanner() {
     const laterBtn = document.getElementById('kalanera-push-banner-later');
     if (allowBtn) {
         allowBtn.addEventListener('click', () => {
+            void handleOneSignalUiToggle();
             markOneSignalBannerSessionSeen();
             hideOneSignalPushBanner();
-            void handleOneSignalUiToggle();
         });
     }
     if (laterBtn) {
@@ -1174,20 +1174,39 @@ function scheduleOneSignalPushBanner() {
     }, 1200);
 }
 
+async function requestBrowserNotificationPermissionNow() {
+    if (typeof Notification === 'undefined') return 'denied';
+    const current = Notification.permission || 'default';
+    if (current === 'granted' || current === 'denied') return current;
+    try {
+        return await Notification.requestPermission();
+    } catch (e) {
+        console.warn('[Kalanera] Notification.requestPermission mislukt', e);
+        return Notification.permission || 'default';
+    }
+}
+
 async function handleOneSignalUiToggle() {
     const os = kalaneraOneSignal;
     if (!os) return;
     const state = getOneSignalUiState();
-    const browserGranted = getBrowserNotificationPermission() === 'granted';
     try {
         if (state === 'on') {
             await os.User.PushSubscription.optOut();
-        } else if (state === 'blocked') {
+            refreshOneSignalCustomUi();
+            return;
+        }
+        if (state === 'blocked') {
             console.warn('[Kalanera] OneSignal: meldingen geblokkeerd in de browser.');
-        } else if (browserGranted) {
+            refreshOneSignalCustomUi();
+            return;
+        }
+        const perm = await requestBrowserNotificationPermissionNow();
+        await refreshBrowserNotificationPermissionCache();
+        if (perm === 'granted') {
             await os.User.PushSubscription.optIn();
         } else {
-            await os.Notifications.requestPermission();
+            console.info('[Kalanera] Browsertoestemming na Allow:', perm);
         }
     } catch (e) {
         console.warn('[Kalanera] OneSignal toggle mislukt', e);
