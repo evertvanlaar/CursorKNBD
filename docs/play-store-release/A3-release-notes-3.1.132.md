@@ -6,7 +6,7 @@
 
 **Android / Play:** geen nieuwe TWA-build; geen store-listing-wijziging. Push blijft uit voor het publiek.
 
-Zie [`docs/onesignal-web-push.md`](../onesignal-web-push.md) voor teststappen.
+Zie [`A3-release-notes-3.1.143.md`](./A3-release-notes-3.1.143.md) — OneSignal is verwijderd (niet meer testen).
 
 ---
 

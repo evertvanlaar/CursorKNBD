@@ -25,8 +25,11 @@ Bij invullen van het Google **production access**-formulier: alleen claimen wat 
 | [A3-release-notes-3.1.103.md](./A3-release-notes-3.1.103.md) | What's new + Windows build (3.1.103 — targetSdk 36) |
 | [A3-release-notes-3.1.108.md](./A3-release-notes-3.1.108.md) | What's new EN/EL (3.1.108 — hub sort + lang/cat) |
 | [A3-release-notes-3.1.125.md](./A3-release-notes-3.1.125.md) | What's new EN/EL (3.1.125 — photo gallery) |
-| [A3-release-notes-3.1.132.md](./A3-release-notes-3.1.132.md) | Website 3.1.132 — OneSignal tester (niet publiek) |
-| [A3-release-notes-3.1.138.md](./A3-release-notes-3.1.138.md) | Website 3.1.138 — OneSignal tester UI (niet publiek) |
+| [A3-release-notes-3.1.132.md](./A3-release-notes-3.1.132.md) | Website 3.1.132 — OneSignal tester (historisch, verwijderd in 3.1.141) |
+| [A3-release-notes-3.1.138.md](./A3-release-notes-3.1.138.md) | Website 3.1.138 — OneSignal tester UI (historisch, verwijderd in 3.1.141) |
+| [A3-release-notes-3.1.141.md](./A3-release-notes-3.1.141.md) | Website 3.1.141 — OneSignal verwijderd |
+| [A3-release-notes-3.1.142.md](./A3-release-notes-3.1.142.md) | Website 3.1.142 — More-menu op LAN-HTTP |
+| [A3-release-notes-3.1.143.md](./A3-release-notes-3.1.143.md) | Website **3.1.143** — OneSignal verwijderd, More hersteld (deploy deze) |
 | [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
 | [A5-production-access-round2.md](./A5-production-access-round2.md) | Production access — context & strategie (2e aanvraag) |
 | [A5-invulsheet-production-access.md](./A5-invulsheet-production-access.md) | **Invulsheet — copy-paste per veld (START HIER)** |
