@@ -29,7 +29,8 @@ Bij invullen van het Google **production access**-formulier: alleen claimen wat 
 | [A3-release-notes-3.1.138.md](./A3-release-notes-3.1.138.md) | Website 3.1.138 — OneSignal tester UI (historisch, verwijderd in 3.1.141) |
 | [A3-release-notes-3.1.141.md](./A3-release-notes-3.1.141.md) | Website 3.1.141 — OneSignal verwijderd |
 | [A3-release-notes-3.1.142.md](./A3-release-notes-3.1.142.md) | Website 3.1.142 — More-menu op LAN-HTTP |
-| [A3-release-notes-3.1.143.md](./A3-release-notes-3.1.143.md) | Website **3.1.143** — OneSignal verwijderd, More hersteld (deploy deze) |
+| [A3-release-notes-3.1.143.md](./A3-release-notes-3.1.143.md) | Website 3.1.143 — OneSignal verwijderd, More hersteld |
+| [A3-release-notes-3.1.144.md](./A3-release-notes-3.1.144.md) | Website **3.1.144** — SW image-cache clone-race (deploy deze) |
 | [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
 | [A5-production-access-round2.md](./A5-production-access-round2.md) | Production access — context & strategie (2e aanvraag) |
 | [A5-invulsheet-production-access.md](./A5-invulsheet-production-access.md) | **Invulsheet — copy-paste per veld (START HIER)** |

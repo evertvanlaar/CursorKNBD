@@ -1,7 +1,7 @@
 // service-worker.js
-const VERSION = '3.1.143'; // Dit sturen we naar de Sheet
-const CACHE_NAME = 'kalanera-cache-v3.1.143'; // Dit dwingt de code-update af
-const IMAGE_CACHE = 'kalanera-images-v3.1.143'; // Afbeeldingen apart cachen voor snelheid
+const VERSION = '3.1.144'; // Dit sturen we naar de Sheet
+const CACHE_NAME = 'kalanera-cache-v3.1.144'; // Dit dwingt de code-update af
+const IMAGE_CACHE = 'kalanera-images-v3.1.144'; // Afbeeldingen apart cachen voor snelheid
 
 // VOEG DIT TOE: Luister naar vragen van de app
 self.addEventListener('message', (event) => {
@@ -85,10 +85,24 @@ self.addEventListener('fetch', event => {
       fetch(event.request)
         .then((networkResponse) => {
           if (networkResponse.status === 200) {
+            // Clone immediately: waitUntil/caches.open is async; cloning later races the page reading the body.
+            const copy = networkResponse.clone();
             event.waitUntil(
-              caches.open(IMAGE_CACHE).then((cache) =>
-                cache.put(event.request, networkResponse.clone()).catch(() => {})
-              )
+              copy
+                .arrayBuffer()
+                .then((body) =>
+                  caches.open(IMAGE_CACHE).then((cache) =>
+                    cache.put(
+                      event.request,
+                      new Response(body, {
+                        status: networkResponse.status,
+                        statusText: networkResponse.statusText,
+                        headers: networkResponse.headers,
+                      })
+                    )
+                  )
+                )
+                .catch(() => {})
             );
             return networkResponse;
           }
