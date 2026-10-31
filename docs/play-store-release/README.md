@@ -31,7 +31,8 @@ Bij invullen van het Google **production access**-formulier: alleen claimen wat 
 | [A3-release-notes-3.1.142.md](./A3-release-notes-3.1.142.md) | Website 3.1.142 — More-menu op LAN-HTTP |
 | [A3-release-notes-3.1.143.md](./A3-release-notes-3.1.143.md) | Website 3.1.143 — OneSignal verwijderd, More hersteld |
 | [A3-release-notes-3.1.144.md](./A3-release-notes-3.1.144.md) | Website 3.1.144 — SW image-cache clone-race |
-| [A3-release-notes-3.1.145.md](./A3-release-notes-3.1.145.md) | Website **3.1.145** — contact info@kanteklik.nl (deploy deze) |
+| [A3-release-notes-3.1.145.md](./A3-release-notes-3.1.145.md) | Website 3.1.145 — al live (zaterdag-bus); opgevolgd door 3.1.146 |
+| [A3-release-notes-3.1.146.md](./A3-release-notes-3.1.146.md) | Website **3.1.146** — contact info@kanteklik.nl (deploy deze) |
 | [A4-screenshot-storyboard.md](./A4-screenshot-storyboard.md) | Screenshot-volgorde en captions |
 | [A5-production-access-round2.md](./A5-production-access-round2.md) | Production access — context & strategie (2e aanvraag) |
 | [A5-invulsheet-production-access.md](./A5-invulsheet-production-access.md) | **Invulsheet — copy-paste per veld (START HIER)** |
