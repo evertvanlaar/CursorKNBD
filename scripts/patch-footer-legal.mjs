@@ -7,15 +7,15 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const REPLACEMENTS = [
   [
-    'E-Project all rights reserved. · <span class="footer-powered-inline">Powered by <a href="mailto:info@spiti.tech">KanteKlik</a></span>',
+    'E-Project all rights reserved. · <span class="footer-powered-inline">Powered by <a href="mailto:info@kanteklik.nl">KanteKlik</a></span>',
     'E-Project all rights reserved - Developed by Evert van Laar',
   ],
   [
-    'E-Project όλα τα δικαιώματα διατηρούνται. · <span class="footer-powered-inline">Με την υποστήριξη <a href="mailto:info@spiti.tech">KanteKlik</a></span>',
+    'E-Project όλα τα δικαιώματα διατηρούνται. · <span class="footer-powered-inline">Με την υποστήριξη <a href="mailto:info@kanteklik.nl">KanteKlik</a></span>',
     'E-Project όλα τα δικαιώματα διατηρούνται - Developed by Evert van Laar',
   ],
   [
-    'E-Project όλα τα δικαιώματα διατηρούνται. — <span class="footer-powered-inline">Powered by <a href="mailto:info@spiti.tech">KanteKlik</a></span>',
+    'E-Project όλα τα δικαιώματα διατηρούνται. — <span class="footer-powered-inline">Powered by <a href="mailto:info@kanteklik.nl">KanteKlik</a></span>',
     'E-Project όλα τα δικαιώματα διατηρούνται - Developed by Evert van Laar',
   ],
 ];

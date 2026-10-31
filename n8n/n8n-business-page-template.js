@@ -245,7 +245,7 @@ for (const item of $input.all()) {
   const generateHTML = (name, isGreek) => {
     const lang = isGreek ? 'el' : 'en';
     const gtagId = 'G-12LDX13JG6';
-    const appVersion = '3.1.144';
+    const appVersion = '3.1.145';
 
     const summaryRaw = isGreek ? biz.Summary_el_imp : biz.Summary_en_imp;
     const summary = summaryRaw && String(summaryRaw).trim() !== '' && summaryRaw !== '-' ? String(summaryRaw).trim() : '';
@@ -541,7 +541,7 @@ ${contactCardHtml}
           </ul></div></div>
         <div class="footer-column footer-column--social"><h3>${escapeHtml(footerSocialTitle)}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div>
           <div class="footer-nav-section footer-nav-section--under-social"><h3>${escapeHtml(footerInfoTitle)}</h3><ul>
-            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
+            <li><a href="mailto:info@kanteklik.nl"><i class="fa fa-envelope" aria-hidden="true"></i> ${escapeHtml(footerContactTitle)}</a></li>
             <li><a href="../about${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> ${escapeHtml(footerAboutLabel)}</a></li>
             <li><a href="../privacy${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> ${escapeHtml(footerPrivacyLabel)}</a></li>
           </ul></div></div></div>

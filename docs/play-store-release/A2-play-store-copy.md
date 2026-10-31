@@ -13,7 +13,7 @@
 | Package | `com.kalanera.app` |
 | Short description max | 80 characters |
 | Full description max | 4000 characters |
-| Contact | info@spiti.tech |
+| Contact | info@kanteklik.nl |
 | Video credit | Dejan MP (trailer) |
 | Privacy | https://www.kalanera.gr/privacy.html |
 
@@ -91,7 +91,7 @@ OFFLINE & PRIVACY
 • Uses analytics and light operational telemetry; favorites stored locally on your device
 
 QUESTIONS OR FEEDBACK?
-Email info@spiti.tech
+Email info@kanteklik.nl
 
 Video trailer: credits to Dejan MP.
 ```
@@ -140,7 +140,7 @@ Add the app to your home screen for quick access from your phone or tablet. Avai
 
 Απόρρητο και ιστότοπος: kalanera.gr — πολιτική απορρήτου στον ιστότοπο.
 
-Επικοινωνία: info@spiti.tech
+Επικοινωνία: info@kanteklik.nl
 ```
 
 **Actie:** native review vóór publicatie EL listing.

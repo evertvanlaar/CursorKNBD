@@ -155,7 +155,7 @@ We completed a second 14-day closed test with 56 testers continuously opted in, 
 
 We addressed actionable feedback in multiple closed-test releases and had testers re-verify on the latest build (3.1.40, versionCode 7). Besides external test reports, I validated each release on real Android devices, reviewed layout and navigation across main flows, and confirmed that disclaimers (estimated bus times are not an official timetable) and privacy information match the shipped build.
 
-The current release matches what we describe on Google Play. Privacy information is linked in the app (More menu) and published at kalanera.gr. We monitor feedback via info@spiti.tech.
+The current release matches what we describe on Google Play. Privacy information is linked in the app (More menu) and published at kalanera.gr. We monitor feedback via info@kanteklik.nl.
 ```
 
 ---

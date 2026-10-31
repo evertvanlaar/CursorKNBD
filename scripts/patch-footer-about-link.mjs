@@ -22,19 +22,19 @@ const ABOUT_LINKS = [
     skip: true,
   },
   {
-    re: /(<li><a href="mailto:info@spiti\.tech">[\s\S]*?<\/a><\/li>\s*)(<li><a href="privacy\.html")/g,
+    re: /(<li><a href="mailto:info@kanteklik\.nl">[\s\S]*?<\/a><\/li>\s*)(<li><a href="privacy\.html")/g,
     insert: '$1<li><a href="about.html"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> About us</a></li>\n                            $2',
   },
   {
-    re: /(<li><a href="mailto:info@spiti\.tech">[\s\S]*?<\/a><\/li>\s*)(<li><a href="privacy-el\.html")/g,
+    re: /(<li><a href="mailto:info@kanteklik\.nl">[\s\S]*?<\/a><\/li>\s*)(<li><a href="privacy-el\.html")/g,
     insert: '$1<li><a href="about-el.html"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Σχετικά με εμάς</a></li>\n                            $2',
   },
   {
-    re: /(<li><a href="mailto:info@spiti\.tech">[\s\S]*?<\/a><\/li>\s*)(<li><a href="\.\.\/privacy\.html")/g,
+    re: /(<li><a href="mailto:info@kanteklik\.nl">[\s\S]*?<\/a><\/li>\s*)(<li><a href="\.\.\/privacy\.html")/g,
     insert: '$1<li><a href="../about.html"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> About us</a></li>\n            $2',
   },
   {
-    re: /(<li><a href="mailto:info@spiti\.tech">[\s\S]*?<\/a><\/li>\s*)(<li><a href="\.\.\/privacy-el\.html")/g,
+    re: /(<li><a href="mailto:info@kanteklik\.nl">[\s\S]*?<\/a><\/li>\s*)(<li><a href="\.\.\/privacy-el\.html")/g,
     insert: '$1<li><a href="../about-el.html"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Σχετικά με εμάς</a></li>\n            $2',
   },
 ];

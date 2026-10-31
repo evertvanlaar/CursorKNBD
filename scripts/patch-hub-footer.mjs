@@ -33,7 +33,7 @@ const DEFAULTS = {
       tform: { href: 't-form.html', icon: 'fa-circle-plus', label: 'Add your Business' },
       info: { href: 'info.html', icon: 'fa-compass', label: 'Pelion guide' },
       useful: { href: 'useful-numbers.html', icon: 'fa-phone', label: 'Useful numbers' },
-      contact: { href: 'mailto:info@spiti.tech', icon: 'fa-envelope', label: 'Contact', mail: true },
+      contact: { href: 'mailto:info@kanteklik.nl', icon: 'fa-envelope', label: 'Contact', mail: true },
       about: { href: 'about.html', icon: 'fa-circle-info', label: 'About us' },
       privacy: { href: 'privacy.html', icon: 'fa-user-shield', label: 'Privacy policy' },
     },
@@ -66,7 +66,7 @@ const DEFAULTS = {
       tform: { href: 't-form-el.html', icon: 'fa-circle-plus', label: 'Προσθέστε Επιχείρηση' },
       info: { href: 'info-el.html', icon: 'fa-compass', label: 'Οδηγός Πηλίου' },
       useful: { href: 'useful-numbers-el.html', icon: 'fa-phone', label: 'Χρήσιμα τηλέφωνα' },
-      contact: { href: 'mailto:info@spiti.tech', icon: 'fa-envelope', label: 'Επικοινωνία', mail: true },
+      contact: { href: 'mailto:info@kanteklik.nl', icon: 'fa-envelope', label: 'Επικοινωνία', mail: true },
       about: { href: 'about-el.html', icon: 'fa-circle-info', label: 'Σχετικά με εμάς' },
       privacy: { href: 'privacy-el.html', icon: 'fa-user-shield', label: 'Πολιτική απορρήτου' },
     },
@@ -283,10 +283,10 @@ function patchN8nTemplate() {
           </ul></div></div>
         <div class="footer-column footer-column--social"><h3>\${escapeHtml(footerSocialTitle)}</h3><div class="social-icons"><a href="https://www.facebook.com/kalanera.info" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></div>
           <div class="footer-nav-section footer-nav-section--under-social"><h3>\${escapeHtml(footerInfoTitle)}</h3><ul>
-            <li><a href="mailto:info@spiti.tech"><i class="fa fa-envelope" aria-hidden="true"></i> \${escapeHtml(footerContactTitle)}</a></li>
+            <li><a href="mailto:info@kanteklik.nl"><i class="fa fa-envelope" aria-hidden="true"></i> \${escapeHtml(footerContactTitle)}</a></li>
             <li><a href="../privacy\${isGreek ? '-el' : ''}.html"><i class="fa-solid fa-user-shield" aria-hidden="true"></i> \${escapeHtml(footerPrivacyLabel)}</a></li>
           </ul></div></div></div>
-        <p class="footer-legal">\${escapeHtml(footerCopyright)} · <span class="footer-powered-inline">\${escapeHtml(footerPoweredLabel)} <a href="mailto:info@spiti.tech">KanteKlik</a></span></p>
+        <p class="footer-legal">\${escapeHtml(footerCopyright)} · <span class="footer-powered-inline">\${escapeHtml(footerPoweredLabel)} <a href="mailto:info@kanteklik.nl">KanteKlik</a></span></p>
       </div></div>
   </footer>
   <nav class="bottom-nav"`;
