@@ -53,6 +53,7 @@ Gebaseerd op UX-advies voor het busschema (mobiel/desktop, EN/EL) en de copy in 
 
 ### Nog open / optioneel
 
+- **Automatische winter ↔ zomer switch:** later overwegen — app kiest seizoens-JSON op Athene-datum i.p.v. handmatige cutover. Uitwerking: [`docs/bus-season-auto-switch.md`](./bus-season-auto-switch.md). **Niet gebouwd.**
 - **“Filtered for …”-kop** of **alle `dir` in één lijst** (fetch/API-merge): nog niet; blijft aparte epic als ooit gewenst.
 - **Fase 2.1 / 2.2 (chips + sheet):** niet meer nodig voor de huidige UX; alleen nog relevant als je **per rit extra detail** wilt (haltes, uitzonderingen) zonder de lijst langer te maken — dan desgewenst heropenen.
 - **Verdere Firefox-mobiel polish** (overflow/jumpbar): eerdere regressies zijn teruggedraaid; eventueel later opnieuw zeer gericht tweaken.

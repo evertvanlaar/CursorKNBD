@@ -168,8 +168,13 @@ node scripts/check-site-availability.mjs --id bus-json
 
 ---
 
+## Later — automatische seizoenswissel
+
+Handmatige winter/zomer-cutover (Sheet + `meta.json` + n8n publish) blijft de huidige werkwijze. Automatisch kiezen op `validFrom` / `validUntil` is **niet gebouwd**; overweging in [`docs/bus-season-auto-switch.md`](./bus-season-auto-switch.md) (ook op de bus-UI-roadmap).
+
 ## Gerelateerd
 
 - `docs/static-business-json-rollout.md` — bedrijven (parallel, niet wijzigen)
 - `docs/uptime-monitoring.md` — monitor-setup
 - `docs/offline-first-roadmap.md` — Laag 2 bus-bundle
+- `docs/bus-season-auto-switch.md` — automatische winter ↔ zomer (later)
