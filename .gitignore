@@ -21,14 +21,10 @@ desktop.ini
 *.log
 npm-debug.log*
 
-# Generated from Sheet (seed script or n8n publish) — keep dev/local-businesses.json as source
-data/local-businesses.json
+# Staging/meta variants (n8n publish writes production JSON into Git; keep staging out of deploy)
 data/local-businesses.staging.json
 data/local-businesses.meta.json
-data/bus-schedule.json
 data/bus-schedule.staging.json
-data/bus-schedule.winter.json
-data/bus-schedule.summer.json
 data/bus-schedule.meta.json
 
 # Lokale SEO/sitemap preview (nooit naar GitHub/site)
