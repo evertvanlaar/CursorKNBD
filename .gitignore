@@ -21,11 +21,13 @@ desktop.ini
 *.log
 npm-debug.log*
 
-# Staging/meta variants (n8n publish writes production JSON into Git; keep staging out of deploy)
+# Staging variants (niet deployen). bus-schedule.meta.json WÉL in git — badge op bus-pagina.
 data/local-businesses.staging.json
 data/local-businesses.meta.json
 data/bus-schedule.staging.json
-data/bus-schedule.meta.json
+
+# LAN-only snapshots (app.js fallback op localhost/192.168.*) — niet naar Vercel/GitHub
+dev/
 
 # Lokale SEO/sitemap preview (nooit naar GitHub/site)
 index.seo-draft.html
