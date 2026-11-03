@@ -98,7 +98,7 @@ async function loadLocalDevBusSnapshot(dir, dayOffset) {
 const N8N_WEBHOOK_URL = 'https://n8n.vanlaar.cloud/webhook/local-businesses';
 
 /**
- * Bedrijven-databron (zie docs/static-business-json-rollout.md).
+ * Bedrijven-databron (zie CursorKNBD-intern/docs/static-business-json-rollout.md).
  * - 'auto'    — productiestandaard: /data/local-businesses.json, webhook als fallback.
  * - 'json'    — altijd statische JSON (zelfde pad), webhook als fallback.
  * - 'webhook' — alleen n8n-webhook (debug of als JSON ontbreekt).
@@ -303,7 +303,7 @@ function applyBusinessDirectoryRows(rawData, meta, showData) {
 
     showData();
 }
-// Bus timetable — primair /data/bus-schedule.json (zie docs/static-bus-json-rollout.md); fallback n8n bus-schedule-next.
+// Bus timetable — primair /data/bus-schedule.json (zie CursorKNBD-intern/docs/static-bus-json-rollout.md); fallback n8n bus-schedule-next.
 // Query fallback: from, dir, remaining=0|1, dayOffset=0..6 (Athens calendar).
 const N8N_WEBHOOK_URL_BUS_SCHEDULE_NEXT = 'https://n8n.vanlaar.cloud/webhook/bus-schedule-next';
 /** client-side slots: sleutel dir + Athens kalenderdatum doeldag (niet alleen offset), sync met n8n dayOffset-filter. */
@@ -324,7 +324,7 @@ const BUS_VALID_DIRS = [
 const BUS_LOW_FREQ_DIRS = new Set(['trikeri', 'katigiorgis', 'platanias']);
 
 /**
- * Bus-databron (zie docs/static-bus-json-rollout.md).
+ * Bus-databron (zie CursorKNBD-intern/docs/static-bus-json-rollout.md).
  * - 'auto'    — productiestandaard: /data/bus-schedule.json, n8n-webhook als fallback.
  * - 'json'    — altijd statische JSON (zelfde pad), webhook als fallback.
  * - 'webhook' — alleen n8n-webhook (debug of als JSON ontbreekt).

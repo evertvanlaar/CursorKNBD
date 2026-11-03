@@ -1,35 +1,23 @@
-# Sitemap-snapshot voor n8n-vergelijking — fetch vanaf GitHub IP, niet vanaf n8n-server.
+# UITGESCHAKELD (nov 2026): scripts/ en data/visitkalanera-sitemap.json
+# horen bij CursorKNBD-intern, niet meer in deze publieke site-repo.
+# Handmatig: cd C:\dev\CursorKNBD-intern && node scripts/refresh-visitkalanera-sitemap.mjs
+# Zie CursorKNBD-intern/monitoring/README.md
 name: Refresh visitkalanera sitemap snapshot
 
 on:
-  schedule:
-    - cron: '0 6 * * 1'
   workflow_dispatch:
+    # Geen schedule: voorkomt wekelijkse fail na de repo-split.
+    # Alleen handmatig starten als scripts ooit terug in deze repo staan.
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   refresh:
+    if: false # hard-off tot scripts weer in de site-repo staan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Fetch sitemap and write snapshot
-        run: node scripts/refresh-visitkalanera-sitemap.mjs
-
-      - name: Commit snapshot if changed
+      - name: Disabled
         run: |
-          if git diff --quiet -- data/visitkalanera-sitemap.json; then
-            echo "Geen wijzigingen in snapshot."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/visitkalanera-sitemap.json
-          git commit -m "data: refresh visitkalanera sitemap snapshot"
-          git push
+          echo "Workflow disabled — refresh script lives in CursorKNBD-intern."
+          exit 1

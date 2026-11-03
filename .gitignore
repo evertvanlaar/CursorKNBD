@@ -32,7 +32,8 @@ index.seo-draft.html
 index-el.seo-draft.html
 sitemap.seo-draft.xml
 
-# Android TWA (Gradle cache & build outputs — not source)
+# Android TWA leeft in CursorKNBD-intern (niet in deze publieke repo).
+# Onderstaande regels blijven voor het geval iemand per ongeluk een lokale twa-map aanmaakt:
 kalanera-twa/.gradle/
 kalanera-twa/local.properties
 kalanera-twa/app/build/
